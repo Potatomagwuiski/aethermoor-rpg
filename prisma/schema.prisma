@@ -8,10 +8,114 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum PlayerClass {
+  WARRIOR
+  MAGE
+  ROGUE
+  PALADIN
+  RANGER
+  NONE
+}
+
+enum Rarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+enum ToolType {
+  PICKAXE
+  AXE
+  FISHING_ROD
+  SICKLE
+}
+
 model Player {
-  id        String   @id @default(uuid())
-  discordId String   @unique
-  name      String
-  level     Int      @default(1)
-  createdAt DateTime @default(now())
+  id              String   @id @default(uuid())
+  discordId       String   @unique
+  name            String
+  level           Int      @default(1)
+  xp              Int      @default(0)
+  gold            Int      @default(0)
+  activeClass     PlayerClass @default(NONE)
+  
+  // Vitals
+  hp              Int      @default(100)
+  maxHp           Int      @default(100)
+  energy          Int      @default(100)
+
+  // Geographical Flow
+  currentZoneId   String   @default("starting_town")
+
+  // Core Allocatable Attributes
+  pointsAvailable Int      @default(0)
+  str             Int      @default(5)
+  agi             Int      @default(5)
+  int             Int      @default(5)
+  end             Int      @default(5)
+
+  createdAt       DateTime @default(now())
+  
+  // Relations
+  inventory       InventoryItem[]
+  equipment       Equipment[]
+  tools           Tool[]
+  recipes         UnlockedRecipe[]
+}
+
+model InventoryItem {
+  id        String @id @default(uuid())
+  playerId  String
+  itemKey   String
+  quantity  Int    @default(1)
+
+  player    Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, itemKey])
+}
+
+model Equipment {
+  id            String  @id @default(uuid())
+  playerId      String
+  equipped      Boolean @default(false)
+  baseItemKey   String
+  rarity        Rarity  @default(COMMON)
+  upgradeLevel  Int     @default(0)
+  
+  // Procedural Gacha Affixes
+  bonusAtk        Int @default(0)
+  bonusDef        Int @default(0)
+  bonusCrit       Int @default(0)
+  bonusLifesteal  Int @default(0)
+  bonusEvasion    Int @default(0)
+
+  player    Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+}
+
+model Tool {
+  id            String  @id @default(uuid())
+  playerId      String
+  type          ToolType
+  equipped      Boolean @default(false)
+  rarity        Rarity  @default(COMMON)
+  upgradeLevel  Int     @default(0)
+  
+  // Gathering Progression Affixes
+  yieldMultiplier Float @default(1.0)
+  monsterRepel    Int   @default(0)
+  speedLuck       Int   @default(0)
+
+  player    Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+}
+
+model UnlockedRecipe {
+  id        String @id @default(uuid())
+  playerId  String
+  recipeKey String
+
+  player    Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, recipeKey])
 }
