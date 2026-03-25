@@ -1,0 +1,17 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = "postgresql://postgres:jaOFaIrMRzdpiwvFIlEzAZqNNhpXbUHl@yamabiko.proxy.rlwy.net:19123/railway"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Player {
+  id        String   @id @default(uuid())
+  discordId String   @unique
+  name      String
+  level     Int      @default(1)
+  createdAt DateTime @default(now())
+}
