@@ -12,7 +12,7 @@ enum PlayerClass {
   WARRIOR
   MAGE
   ROGUE
-  PALADIN
+  NECROMANCER
   RANGER
   NONE
 }
