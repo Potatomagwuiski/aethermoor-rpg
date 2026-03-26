@@ -20,6 +20,7 @@ import { executeStat } from './commands/stat.js';
 import { executeSell } from './commands/sell.js';
 import { executeGive } from './commands/give.js';
 import { executePay } from './commands/pay.js';
+import { executeHatch } from './commands/hatch.js';
 
 const client = new Client({
     intents: [
@@ -96,6 +97,13 @@ client.on(Events.MessageCreate, async (message) => {
         } catch (error: any) {
             console.error(error);
             await message.reply(`Error executing farm command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
+    } else if (command === 'hatch') {
+        try {
+            await executeHatch(message, args);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing hatch command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
     } else if (command === 'shop') {
         try {

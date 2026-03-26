@@ -133,21 +133,31 @@ export async function execute(message: Message) {
 
   // --- MONSTER GENERATION & LOOT ---
   const monsters = [
-    { name: 'Goblin', emoji: '👺', drop: 'goblin_ear', dropName: 'Goblin Ear' },
-    { name: 'Slime', emoji: '💧', drop: 'slime_core', dropName: 'Slime Core' },
-    { name: 'Dire Wolf', emoji: '🐺', drop: 'wolf_pelt', dropName: 'Wolf Pelt' }
+    { name: 'Goblin Scout', emoji: '👺', loot: [{ key: 'goblin_ear', name: 'Goblin Ear', chance: 0.4 }, { key: 'rusty_dagger', name: 'Rusty Dagger', chance: 0.1 }] },
+    { name: 'Acid Slime', emoji: '💧', loot: [{ key: 'slime_core', name: 'Slime Core', chance: 0.5 }, { key: 'acid_vial', name: 'Acid Vial', chance: 0.15 }] },
+    { name: 'Dire Wolf', emoji: '🐺', loot: [{ key: 'wolf_pelt', name: 'Wolf Pelt', chance: 0.4 }, { key: 'wolf_fang', name: 'Wolf Fang', chance: 0.2 }] },
+    { name: 'Cave Bat', emoji: '🦇', loot: [{ key: 'bat_wing', name: 'Bat Wing', chance: 0.4 }, { key: 'guano', name: 'Guano', chance: 0.1 }] },
+    { name: 'Skeleton Warrior', emoji: '💀', loot: [{ key: 'bone_shard', name: 'Bone Shard', chance: 0.5 }, { key: 'iron_ingot', name: 'Iron Ingot', chance: 0.05 }] },
+    { name: 'Forest Treant', emoji: '🌳', loot: [{ key: 'living_wood', name: 'Living Wood', chance: 0.3 }, { key: 'moon_herb', name: 'Moon Herb', chance: 0.05 }] },
+    { name: 'Rock Golem', emoji: '🪨', loot: [{ key: 'stone_core', name: 'Stone Core', chance: 0.3 }, { key: 'gold_ore', name: 'Gold Ore', chance: 0.1 }] },
+    { name: 'Lesser Demon', emoji: '👿', loot: [{ key: 'demon_horn', name: 'Demon Horn', chance: 0.2 }, { key: 'hellfire_essence', name: 'Hellfire Essence', chance: 0.05 }] },
+    { name: 'Shadow Stalker', emoji: '🌑', loot: [{ key: 'shadow_dust', name: 'Shadow Dust', chance: 0.2 }, { key: 'void_fragment', name: 'Void Fragment', chance: 0.01 }] },
+    { name: 'Mythic Drake', emoji: '🐉', loot: [{ key: 'drake_scale', name: 'Drake Scale', chance: 0.1 }, { key: 'mythic_dragon_scale', name: 'Mythic Dragon Scale', chance: 0.02 }] },
   ];
   const mob = monsters[Math.floor(Math.random() * monsters.length)];
-  let monsterDropString = '';
+  let monsterDropStrings: string[] = [];
 
-  if (Math.random() <= 0.3) {
-    monsterDropString = `🦴 \`[1x ${mob.dropName}]\``;
-    dbOperations.push(prisma.inventoryItem.upsert({
-      where: { playerId_itemKey: { playerId: player.id, itemKey: mob.drop } },
-      update: { quantity: { increment: 1 } },
-      create: { playerId: player.id, itemKey: mob.drop, quantity: 1 }
-    }));
+  for (const item of mob.loot) {
+    if (Math.random() <= item.chance) {
+      monsterDropStrings.push(`🦴 \`[1x ${item.name}]\``);
+      dbOperations.push(prisma.inventoryItem.upsert({
+        where: { playerId_itemKey: { playerId: player.id, itemKey: item.key } },
+        update: { quantity: { increment: 1 } },
+        create: { playerId: player.id, itemKey: item.key, quantity: 1 }
+      }));
+    }
   }
+  let monsterDropString = monsterDropStrings.join('\n');
 
   // --- THE GACHA LOOT SYSTEM ---
   const COMMON_BPS = [{key: 'blueprint_iron_sword', name:'Iron Sword'}, {key:'blueprint_iron_dagger', name:'Iron Dagger'}, {key:'blueprint_wood_staff', name:'Wood Staff'}, {key:'blueprint_bone_scythe', name:'Bone Scythe'}, {key:'blueprint_iron_helmet', name:'Iron Helmet'}, {key:'blueprint_iron_chestplate', name:'Iron Chestplate'}, {key:'blueprint_iron_boots', name:'Iron Boots'}];

@@ -64,6 +64,7 @@ model Player {
   equipment       Equipment[]
   tools           Tool[]
   recipes         UnlockedRecipe[]
+  pets            Pet[]
 }
 
 model InventoryItem {
@@ -119,4 +120,22 @@ model UnlockedRecipe {
   player    Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
 
   @@unique([playerId, recipeKey])
+}
+
+model Pet {
+  id            String  @id @default(uuid())
+  playerId      String
+  name          String
+  emoji         String
+  rarity        Rarity  @default(COMMON)
+  level         Int     @default(1)
+  
+  // Power Scaling
+  bonusAtk      Int     @default(0)
+  bonusDef      Int     @default(0)
+  bonusHp       Int     @default(0)
+
+  equipped      Boolean @default(false)
+
+  player    Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
 }
