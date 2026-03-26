@@ -109,19 +109,31 @@ export async function execute(message: Message) {
   let gachaLootString = '';
   if (Math.random() <= 0.15) { // 15% chance to trigger an item drop
     const rarityRoll = Math.random();
-    if (rarityRoll > 0.999) gachaLootString = '🟧 `[✨ LEGENDARY VOID CORE ✨]`';
-    else if (rarityRoll > 0.98) gachaLootString = '🟪 `[Epic Mage Staff]`';
+    let dropKey = '';
+
+    if (rarityRoll > 0.999) {
+      gachaLootString = '🟧 `[✨ Blueprint: Void Blade ✨]`';
+      dropKey = 'blueprint_void_blade';
+    }
+    else if (rarityRoll > 0.98) gachaLootString = '🟪 `[Blueprint: Epic Mage Staff]`';
     else if (rarityRoll > 0.95) {
       gachaLootString = '🗝️ `[Dungeon Key]`';
-      dbOperations.push(prisma.inventoryItem.upsert({
-        where: { playerId_itemKey: { playerId: player.id, itemKey: 'dungeon_key' } },
-        update: { quantity: { increment: 1 } },
-        create: { playerId: player.id, itemKey: 'dungeon_key', quantity: 1 }
-      }));
+      dropKey = 'dungeon_key';
     }
     else if (rarityRoll > 0.90) gachaLootString = '🟦 `[Rare Cobalt Shard]`';
-    else if (rarityRoll > 0.70) gachaLootString = '🟩 `[Uncommon Iron Helmet]`';
-    else gachaLootString = '⬜ `[Common Wooden Sword]`';
+    else if (rarityRoll > 0.70) gachaLootString = '🟩 `[Blueprint: Iron Helmet]`';
+    else {
+      gachaLootString = '⬜ `[Blueprint: Iron Sword]`';
+      dropKey = 'blueprint_iron_sword';
+    }
+
+    if (dropKey) {
+      dbOperations.push(prisma.inventoryItem.upsert({
+        where: { playerId_itemKey: { playerId: player.id, itemKey: dropKey } },
+        update: { quantity: { increment: 1 } },
+        create: { playerId: player.id, itemKey: dropKey, quantity: 1 }
+      }));
+    }
   }
 
   // Format the Dopamine Delivery
@@ -145,7 +157,7 @@ export async function execute(message: Message) {
 
   // Inject Gacha visual pulling addiction
   if (gachaLootString) {
-    embed.addFields({ name: '🎁 MYSTERY LOOT DROP!', value: `You found a Gacha Egg... it hatched into:\n${gachaLootString}`});
+    embed.addFields({ name: '🎁 MYSTERY LOOT DROP!', value: `You found a rare blueprint schematic:\n${gachaLootString}`});
   }
 
   return message.reply({ embeds: [embed] });
