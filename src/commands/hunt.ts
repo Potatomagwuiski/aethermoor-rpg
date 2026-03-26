@@ -116,8 +116,8 @@ export async function execute(message: Message) {
     activeBuff = null;
   }
   
-  // The HP Penalty - Brutal Scaler Phase 25
-  let baseEnemyThreat = Math.floor(tier * 10) + Math.floor(player.level * 4.5); 
+  // The HP Penalty - Brutal Scaler Phase 25 (Early Game Adjusted)
+  let baseEnemyThreat = Math.floor(tier * 20) + Math.floor(player.level * 6) + 15; 
   let damageTaken = Math.floor(Math.random() * baseEnemyThreat) + Math.floor(baseEnemyThreat / 2);
   
   // Apply Flat Damage Reduction from Armor + Class Armor Passives + Player Endurance
