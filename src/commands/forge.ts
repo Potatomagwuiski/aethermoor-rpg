@@ -109,7 +109,7 @@ const BLUEPRINTS: Record<string, any> = {
 
   // --- TOOLS ---
   'bronze_pickaxe': {
-    name: 'Bronze Pickaxe', requiredBlueprint: 'blueprint_bronze_pickaxe', materials: { copper: 15, wood: 10 },
+    name: 'Bronze Pickaxe', materials: { copper: 15, wood: 10 },
     outputs: { common: { key: 'common_bronze_pickaxe', name: '⬜ [Common Bronze Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'COMMON', yieldMultiplier: 1.25 }, uncommon: { key: 'uncommon_bronze_pickaxe', name: '🟩 [Uncommon Bronze Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'UNCOMMON', yieldMultiplier: 1.75 }, rare: { key: 'rare_bronze_pickaxe', name: '🟦 [Rare Bronze Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'RARE', yieldMultiplier: 2.5 } }
   },
   'iron_pickaxe': {
@@ -121,7 +121,7 @@ const BLUEPRINTS: Record<string, any> = {
     outputs: { common: { key: 'common_mythril_pickaxe', name: '⬜ [Common Mythril Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'COMMON', yieldMultiplier: 3.5 }, uncommon: { key: 'uncommon_mythril_pickaxe', name: '🟩 [Uncommon Mythril Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'UNCOMMON', yieldMultiplier: 5.0 }, rare: { key: 'rare_mythril_pickaxe', name: '🟦 [Rare Mythril Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'RARE', yieldMultiplier: 8.0 } }
   },
   'bronze_axe': {
-    name: 'Bronze Axe', requiredBlueprint: 'blueprint_bronze_axe', materials: { copper: 10, wood: 15 },
+    name: 'Bronze Axe', materials: { copper: 10, wood: 15 },
     outputs: { common: { key: 'common_bronze_axe', name: '⬜ [Common Bronze Axe]', isTool: true, type: 'AXE', rarity: 'COMMON', yieldMultiplier: 1.25 }, uncommon: { key: 'uncommon_bronze_axe', name: '🟩 [Uncommon Bronze Axe]', isTool: true, type: 'AXE', rarity: 'UNCOMMON', yieldMultiplier: 1.75 }, rare: { key: 'rare_bronze_axe', name: '🟦 [Rare Bronze Axe]', isTool: true, type: 'AXE', rarity: 'RARE', yieldMultiplier: 2.5 } }
   },
   'iron_axe': {
