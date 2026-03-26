@@ -177,8 +177,9 @@ export async function execute(message: Message) {
   let totalDamageDealt = 0;
   let totalDamageTaken = 0;
   let totalLifesteal = 0;
-  let didCrit = false;
-  let didEvade = false;
+  let totalEvades = 0;
+  let totalCrits = 0;
+  let totalMitigated = 0;
 
   const MAX_ROUNDS = 20;
 
@@ -205,7 +206,7 @@ export async function execute(message: Message) {
 
     if (Math.random() * 100 < gearCrit) {
       roundDps = Math.floor(roundDps * 2);
-      didCrit = true;
+      totalCrits++;
     }
 
     // Lifesteal calculation
@@ -227,13 +228,15 @@ export async function execute(message: Message) {
     let mitigation = Math.floor(gearDef * 0.75) + Math.floor(player.end * 2);
     if (armorClass === 'HEAVY_ARMOR') rawIncoming = Math.floor(rawIncoming * 0.9); // 10% Flat mitigation
 
-    rawIncoming -= mitigation;
-    if (rawIncoming < 0) rawIncoming = 0;
-
     if (Math.random() * 100 < gearEvasion) {
       rawIncoming = 0;
-      didEvade = true;
+      totalEvades++;
+    } else {
+      totalMitigated += Math.min(mitigation, rawIncoming);
+      rawIncoming -= mitigation;
     }
+
+    if (rawIncoming < 0) rawIncoming = 0;
 
     playerHp -= rawIncoming;
     totalDamageTaken += rawIncoming;
@@ -287,14 +290,20 @@ export async function execute(message: Message) {
   let dbOperations = [];
   
   // Loot Drops
-  let monsterDropStrings: string[] = [];
+  interface MobDrop {
+    key: string;
+    name: string;
+    qty: number;
+  }
+  let mobDrops: MobDrop[] = [];
   for (const item of mob.loot) {
     if (Math.random() <= item.chance) {
-      monsterDropStrings.push(`${getEmoji(item.key)} \`[${slotMultiplier}x ${item.name}]\``);
+      const quantity = slotMultiplier;
+      mobDrops.push({ key: item.key, name: item.name, qty: quantity });
       dbOperations.push(prisma.inventoryItem.upsert({
         where: { playerId_itemKey: { playerId: player.id, itemKey: item.key } },
-        update: { quantity: { increment: slotMultiplier } },
-        create: { playerId: player.id, itemKey: item.key, quantity: slotMultiplier }
+        update: { quantity: { increment: quantity } },
+        create: { playerId: player.id, itemKey: item.key, quantity: quantity }
       }));
     }
   }
@@ -307,12 +316,10 @@ export async function execute(message: Message) {
     }));
   }
 
-  let monsterDropString = monsterDropStrings.join('\n');
-
   // THE GACHA SYSTEM
   const COMMON_BPS = [{key: 'blueprint_bronze_sword', name:'Bronze Sword'}, {key:'blueprint_bronze_dagger', name:'Bronze Dagger'}, {key:'blueprint_wood_staff', name:'Wood Staff'}, {key:'blueprint_bone_scythe', name:'Bone Scythe'}, {key:'blueprint_bronze_helmet', name:'Bronze Helmet'}, {key:'blueprint_bronze_chestplate', name:'Bronze Chestplate'}, {key:'blueprint_bronze_boots', name:'Bronze Boots'}];
-  const UNCOMMON_BPS = [{key: 'blueprint_iron_greatsword', name:'Iron Greatsword'}, {key:'blueprint_venom_shiv', name:'Venom Shiv'}, {key:'blueprint_moonlight_staff', name:'Moonlight Staff'}, {key:'blueprint_soul_reaper', name:'Soul Reaper'}, {key:'blueprint_iron_pickaxe', name:'Iron Pickaxe'}, {key:'blueprint_iron_axe', name:'Iron Axe'}];
-  const EPIC_BPS = [{key: 'blueprint_mythril_cleaver', name:'Mythril Cleaver'}, {key:'blueprint_shadow_blade', name:'Shadow Blade'}, {key:'blueprint_meteor_staff', name:'Meteor Staff'}, {key:'blueprint_lich_tome', name:'Lich Tome'}, {key:'blueprint_wolf_slayer', name:'Wolf Slayer Sword'}, {key:'blueprint_mythril_pickaxe', name:'Mythril Pickaxe'}, {key:'blueprint_mythril_axe', name:'Mythril Axe'}];
+  const UNCOMMON_BPS = [{key: 'blueprint_iron_greatsword', name:'Iron Greatsword'}, {key:'blueprint_venom_shiv', name:'Venom Shiv'}, {key:'blueprint_moonlight_staff', name:'Moonlight Staff'}, {key:'blueprint_soul_reaper', name:'Soul Reaper'}, {key: 'blueprint_iron_pickaxe', name: 'Iron Pickaxe' }, { key: 'blueprint_iron_axe', name: 'Iron Axe' }];
+  const EPIC_BPS = [{key: 'blueprint_mythril_cleaver', name:'Mythril Cleaver'}, {key:'blueprint_shadow_blade', name:'Shadow Blade'}, {key:'blueprint_meteor_staff', name:'Meteor Staff'}, {key:'blueprint_lich_tome', name:'Lich Tome'}, {key:'blueprint_wolf_slayer', name:'Wolf Slayer Sword'}, { key: 'blueprint_mythril_pickaxe', name: 'Mythril Pickaxe' }, { key: 'blueprint_mythril_axe', name: 'Mythril Axe' }];
   
   let gachaLootString = '';
   if (Math.random() <= 0.25) { 
@@ -356,28 +363,41 @@ export async function execute(message: Message) {
 
   // Discord Embed Presentation
   let extraLoot = '';
-  if (monsterDropString) extraLoot += `\n${monsterDropString}`;
   if (buffMessage) extraLoot += `\n${buffMessage}`;
 
-  let slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **${slotMultiplier}x Multiplier!**`;
-  if (isSlotJackpot) slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **!!! ${slotMultiplier}x JACKPOT MULTIPLIER !!!** 🔥`;
+  // Dynamic Highlight Reel Compilation
+  let highlights = '';
+  if (totalEvades > 0) highlights += `💨 Evaded **${totalEvades}** Attacks\n`;
+  if (totalMitigated > 0) highlights += `🛡️ Blocked **${totalMitigated}** Damage\n`;
+  if (totalLifesteal > 0) highlights += `🦇 Siphoned **${totalLifesteal}** HP\n`;
+  if (totalCrits > 0) highlights += `💥 Landed **${totalCrits}** Critical Hits\n`;
+  if (jackpotTriggered) highlights += `${jackpotMessage}\n`;
+
+  let responseBody = `You swung your **${weaponName}** leading to an intense exchange. The ${mob.emoji} ${mob.name} retaliated against your **${armorName}**.\n\n**Combat Log (${rounds} Rounds):**\nDamage Dealt: 💥 ${totalDamageDealt}\nDamage Taken: 🩸 ${totalDamageTaken}\n\n`;
+
+  if (highlights.length > 0) {
+    responseBody += `**✨ Build Highlights:**\n${highlights}\n`;
+  }
+
+  responseBody += `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **${slotMultiplier}x Multiplier!** ${slotMultiplier >= 3 ? '🔥' : ''}\n\n🛍️ **Final Payout:** 🪙 ${goldReward} Gold | ✨ ${xpReward} XP\n`;
+
+  if (mobDrops.length > 0) {
+    let dropStrings = mobDrops.map(d => `${getEmoji(d.key)} \`[${d.qty}x ${d.name}]\``).join('\n');
+    responseBody += dropStrings + '\n';
+  }
 
   const styleDisplay = weaponClass === 'NONE' ? 'Unarmed' : weaponClass.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
-
-  let critText = didCrit ? '💥 (Critical Strikes) ' : '';
-  let vampText = totalLifesteal > 0 ? ` 🦇 (+${totalLifesteal} HP Regen)` : '';
-  let evadeText = didEvade ? ' 💨 (Dodged!)' : '';
 
   const embed = new EmbedBuilder()
     .setTitle(`⚔️ Hunt Resolved: ${mob.name}`)
     .setColor(jackpotTriggered || isSlotJackpot ? (weaponClass === 'FINESSE_WEAPON' ? 0xFF0000 : 0xFFD700) : 0x2B2D31)
-    .setDescription(`You swung your **${weaponName}** leading to an intense exchange. The ${mob.emoji} ${mob.name} retaliated against your **${armorName}**.\n\n**Combat Log (${rounds} Rounds):**\nDamage Dealt: 💥 ${critText}${totalDamageDealt}${vampText}\nDamage Taken: 🩸 ${totalDamageTaken}${evadeText}\n\n${slotMachineString}\n\n🛍️ **Final Payout:** 🪙 ${goldReward} Gold | ✨ ${xpReward} XP${extraLoot}\n\n`)
+    .setDescription(responseBody)
     .addFields(
       { name: 'Your Style', value: styleDisplay, inline: true },
       { name: 'Total Damage Output', value: `${totalDamageDealt} DMG`, inline: true }
     );
 
-  if (jackpotTriggered) embed.addFields({ name: '!!! JACKPOT !!!', value: jackpotMessage });
+  if (buffMessage) embed.addFields({ name: 'Active Buff', value: buffMessage, inline: false });
   if (levelsGained > 0) embed.addFields({ name: '🌟 LEVEL UP!', value: `You reached Level **${currentLevel}**! (+${pointsGained} Stat Points). Type \`rpg stat\` to spend them!`});
   if (gachaLootString) embed.addFields({ name: '🎁 MYSTERY LOOT DROP!', value: `You found a rare blueprint schematic:\n${gachaLootString}`});
 

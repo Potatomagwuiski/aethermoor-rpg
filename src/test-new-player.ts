@@ -14,13 +14,14 @@ async function runTest() {
       discordId,
       name: 'Fresh Spawn',
       level: 1,
-      hp: 1,
+      hp: 100,
       maxHp: 100,
       gold: 0,
     }
   });
 
-  // No Armor! Just Fists + Casual Clothes.
+  // 3. Equip Bronze Armor
+  await prisma.equipment.create({ data: { playerId: player.id, slot: 'ARMOR', baseItemKey: 'bronze_chestplate', name: 'Bronze Chestplate', equipped: true } });
 
   const mockMessage: any = {
     author: { id: discordId, username: player.name },
@@ -41,7 +42,7 @@ async function runTest() {
   };
 
   // Test Hunt
-  console.log('\n=> Executing: rpg hunt (Level 1 with Fists, NO ARMOR)');
+  console.log('\n=> Executing: rpg hunt (Level 1 with Bronze Armor)');
   await huntExecute(mockMessage);
 
 }
