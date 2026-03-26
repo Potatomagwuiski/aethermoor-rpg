@@ -7,6 +7,22 @@ export const ITEM_SELL_PRICES: Record<string, number> = {
     'moon_herb': 50,
     'mythril': 100,
     
+    // Tiered Woods & Mining (World Zones)
+    'copper': 2,
+    'tin': 3,
+    'silver': 15,
+    'steel_ore': 20,
+    'obsidian': 50,
+    'voidstone': 200,
+    'ashwood': 2,
+    'oakwood': 8,
+    'aether_wood': 100,
+    'basic_herb': 2,
+    'mooncap_mushroom': 10,
+    'frost_lotus': 25,
+    'cinderbloom': 60,
+    'nightmare_kelp': 150,
+    
     // Monster Parts
     'goblin_ear': 5,
     'rusty_dagger': 10,

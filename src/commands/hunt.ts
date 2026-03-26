@@ -83,12 +83,16 @@ export async function execute(message: Message) {
   }
 
 
+  const currentZone = player.location || 'lumina_plains';
+  const zoneTiers: Record<string, number> = { lumina_plains: 1, whispering_woods: 2, ironpeak_mountains: 3, ashen_wastes: 5, abyssal_depths: 10 };
+  const tier = zoneTiers[currentZone] || 1;
+
   // Baseline Engine Stats
   let baseDamage = 10;
   let linesOfExecution = 1;
   // --- ECONOMY REWARDS ---
-  let baseGold = 5;
-  let baseXP = Math.floor(Math.random() * 21) + 15; // 15 to 35
+  let baseGold = 5 * tier;
+  let baseXP = Math.floor(Math.random() * 21 * tier) + (15 * tier); 
   
   let goldReward = baseGold * slotMultiplier;
   let xpReward = baseXP * slotMultiplier;
@@ -97,8 +101,8 @@ export async function execute(message: Message) {
   let jackpotTriggered = false;
   let jackpotMessage = '';
   
-  // The HP Penalty - Monsters now deal damage scaling with Player Level
-  let baseEnemyThreat = 5 + (player.level * 3); // Lv 1 = ~8 DMG, Lv 10 = ~35 DMG
+  // The HP Penalty - Monsters now deal damage scaling deeply with Zone Tier & Level
+  let baseEnemyThreat = Math.floor(tier * (5 + (player.level * 1.5))); 
   let damageTaken = Math.floor(Math.random() * baseEnemyThreat) + Math.floor(baseEnemyThreat / 2);
   
   // Apply Flat Damage Reduction from Armor + Class Armor Passives
@@ -225,18 +229,31 @@ export async function execute(message: Message) {
 
 
   // --- MONSTER GENERATION & LOOT ---
-  const monsters = [
-    { name: 'Goblin Scout', emoji: '👺', loot: [{ key: 'goblin_ear', name: 'Goblin Ear', chance: 0.4 }, { key: 'rusty_dagger', name: 'Rusty Dagger', chance: 0.1 }] },
-    { name: 'Acid Slime', emoji: '💧', loot: [{ key: 'slime_core', name: 'Slime Core', chance: 0.5 }, { key: 'acid_vial', name: 'Acid Vial', chance: 0.15 }] },
-    { name: 'Dire Wolf', emoji: '🐺', loot: [{ key: 'wolf_pelt', name: 'Wolf Pelt', chance: 0.4 }, { key: 'wolf_fang', name: 'Wolf Fang', chance: 0.2 }] },
-    { name: 'Cave Bat', emoji: '🦇', loot: [{ key: 'bat_wing', name: 'Bat Wing', chance: 0.4 }, { key: 'guano', name: 'Guano', chance: 0.1 }] },
-    { name: 'Skeleton Warrior', emoji: '💀', loot: [{ key: 'bone_shard', name: 'Bone Shard', chance: 0.5 }, { key: 'iron_ingot', name: 'Iron Ingot', chance: 0.05 }] },
-    { name: 'Forest Treant', emoji: '🌳', loot: [{ key: 'living_wood', name: 'Living Wood', chance: 0.3 }, { key: 'moon_herb', name: 'Moon Herb', chance: 0.05 }] },
-    { name: 'Rock Golem', emoji: '🪨', loot: [{ key: 'stone_core', name: 'Stone Core', chance: 0.3 }, { key: 'gold_ore', name: 'Gold Ore', chance: 0.1 }] },
-    { name: 'Lesser Demon', emoji: '👿', loot: [{ key: 'demon_horn', name: 'Demon Horn', chance: 0.2 }, { key: 'hellfire_essence', name: 'Hellfire Essence', chance: 0.05 }] },
-    { name: 'Shadow Stalker', emoji: '🌑', loot: [{ key: 'shadow_dust', name: 'Shadow Dust', chance: 0.2 }, { key: 'void_fragment', name: 'Void Fragment', chance: 0.01 }] },
-    { name: 'Mythic Drake', emoji: '🐉', loot: [{ key: 'drake_scale', name: 'Drake Scale', chance: 0.1 }, { key: 'mythic_dragon_scale', name: 'Mythic Dragon Scale', chance: 0.02 }] },
-  ];
+  const ZONED_MOBS: Record<string, any[]> = {
+    lumina_plains: [
+      { name: 'Acid Slime', emoji: '💧', loot: [{ key: 'slime_core', name: 'Slime Core', chance: 0.5 }, { key: 'acid_vial', name: 'Acid Vial', chance: 0.15 }] },
+      { name: 'Goblin Scout', emoji: '👺', loot: [{ key: 'goblin_ear', name: 'Goblin Ear', chance: 0.4 }, { key: 'rusty_dagger', name: 'Rusty Dagger', chance: 0.1 }] },
+      { name: 'Cave Bat', emoji: '🦇', loot: [{ key: 'bat_wing', name: 'Bat Wing', chance: 0.4 }, { key: 'guano', name: 'Guano', chance: 0.1 }] }
+    ],
+    whispering_woods: [
+      { name: 'Dire Wolf', emoji: '🐺', loot: [{ key: 'wolf_pelt', name: 'Wolf Pelt', chance: 0.4 }, { key: 'wolf_fang', name: 'Wolf Fang', chance: 0.2 }] },
+      { name: 'Forest Treant', emoji: '🌳', loot: [{ key: 'living_wood', name: 'Living Wood', chance: 0.3 }, { key: 'moon_herb', name: 'Moon Herb', chance: 0.05 }] }
+    ],
+    ironpeak_mountains: [
+      { name: 'Skeleton Warrior', emoji: '💀', loot: [{ key: 'bone_shard', name: 'Bone Shard', chance: 0.5 }, { key: 'iron_ingot', name: 'Iron Ingot', chance: 0.05 }] },
+      { name: 'Rock Golem', emoji: '🪨', loot: [{ key: 'stone_core', name: 'Stone Core', chance: 0.3 }, { key: 'gold_ore', name: 'Gold Ore', chance: 0.1 }] }
+    ],
+    ashen_wastes: [
+      { name: 'Lesser Demon', emoji: '👿', loot: [{ key: 'demon_horn', name: 'Demon Horn', chance: 0.2 }, { key: 'hellfire_essence', name: 'Hellfire Essence', chance: 0.05 }] },
+      { name: 'Shadow Stalker', emoji: '🌑', loot: [{ key: 'shadow_dust', name: 'Shadow Dust', chance: 0.2 }, { key: 'void_fragment', name: 'Void Fragment', chance: 0.01 }] }
+    ],
+    abyssal_depths: [
+      { name: 'Mythic Drake', emoji: '🐉', loot: [{ key: 'drake_scale', name: 'Drake Scale', chance: 0.1 }, { key: 'mythic_dragon_scale', name: 'Mythic Dragon Scale', chance: 0.02 }] },
+      { name: 'Abyssal Lich', emoji: '🧙‍♂️', loot: [{ key: 'void_fragment', name: 'Void Fragment', chance: 0.2 }, { key: 'lich_tome', name: 'Lich Tome', chance: 0.01 }] }
+    ]
+  };
+
+  const monsters = ZONED_MOBS[currentZone] || ZONED_MOBS['lumina_plains'];
   const mob = monsters[Math.floor(Math.random() * monsters.length)];
   let monsterDropStrings: string[] = [];
 

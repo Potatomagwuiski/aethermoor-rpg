@@ -10,6 +10,26 @@ export const ITEM_EMOJIS: Record<string, string> = {
     'elderwood': '🌳',
     'moon_herb': '🌿',
     
+    // Tiered Mining Ores (World Zones)
+    'copper': '🟤',
+    'tin': '⚪',
+    'silver': '💍',
+    'steel_ore': '🪨',
+    'obsidian': '⬛',
+    'voidstone': '🌑',
+    
+    // Tiered Woods (World Zones)
+    'ashwood': '🌳',
+    'oakwood': '🪵',
+    'aether_wood': '🌌',
+
+    // Tiered Foraging (World Zones)
+    'basic_herb': '🌾',
+    'mooncap_mushroom': '🍄',
+    'frost_lotus': '❄️',
+    'cinderbloom': '🌺',
+    'nightmare_kelp': '🦑',
+    
     // Ingots
     'copper_ingot': '🟧',
     'iron_ingot': '⬜',

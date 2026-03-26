@@ -56,7 +56,7 @@ model Player {
   energy          Int      @default(100)
 
   // Geographical Flow
-  currentZoneId   String   @default("starting_town")
+  location        String   @default("lumina_plains")
 
   // Core Allocatable Attributes
   pointsAvailable Int      @default(0)

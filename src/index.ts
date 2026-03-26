@@ -22,6 +22,7 @@ import { executeGive } from './commands/give.js';
 import { executePay } from './commands/pay.js';
 import { executeHatch } from './commands/hatch.js';
 import { executeEquip } from './commands/equip.js';
+import { executeTravel } from './commands/travel.js';
 
 const client = new Client({
     intents: [
@@ -197,6 +198,13 @@ client.on(Events.MessageCreate, async (message) => {
             console.error(error);
             await message.reply(`Error executing pay command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
+    } else if (command === 'travel') {
+        try {
+            await executeTravel(message, args);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing travel command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
     } else if (command === 'equip' || command === 'e') {
         try {
             await executeEquip(message, args);
@@ -205,7 +213,7 @@ client.on(Events.MessageCreate, async (message) => {
             await message.reply(`Error executing equip command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
     } else {
-        await message.reply('❓ **Unknown command.** Try:\n⚔️ `rpg hunt` | 🏰 `rpg dungeon`\n⛏️ `rpg mine` | 🪓 `rpg chop` | 🎣 `rpg fish` | 🌾 `rpg farm`\n🛒 `rpg shop` | 💰 `rpg buy`\n🔨 `rpg forge` | 🛡️ `rpg equip`\n🧪 `rpg heal`\n📖 `rpg profile` | 🎒 `rpg inv`\n📊 `rpg stat` | ❓ `rpg help`');
+        await message.reply('❓ **Unknown command.** Try:\n⚔️ `rpg hunt` | 🏰 `rpg dungeon`\n⛏️ `rpg mine` | 🪓 `rpg chop` | 🎣 `rpg fish` | 🌾 `rpg farm`\n🛒 `rpg shop` | 💰 `rpg buy` | 🔄 `rpg trade`\n🔨 `rpg forge` | 🛡️ `rpg equip`\n🗺️ `rpg travel` | 🧪 `rpg heal`\n📖 `rpg profile` | 🎒 `rpg inv`\n📊 `rpg stat` | ❓ `rpg help`');
     }
 });
 

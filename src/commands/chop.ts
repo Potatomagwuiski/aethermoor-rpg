@@ -62,43 +62,85 @@ export async function executeChop(message: Message) {
     slotMultiplier = slotMultiplier * slotMultiplier; // Square the multiplier on three of a kind!
   }
 
+  const zone = player.location || 'lumina_plains';
+
+  let primaryDropKey = 'wood';
+  let secondaryDropKey = 'basic_herb';
+  let epicDropKey = 'ashwood';
+  let toolTierRequired = 1;
+
+  if (zone === 'whispering_woods') {
+      primaryDropKey = 'ashwood';
+      secondaryDropKey = 'mooncap_mushroom';
+      epicDropKey = 'elderwood';
+      toolTierRequired = 2; // Needs Iron Tool
+  } else if (zone === 'ironpeak_mountains') {
+      primaryDropKey = 'oakwood';
+      secondaryDropKey = 'frost_lotus';
+      epicDropKey = 'moon_herb';
+      toolTierRequired = 3; // Needs Steel Tool
+  } else if (zone === 'ashen_wastes') {
+      primaryDropKey = 'elderwood';
+      secondaryDropKey = 'cinderbloom';
+      epicDropKey = 'aether_wood';
+      toolTierRequired = 4; // Needs Mythril Tool
+  } else if (zone === 'abyssal_depths') {
+      primaryDropKey = 'aether_wood';
+      secondaryDropKey = 'nightmare_kelp';
+      epicDropKey = 'lich_soul';
+      toolTierRequired = 5; // Needs Demonic Tool
+  }
+
+  // Enforce Tool Rarity Constraint
+  let currentToolTier = 1;
+  const toolRarity = hasAxe ? player.tools[0].rarity : 'NONE';
+  if (toolRarity === 'UNCOMMON') currentToolTier = 2; 
+  if (toolRarity === 'RARE') currentToolTier = 3; 
+  if (toolRarity === 'EPIC') currentToolTier = 4; 
+  if (toolRarity === 'LEGENDARY') currentToolTier = 5; 
+
+  if (currentToolTier < toolTierRequired) {
+      if (redisClient.isReady) await redisClient.del(cdKey); // Refund cooldown
+      return message.reply(`🧱 **Your tool is too weak!** Your ${toolName} shatters against the hardened bark of this zone. You need a better axe to chop here!`);
+  }
+
   // 3. Mathematical Drops
-  const baseWood = Math.floor(Math.random() * 3) + 1; // 1 to 3 wood
-  let baseElderwood = 0;
-  let baseMoonHerb = 0;
+  const basePrimary = Math.floor(Math.random() * 3) + 1; 
+  let baseSecondary = 0;
+  let baseEpic = 0;
 
   if (hasAxe) {
     const roll = Math.random() * 100;
-    if (roll > 50) baseElderwood = Math.floor(Math.random() * 2) + 1; // 1 to 2 elderwood
-    if (roll > 90) baseMoonHerb = 1; // 10% chance for Moon Herb (Alchemy ingredient)
+    if (roll > 50) baseSecondary = Math.floor(Math.random() * 2) + 1; 
+    if (roll > 95) baseEpic = 1; 
   }
 
-  const finalWood = Math.floor(baseWood * yieldMultiplier * slotMultiplier);
-  const finalElderwood = Math.floor(baseElderwood * yieldMultiplier * slotMultiplier);
-  const finalMoonHerb = Math.floor(baseMoonHerb * yieldMultiplier * slotMultiplier);
+  const finalPrimary = Math.floor(basePrimary * yieldMultiplier * slotMultiplier);
+  const finalSecondary = Math.floor(baseSecondary * yieldMultiplier * slotMultiplier);
+  const finalEpic = Math.floor(baseEpic * yieldMultiplier * slotMultiplier);
   
-  const xpReward = 5 * slotMultiplier;
-  const exhaustionDamage = 2;
+  const xpReward = 5 * toolTierRequired * slotMultiplier;
+  const exhaustionDamage = 2 * toolTierRequired; 
 
   // 4. Database Transactions
   const ops: any[] = [];
   
-  if (finalWood > 0) ops.push(prisma.inventoryItem.upsert({
-    where: { playerId_itemKey: { playerId: player.id, itemKey: 'wood' } },
-    update: { quantity: { increment: finalWood } },
-    create: { playerId: player.id, itemKey: 'wood', quantity: finalWood }
+  if (finalPrimary > 0) ops.push(prisma.inventoryItem.upsert({
+    where: { playerId_itemKey: { playerId: player.id, itemKey: primaryDropKey } },
+    update: { quantity: { increment: finalPrimary } },
+    create: { playerId: player.id, itemKey: primaryDropKey, quantity: finalPrimary }
   }));
 
-  if (finalElderwood > 0) ops.push(prisma.inventoryItem.upsert({
-    where: { playerId_itemKey: { playerId: player.id, itemKey: 'elderwood' } },
-    update: { quantity: { increment: finalElderwood } },
-    create: { playerId: player.id, itemKey: 'elderwood', quantity: finalElderwood }
+  if (finalSecondary > 0) ops.push(prisma.inventoryItem.upsert({
+    where: { playerId_itemKey: { playerId: player.id, itemKey: secondaryDropKey } },
+    update: { quantity: { increment: finalSecondary } },
+    create: { playerId: player.id, itemKey: secondaryDropKey, quantity: finalSecondary }
   }));
 
-  if (finalMoonHerb > 0) ops.push(prisma.inventoryItem.upsert({
-    where: { playerId_itemKey: { playerId: player.id, itemKey: 'moon_herb' } },
-    update: { quantity: { increment: finalMoonHerb } },
-    create: { playerId: player.id, itemKey: 'moon_herb', quantity: finalMoonHerb }
+  if (finalEpic > 0) ops.push(prisma.inventoryItem.upsert({
+    where: { playerId_itemKey: { playerId: player.id, itemKey: epicDropKey } },
+    update: { quantity: { increment: finalEpic } },
+    create: { playerId: player.id, itemKey: epicDropKey, quantity: finalEpic }
   }));
 
   // Leveling Engine
@@ -126,9 +168,9 @@ export async function executeChop(message: Message) {
   await prisma.$transaction(ops);
 
   // 6. Visual Output
-  let dropLog = `${getEmoji('wood')} **+${finalWood} Wood**`;
-  if (finalElderwood > 0) dropLog += `\n${getEmoji('elderwood')} **+${finalElderwood} Elderwood**`;
-  if (finalMoonHerb > 0) dropLog += `\n${getEmoji('moon_herb')} **+${finalMoonHerb} Moon Herb!** 🌿`;
+  let dropLog = `${getEmoji(primaryDropKey)} **+${finalPrimary} ${primaryDropKey.replace(/_/g, ' ').toUpperCase()}**`;
+  if (finalSecondary > 0) dropLog += `\n${getEmoji(secondaryDropKey)} **+${finalSecondary} ${secondaryDropKey.replace(/_/g, ' ').toUpperCase()}**`;
+  if (finalEpic > 0) dropLog += `\n${getEmoji(epicDropKey)} **+${finalEpic} ${epicDropKey.replace(/_/g, ' ').toUpperCase()}!** ✨`;
 
   let slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **${slotMultiplier}x Multiplier!**`;
   if (isSlotJackpot) {

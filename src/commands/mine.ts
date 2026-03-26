@@ -62,43 +62,85 @@ export async function executeMine(message: Message) {
     slotMultiplier = slotMultiplier * slotMultiplier; // Square the multiplier on three of a kind!
   }
 
+  const zone = player.location || 'lumina_plains';
+
+  let primaryDropKey = 'copper';
+  let secondaryDropKey = 'tin';
+  let epicDropKey = 'iron_ore';
+  let toolTierRequired = 1;
+
+  if (zone === 'whispering_woods') {
+      primaryDropKey = 'iron';
+      secondaryDropKey = 'coal';
+      epicDropKey = 'copper_ingot';
+      toolTierRequired = 2; // Needs Iron Tool
+  } else if (zone === 'ironpeak_mountains') {
+      primaryDropKey = 'steel_ore';
+      secondaryDropKey = 'silver';
+      epicDropKey = 'gold_ore';
+      toolTierRequired = 3; // Needs Steel Tool
+  } else if (zone === 'ashen_wastes') {
+      primaryDropKey = 'obsidian';
+      secondaryDropKey = 'gold_ore';
+      epicDropKey = 'mythril';
+      toolTierRequired = 4; // Needs Mythril Tool
+  } else if (zone === 'abyssal_depths') {
+      primaryDropKey = 'voidstone';
+      secondaryDropKey = 'mythril';
+      epicDropKey = 'rare_meteorite_ingot';
+      toolTierRequired = 5; // Needs Demonic Tool
+  }
+
+  // Enforce Tool Rarity Constraint
+  let currentToolTier = 1;
+  const toolRarity = hasPickaxe ? player.tools[0].rarity : 'NONE';
+  if (toolRarity === 'UNCOMMON') currentToolTier = 2; 
+  if (toolRarity === 'RARE') currentToolTier = 3; 
+  if (toolRarity === 'EPIC') currentToolTier = 4; 
+  if (toolRarity === 'LEGENDARY') currentToolTier = 5; 
+
+  if (currentToolTier < toolTierRequired) {
+      if (redisClient.isReady) await redisClient.del(cdKey); // Refund cooldown
+      return message.reply(`🧱 **Your tool is too weak!** Your ${toolName} shatters against the hardened rocks of this zone. You need a better pickaxe to mine here!`);
+  }
+
   // 3. Mathematical Drops
-  const baseIron = Math.floor(Math.random() * 3) + 1; // 1 to 3 iron
-  let baseCoal = 0;
-  let baseMythril = 0;
+  const basePrimary = Math.floor(Math.random() * 3) + 1; 
+  let baseSecondary = 0;
+  let baseEpic = 0;
 
   if (hasPickaxe) {
     const roll = Math.random() * 100;
-    if (roll > 50) baseCoal = Math.floor(Math.random() * 2) + 1; // 1 to 2 coal
-    if (roll > 95) baseMythril = 1; // 5% chance for massive payout
+    if (roll > 50) baseSecondary = Math.floor(Math.random() * 2) + 1; 
+    if (roll > 95) baseEpic = 1; 
   }
 
-  const finalIron = Math.floor(baseIron * yieldMultiplier * slotMultiplier);
-  const finalCoal = Math.floor(baseCoal * yieldMultiplier * slotMultiplier);
-  const finalMythril = Math.floor(baseMythril * yieldMultiplier * slotMultiplier);
+  const finalPrimary = Math.floor(basePrimary * yieldMultiplier * slotMultiplier);
+  const finalSecondary = Math.floor(baseSecondary * yieldMultiplier * slotMultiplier);
+  const finalEpic = Math.floor(baseEpic * yieldMultiplier * slotMultiplier);
   
-  const xpReward = 5 * slotMultiplier;
-  const exhaustionDamage = 2; // Flat HP drain for grinding
+  const xpReward = 5 * toolTierRequired * slotMultiplier;
+  const exhaustionDamage = 2 * toolTierRequired; 
 
   // 4. Database Transactions
   const ops: any[] = [];
   
-  if (finalIron > 0) ops.push(prisma.inventoryItem.upsert({
-    where: { playerId_itemKey: { playerId: player.id, itemKey: 'iron' } },
-    update: { quantity: { increment: finalIron } },
-    create: { playerId: player.id, itemKey: 'iron', quantity: finalIron }
+  if (finalPrimary > 0) ops.push(prisma.inventoryItem.upsert({
+    where: { playerId_itemKey: { playerId: player.id, itemKey: primaryDropKey } },
+    update: { quantity: { increment: finalPrimary } },
+    create: { playerId: player.id, itemKey: primaryDropKey, quantity: finalPrimary }
   }));
 
-  if (finalCoal > 0) ops.push(prisma.inventoryItem.upsert({
-    where: { playerId_itemKey: { playerId: player.id, itemKey: 'coal' } },
-    update: { quantity: { increment: finalCoal } },
-    create: { playerId: player.id, itemKey: 'coal', quantity: finalCoal }
+  if (finalSecondary > 0) ops.push(prisma.inventoryItem.upsert({
+    where: { playerId_itemKey: { playerId: player.id, itemKey: secondaryDropKey } },
+    update: { quantity: { increment: finalSecondary } },
+    create: { playerId: player.id, itemKey: secondaryDropKey, quantity: finalSecondary }
   }));
 
-  if (finalMythril > 0) ops.push(prisma.inventoryItem.upsert({
-    where: { playerId_itemKey: { playerId: player.id, itemKey: 'mythril' } },
-    update: { quantity: { increment: finalMythril } },
-    create: { playerId: player.id, itemKey: 'mythril', quantity: finalMythril }
+  if (finalEpic > 0) ops.push(prisma.inventoryItem.upsert({
+    where: { playerId_itemKey: { playerId: player.id, itemKey: epicDropKey } },
+    update: { quantity: { increment: finalEpic } },
+    create: { playerId: player.id, itemKey: epicDropKey, quantity: finalEpic }
   }));
 
   // Leveling Engine
@@ -126,9 +168,9 @@ export async function executeMine(message: Message) {
   await prisma.$transaction(ops);
 
   // 6. Visual Output
-  let dropLog = `${getEmoji('iron')} **+${finalIron} Iron**`;
-  if (finalCoal > 0) dropLog += `\n${getEmoji('coal')} **+${finalCoal} Coal**`;
-  if (finalMythril > 0) dropLog += `\n${getEmoji('mythril')} **+${finalMythril} Mythril!** ✨`;
+  let dropLog = `${getEmoji(primaryDropKey)} **+${finalPrimary} ${primaryDropKey.replace(/_/g, ' ').toUpperCase()}**`;
+  if (finalSecondary > 0) dropLog += `\n${getEmoji(secondaryDropKey)} **+${finalSecondary} ${secondaryDropKey.replace(/_/g, ' ').toUpperCase()}**`;
+  if (finalEpic > 0) dropLog += `\n${getEmoji(epicDropKey)} **+${finalEpic} ${epicDropKey.replace(/_/g, ' ').toUpperCase()}!** ✨`;
 
   let slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **${slotMultiplier}x Multiplier!**`;
   if (isSlotJackpot) {
