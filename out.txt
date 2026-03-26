@@ -1,0 +1,59 @@
+
+--- Player: skyris6678 (Lvl 11) ---
+HP: 161/185 | Gold: 710 | XP: 445
+Stats -> STR: 17 | AGI: 20 | INT: 5 | END: 8
+Location: lumina_plains
+Available Stat Points: 0
+
+[Equipped Gear]
+- 🟪 [Spiked Epic Bronze Boots] (ATK: 3, DEF: 32, CRIT: 0)
+- 🟩 [Uncommon Bronze Dagger of the Wind] (ATK: 20, DEF: 0, CRIT: 0)
+
+[Inventory (Top 10)]
+- copper: 199
+- basic_herb: 85
+- tin: 72
+- wood: 62
+- slime_core: 31
+- potato: 30
+- iron_ore: 27
+- seaweed: 25
+- river_trout: 14
+- goblin_ear: 13
+
+--- Player: Fresh Spawn (Lvl 1) ---
+HP: 100/100 | Gold: 20 | XP: 84
+Stats -> STR: 5 | AGI: 5 | INT: 5 | END: 5
+Location: lumina_plains
+Available Stat Points: 0
+
+[Equipped Gear]
+- Bronze Chestplate (ATK: 0, DEF: 0, CRIT: 0)
+
+[Inventory (Top 10)]
+- acid_vial: 4
+
+--- Player: SimBot (Lvl 1) ---
+HP: 175/175 | Gold: 0 | XP: 0
+Stats -> STR: 5 | AGI: 5 | INT: 5 | END: 5
+Location: lumina_plains
+Available Stat Points: 0
+
+[Equipped Gear]
+
+[Inventory (Top 10)]
+
+--- Player: TestBot (Lvl 10) ---
+HP: 150/150 | Gold: 1000 | XP: 0
+Stats -> STR: 5 | AGI: 5 | INT: 5 | END: 5
+Location: lumina_plains
+Available Stat Points: 0
+
+[Equipped Gear]
+
+[Inventory (Top 10)]
+- blueprint_iron_sword: 1
+- copper: 0
+- tin: 0
+- wood: 0
+- goblin_ear: 0

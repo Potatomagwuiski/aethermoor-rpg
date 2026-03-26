@@ -151,11 +151,11 @@ export async function execute(message: Message) {
 
   // --- THE AUTO-BATTLER PHYSICS LOOP ---
   // Phase 27 Early-Game Rebalance: Removed massive baseline bloating.
-  // Original HP (Tier*150) caused Level 1 soft-locks. New Baseline: (Tier*40 + 10x Level)
-  let monsterMaxHp = Math.floor(tier * 40) + Math.floor(player.level * 10);
+  // Phase 35 Late-Game Rebalance: Monsters now scale exponentially with their Tier.
+  let monsterMaxHp = Math.floor((tier * 40) + (player.level * 15 * tier));
   let monsterHp = monsterMaxHp;
-  // Original ATK (Tier*20 + 6x Level + 15) one-shot players. New Baseline: (Tier*8 + 3x Level)
-  let monsterAttackPower = Math.floor(tier * 8) + Math.floor(player.level * 3);
+  // Attack Power also scales logarithmically by geographic region.
+  let monsterAttackPower = Math.floor((tier * 10) + (player.level * 4 * tier));
 
   let playerHp = player.hp;
   if (playerHp <= 0) playerHp = 1;
@@ -164,11 +164,11 @@ export async function execute(message: Message) {
   let jackpotMessage = '';
   let craftingItemDrop: string | null = null;
   
-  // Base Damage Injection via Class Type
-  let playerBaseOutput = 10;
-  if (weaponClass === 'FINESSE_WEAPON') playerBaseOutput = player.agi * 4;
-  if (weaponClass === 'HEAVY_WEAPON') playerBaseOutput = player.str * 5;
-  if (weaponClass === 'MAGIC_WEAPON') playerBaseOutput = player.int * 6;
+  // Base Damage Injection via Class Type (Heavily nerfed to force reliance on gear)
+  let playerBaseOutput = Math.floor(player.level * 2);
+  if (weaponClass === 'FINESSE_WEAPON') playerBaseOutput += Math.floor(player.agi * 1.5);
+  if (weaponClass === 'HEAVY_WEAPON') playerBaseOutput += Math.floor(player.str * 2);
+  if (weaponClass === 'MAGIC_WEAPON') playerBaseOutput += Math.floor(player.int * 2.5);
 
   // Class Passives prep
   if (armorClass === 'LIGHT_ARMOR') gearEvasion += 15;
@@ -224,8 +224,8 @@ export async function execute(message: Message) {
     // 2. Monster Counter-Attacks!
     let rawIncoming = Math.floor(Math.random() * monsterAttackPower) + Math.floor(monsterAttackPower / 2);
     
-    // Mitigation Engine
-    let mitigation = Math.floor(gearDef * 0.75) + Math.floor(player.end * 2);
+    // Mitigation Engine (END multiplier halved from x2 to x1 to prevent immortality)
+    let mitigation = Math.floor(gearDef * 0.75) + Math.floor(player.end * 1);
     if (armorClass === 'HEAVY_ARMOR') rawIncoming = Math.floor(rawIncoming * 0.9); // 10% Flat mitigation
 
     if (Math.random() * 100 < gearEvasion) {

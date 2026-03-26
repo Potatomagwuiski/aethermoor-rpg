@@ -5,7 +5,7 @@ export async function executeDungeon(message: Message, args: string[]) {
   const discordId = message.author.id;
   const player = await prisma.player.findUnique({ 
     where: { discordId },
-    include: { inventory: true }
+    include: { inventory: true, equipment: true }
   });
 
   if (!player) {
@@ -34,13 +34,25 @@ export async function executeDungeon(message: Message, args: string[]) {
   let logText = '';
   const dbOperations: any[] = [];
 
+  // Mitigation Calculation Engine
+  let gearDef = 0;
+  if (player.equipment) {
+    for (const gear of player.equipment) {
+      if (gear.equipped) gearDef += Number(gear.bonusDef || 0);
+    }
+  }
+  let mitigation = Math.floor(gearDef * 0.75) + Math.floor(player.end * 1);
+
   // --- STAGE 1-5: The Gauntlet ---
   for (let i = 1; i <= 5; i++) {
     // Basic hit calculation
     const baseDamage = player.level * 10 + 5; 
-    const goldFound = Math.floor(Math.random() * 20) + 10;
-    const xpFound = 10;
-    const stageDamage = Math.floor(Math.random() * 8) + 2;
+    const goldFound = Math.floor(Math.random() * (20 * player.level)) + 10;
+    const xpFound = 10 * player.level;
+    
+    let rawStageDamage = Math.floor(Math.random() * (player.level * 4 + 8)) + 2; 
+    let stageDamage = rawStageDamage - mitigation;
+    if (stageDamage < 1) stageDamage = 1; // Minimum 1 damage taken
     
     totalGold += goldFound;
     totalXp += xpFound;
@@ -54,9 +66,13 @@ export async function executeDungeon(message: Message, args: string[]) {
   const currentBoss = bossNames[Math.floor(Math.random() * bossNames.length)];
   
   // Boss Loot is guaranteed God-Tier Materials or massive Gold
-  const bossGold = 1500;
-  const bossXp = 500;
-  const bossDamage = 40;
+  const bossGold = 1500 * (Math.floor(player.level / 5) || 1);
+  const bossXp = 500 * (Math.floor(player.level / 5) || 1);
+  
+  let rawBossDamage = Math.floor(player.level * 15) + 40;
+  let bossDamage = rawBossDamage - mitigation;
+  if (bossDamage < 5) bossDamage = 5; // Bosses always hit for at least 5
+
   totalGold += bossGold;
   totalXp += bossXp;
   totalDamageTaken += bossDamage;
