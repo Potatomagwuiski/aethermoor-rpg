@@ -1,6 +1,7 @@
 import { Message, EmbedBuilder } from 'discord.js';
 import { prisma } from '../db.js';
 import redisClient from '../redis.js';
+import { getEmoji } from '../utils/emojis.js';
 
 export async function executeMine(message: Message) {
   const discordId = message.author.id;
@@ -104,9 +105,9 @@ export async function executeMine(message: Message) {
   await prisma.$transaction(ops);
 
   // 5. Visual Output
-  let dropLog = `**+${finalIron} Iron**`;
-  if (finalCoal > 0) dropLog += `\n**+${finalCoal} Coal**`;
-  if (finalMythril > 0) dropLog += `\n✨ **+${finalMythril} Mythril!** ✨`;
+  let dropLog = `${getEmoji('iron')} **+${finalIron} Iron**`;
+  if (finalCoal > 0) dropLog += `\n${getEmoji('coal')} **+${finalCoal} Coal**`;
+  if (finalMythril > 0) dropLog += `\n${getEmoji('mythril')} **+${finalMythril} Mythril!** ✨`;
 
   const embed = new EmbedBuilder()
     .setTitle(`⛏️ The Mines`)

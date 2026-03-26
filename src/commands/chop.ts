@@ -1,6 +1,7 @@
 import { Message, EmbedBuilder } from 'discord.js';
 import { prisma } from '../db.js';
 import redisClient from '../redis.js';
+import { getEmoji } from '../utils/emojis.js';
 
 export async function executeChop(message: Message) {
   const discordId = message.author.id;
@@ -104,9 +105,9 @@ export async function executeChop(message: Message) {
   await prisma.$transaction(ops);
 
   // 5. Visual Output
-  let dropLog = `**+${finalWood} Wood**`;
-  if (finalElderwood > 0) dropLog += `\n**+${finalElderwood} Elderwood**`;
-  if (finalMoonHerb > 0) dropLog += `\n🌿 **+${finalMoonHerb} Moon Herb!** 🌿`;
+  let dropLog = `${getEmoji('wood')} **+${finalWood} Wood**`;
+  if (finalElderwood > 0) dropLog += `\n${getEmoji('elderwood')} **+${finalElderwood} Elderwood**`;
+  if (finalMoonHerb > 0) dropLog += `\n${getEmoji('moon_herb')} **+${finalMoonHerb} Moon Herb!** 🌿`;
 
   const embed = new EmbedBuilder()
     .setTitle(`🪓 The Great Forest`)

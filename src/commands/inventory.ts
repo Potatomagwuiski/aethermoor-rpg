@@ -1,5 +1,6 @@
 import { Message, EmbedBuilder } from 'discord.js';
 import { prisma } from '../db.js';
+import { getEmoji } from '../utils/emojis.js';
 
 export async function executeInventory(message: Message, args: string[]) {
   const discordId = message.author.id;
@@ -34,7 +35,8 @@ export async function executeInventory(message: Message, args: string[]) {
   for (let i = 0; i < sortedInventory.length; i++) {
     const item = sortedInventory[i];
     const prettyKey = item.itemKey.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-    currentBucket += `\`x${item.quantity.toString().padEnd(4)}\` **${prettyKey}**\n`;
+    const emoji = getEmoji(item.itemKey);
+    currentBucket += `\`x${item.quantity.toString().padEnd(4)}\` ${emoji} **${prettyKey}**\n`;
 
     // Every 15 items, create a new Field block (Discord hard limit is 1024 chars per field value)
     if ((i + 1) % 15 === 0 || i === sortedInventory.length - 1) {

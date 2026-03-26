@@ -1,5 +1,6 @@
 import { Message, EmbedBuilder } from 'discord.js';
 import { prisma } from '../db.js';
+import { getEmoji } from '../utils/emojis.js';
 
 // Define the blueprint requirements and outputs
 const BLUEPRINTS: Record<string, any> = {
@@ -77,12 +78,14 @@ export async function executeForge(message: Message, args: string[]) {
 
       let matString = '';
       for (const [matKey, qty] of Object.entries(blueprint.materials)) {
-        matString += `\`${qty}x ${matKey.replace(/_/g, ' ').replace(/\\b\\w/g, (c: string) => c.toUpperCase())}\`, `;
+        const emoji = getEmoji(matKey);
+        matString += `\`${qty}x\` ${emoji} **${matKey.replace(/_/g, ' ').replace(/\\b\\w/g, (c: string) => c.toUpperCase())}**, `;
       }
       matString = matString.slice(0, -2); 
       
       const reqBp = blueprint.requiredBlueprint.replace(/_/g, ' ').replace(/\\b\\w/g, (c: string) => c.toUpperCase());
-      catalog += `**${blueprint.name}** (\`${key}\`)\n📜 **Requires:** 1x \`${reqBp}\` \n🧱 **Materials:** ${matString}\n\n`;
+      const reqEmoji = getEmoji(blueprint.requiredBlueprint);
+      catalog += `**${blueprint.name}** (\`${key}\`)\n📜 **Requires:** 1x ${reqEmoji} \`${reqBp}\` \n🧱 **Materials:** ${matString}\n\n`;
     }
     
     if (catalog.length === 0) {
