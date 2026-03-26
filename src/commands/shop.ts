@@ -21,12 +21,20 @@ export async function executeShop(message: Message, args: string[]) {
     .setDescription('Welcome to the shop! Use `rpg buy <item_id> [quantity]` to purchase an item.')
     .setFooter({ text: 'No weapons or armor sold here. Real power is earned (or gambled).' });
 
-  let catalog = '';
+  let catalog1 = '';
+  let catalog2 = '';
+  let count = 0;
   for (const [key, item] of Object.entries(SHOP_ITEMS)) {
-    catalog += `**${item.icon} ${item.name}** (\`${key}\`)\n💰 **${item.price} Gold** - ${item.description}\n\n`;
+    const entry = `**${item.icon} ${item.name}** (\`${key}\`)\n💰 **${item.price} Gold** - ${item.description}\n\n`;
+    if (count < 6) catalog1 += entry;
+    else catalog2 += entry;
+    count++;
   }
   
-  embed.addFields({ name: 'Catalog', value: catalog });
+  embed.addFields(
+    { name: 'General & Premium Goods', value: catalog1 },
+    { name: 'Deeds & Farming Seeds', value: catalog2 }
+  );
   return message.reply({ embeds: [embed] });
 }
 
