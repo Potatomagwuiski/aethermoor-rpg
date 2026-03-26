@@ -17,6 +17,9 @@ import { executeInventory } from './commands/inventory.js';
 import { executeProfile } from './commands/profile.js';
 import { executeReset } from './commands/reset.js';
 import { executeStat } from './commands/stat.js';
+import { executeSell } from './commands/sell.js';
+import { executeGive } from './commands/give.js';
+import { executePay } from './commands/pay.js';
 
 const client = new Client({
     intents: [
@@ -164,7 +167,27 @@ client.on(Events.MessageCreate, async (message) => {
             console.error(error);
             await message.reply(`Error executing inventory command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
-
+    } else if (command === 'sell') {
+        try {
+            await executeSell(message, args);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing sell command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
+    } else if (command === 'give' || command === 'trade') {
+        try {
+            await executeGive(message, args);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing give command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
+    } else if (command === 'pay') {
+        try {
+            await executePay(message, args);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing pay command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
     } else {
         await message.reply('❓ **Unknown command.** Try:\n⚔️ `rpg hunt` | 🏰 `rpg dungeon`\n⛏️ `rpg mine` | 🪓 `rpg chop` | 🎣 `rpg fish` | 🌾 `rpg farm`\n🛒 `rpg shop` | 💰 `rpg buy`\n🔨 `rpg forge` | 🧪 `rpg heal`\n📖 `rpg profile` | 🎒 `rpg inv`\n📊 `rpg stat` | ❓ `rpg help`');
     }

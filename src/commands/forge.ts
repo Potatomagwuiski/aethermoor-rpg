@@ -168,28 +168,12 @@ export async function executeForge(message: Message, args: string[]) {
     return message.reply('The forge erupted in a magical anomaly. The craft failed!');
   }
 
-  // 6. Inject the generated Item
-  if (resultOutput.isTool) {
-    dbOperations.push(prisma.tool.updateMany({
-      where: { playerId: player.id, type: resultOutput.type },
-      data: { equipped: false }
-    }));
-    dbOperations.push(prisma.tool.create({
-      data: {
-        playerId: player.id,
-        type: resultOutput.type,
-        equipped: true,
-        rarity: resultOutput.rarity,
-        yieldMultiplier: resultOutput.yieldMultiplier
-      }
-    }));
-  } else {
-    dbOperations.push(prisma.inventoryItem.upsert({
-      where: { playerId_itemKey: { playerId: player.id, itemKey: resultOutput.key } },
-      update: { quantity: { increment: 1 } },
-      create: { playerId: player.id, itemKey: resultOutput.key, quantity: 1 }
-    }));
-  }
+  // 6. Inject the generated Item into the player's inventory
+  dbOperations.push(prisma.inventoryItem.upsert({
+    where: { playerId_itemKey: { playerId: player.id, itemKey: resultOutput.key } },
+    update: { quantity: { increment: 1 } },
+    create: { playerId: player.id, itemKey: resultOutput.key, quantity: 1 }
+  }));
 
   await prisma.$transaction(dbOperations);
 
