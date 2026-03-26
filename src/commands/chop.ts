@@ -7,9 +7,12 @@ export async function executeChop(message: Message) {
   
   // 1. Redis Strict Cooldown Matrix (60 seconds)
   const cdKey = `cd:chop:${discordId}`;
-  const isCooldown = await redisClient.get(cdKey);
-  if (isCooldown) {
-    return message.reply('🪓 *Your hands are splintered. You must wait a minute before swinging your axe again.*');
+  
+  if (redisClient.isReady) {
+      const isCooldown = await redisClient.get(cdKey);
+      if (isCooldown) {
+          return message.reply('🪓 *Your hands are splintered. You must wait a minute before swinging your axe again.*');
+      }
   }
 
   const player = await prisma.player.findUnique({
@@ -21,7 +24,9 @@ export async function executeChop(message: Message) {
   if (player.hp <= 0) return message.reply('💀 You are dead! Drink a Life Potion before chopping wood.');
 
   // Lock the user for 60 seconds
-  await redisClient.setEx(cdKey, 60, '1');
+  if (redisClient.isReady) {
+      await redisClient.setEx(cdKey, 60, '1');
+  }
 
   // 2. Progression Logic
   let yieldMultiplier = 1;
