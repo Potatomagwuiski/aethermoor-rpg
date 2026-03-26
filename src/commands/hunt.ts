@@ -13,6 +13,10 @@ export async function execute(message: Message) {
     return message.reply('You have not created a character yet!');
   }
 
+  if (player.hp <= 0) {
+    return message.reply('💀 **YOU ARE DEAD.**\nYou cannot hunt until your body is restored. Buy a 🧪 **[Life Potion]** from the `rpg shop` and type `rpg heal`.');
+  }
+
   // Baseline Engine Stats
   let baseDamage = 10;
   let linesOfExecution = 1;
@@ -22,6 +26,9 @@ export async function execute(message: Message) {
   let craftingItemDrop: string | null = null;
   let jackpotTriggered = false;
   let jackpotMessage = '';
+  
+  // The HP Penalty
+  const damageTaken = Math.floor(Math.random() * 8) + 3; // 3 to 10 damage per hunt
 
   // Class-Specific Instant Mathematics & Rewards
   switch (player.activeClass) {
@@ -100,7 +107,8 @@ export async function execute(message: Message) {
   const updateData: any = {
     gold: { increment: goldReward },
     level: currentLevel,
-    xp: currentXp
+    xp: currentXp,
+    hp: { decrement: damageTaken }
   };
 
   if (levelsGained > 0) {
@@ -158,7 +166,7 @@ export async function execute(message: Message) {
   const embed = new EmbedBuilder()
     .setTitle(`⚔️ Hunt Resolved: Goblin`)
     .setColor(jackpotTriggered ? (player.activeClass === PlayerClass.ROGUE ? 0xFF0000 : 0xFFD700) : 0x2B2D31)
-    .setDescription(`The engine calculated your stats in an instant.`)
+    .setDescription(`You swung your 🗡️ weapon resulting in a rapid clash. The 👺 Goblin retaliated.\n\n**Combat Log:**\nDamage Dealt: 💥 ${baseDamage}\nDamage Taken: 🩸 ${damageTaken}\n\n🏆 **Reward:** 🪙 ${goldReward} Gold | ✨ ${xpReward} XP\n\n`)
     .addFields(
       { name: 'Your Class', value: player.activeClass, inline: true },
       { name: 'Raw Damage Output', value: jackpotTriggered && player.activeClass === PlayerClass.ROGUE ? `**💥 ${baseDamage} CRIT! 💥**` : (player.activeClass === PlayerClass.NECROMANCER ? `[${Math.floor(baseDamage/10)} DMG x 10 Minions]` : `${baseDamage} DMG`), inline: true }

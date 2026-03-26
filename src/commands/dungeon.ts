@@ -12,6 +12,10 @@ export async function executeDungeon(message: Message, args: string[]) {
     return message.reply('You have not registered yet! Type `rpg start <class>` to begin.');
   }
 
+  if (player.hp <= 0) {
+    return message.reply('💀 **YOU ARE DEAD.**\nYou cannot run a Dungeon. Buy a 🧪 **[Life Potion]** from the `rpg shop` and type `rpg heal`.');
+  }
+
   // Check for Dungeon Key
   const keyItem = player.inventory.find(i => i.itemKey === 'dungeon_key');
   if (!keyItem || keyItem.quantity < 1) {
@@ -26,6 +30,7 @@ export async function executeDungeon(message: Message, args: string[]) {
 
   let totalGold = 0;
   let totalXp = 0;
+  let totalDamageTaken = 0;
   let logText = '';
   const dbOperations: any[] = [];
 
@@ -35,11 +40,13 @@ export async function executeDungeon(message: Message, args: string[]) {
     const baseDamage = player.level * 10 + 5; 
     const goldFound = Math.floor(Math.random() * 20) + 10;
     const xpFound = 10;
+    const stageDamage = Math.floor(Math.random() * 8) + 2;
     
     totalGold += goldFound;
     totalXp += xpFound;
+    totalDamageTaken += stageDamage;
 
-    logText += `**🛡️ Stage ${i}:** Defeated a dungeon guardian dealing 💥 ${baseDamage} DMG! (+${goldFound} 🪙 Gold, +${xpFound} ✨ XP)\n`;
+    logText += `**🛡️ Stage ${i}:** Defeated a dungeon guardian dealing 💥 ${baseDamage} DMG! Took 🩸 ${stageDamage} DMG. (+${goldFound} 🪙 Gold, +${xpFound} ✨ XP)\n`;
   }
 
   // --- STAGE 6: The Boss Fight ---
@@ -49,11 +56,13 @@ export async function executeDungeon(message: Message, args: string[]) {
   // Boss Loot is guaranteed God-Tier Materials or massive Gold
   const bossGold = 1500;
   const bossXp = 500;
+  const bossDamage = 40;
   totalGold += bossGold;
   totalXp += bossXp;
+  totalDamageTaken += bossDamage;
 
   logText += `\n🐲 **BOSS ROOM: ${currentBoss}** 🐲\n`;
-  logText += `You unleashed your ultimate attack and 🩸 conquered the boss! (+${bossGold} 🪙 Gold, +${bossXp} ✨ XP)\n`;
+  logText += `You unleashed your ultimate attack and 🩸 conquered the boss! You took 🩸 **${bossDamage} DMG!** (+${bossGold} 🪙 Gold, +${bossXp} ✨ XP)\n`;
 
   // Provide a massive, rare Drop
   const bossDrops = ['mythic_dragon_scale', 'lich_soul', 'behemoth_bone'];
@@ -83,7 +92,8 @@ export async function executeDungeon(message: Message, args: string[]) {
   const updateData: any = {
     gold: { increment: totalGold },
     level: currentLevel,
-    xp: currentXp
+    xp: currentXp,
+    hp: { decrement: totalDamageTaken }
   };
 
   if (levelsGained > 0) {

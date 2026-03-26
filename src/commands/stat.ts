@@ -17,7 +17,7 @@ export async function executeStat(message: Message, args: string[]) {
     const embed = new EmbedBuilder()
       .setTitle(`📊 Stats: ${player.name} (Level ${player.level})`)
       .setColor(0x00B0FF)
-      .setDescription(`**Class:** ${player.activeClass}\n**Next Level:** ${player.xp} / ${player.level * 100} XP\n**Available Points:** 🌟 ${player.pointsAvailable}`)
+      .setDescription(`**Class:** ${player.activeClass}\n**Next Level:** ${player.xp} / ${player.level * 100} XP\n**Available Points:** 🌟 ${player.pointsAvailable}\n**Health:** ❤️ ${Math.max(0, player.hp)} / ${player.maxHp} HP`)
       .addFields(
         { name: '💪 STR', value: player.str.toString(), inline: true },
         { name: '🏃 AGI', value: player.agi.toString(), inline: true },

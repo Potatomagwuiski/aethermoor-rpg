@@ -11,6 +11,7 @@ import { executeFarm } from './commands/farm.js';
 import { executeShop, executeBuy } from './commands/shop.js';
 import { executeDungeon } from './commands/dungeon.js';
 import { executeForge } from './commands/forge.js';
+import { executeHeal } from './commands/heal.js';
 import { executeHelp } from './commands/help.js';
 import { executeReset } from './commands/reset.js';
 import { executeStat } from './commands/stat.js';
@@ -137,8 +138,15 @@ client.on(Events.MessageCreate, async (message) => {
             console.error(error);
             await message.reply(`Error executing stat command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
+    } else if (command === 'heal') {
+        try {
+            await executeHeal(message);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing heal command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
     } else {
-        await message.reply('❓ **Unknown command.** Try:\n⚔️ `rpg hunt` | 🏰 `rpg dungeon`\n⛏️ `rpg mine` | 🪓 `rpg chop` | 🎣 `rpg fish` | 🌾 `rpg farm`\n🛒 `rpg shop` | 💰 `rpg buy`\n🔨 `rpg forge` | 📖 `rpg help`\n📊 `rpg stat`');
+        await message.reply('❓ **Unknown command.** Try:\n⚔️ `rpg hunt` | 🏰 `rpg dungeon`\n⛏️ `rpg mine` | 🪓 `rpg chop` | 🎣 `rpg fish` | 🌾 `rpg farm`\n🛒 `rpg shop` | 💰 `rpg buy`\n🔨 `rpg forge` | 🧪 `rpg heal`\n📖 `rpg help` | 📊 `rpg stat`');
     }
 });
 
