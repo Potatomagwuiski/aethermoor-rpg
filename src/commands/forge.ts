@@ -155,44 +155,64 @@ export async function executeForge(message: Message, args: string[]) {
       .setColor(0xE67E22)
       .setDescription('Welcome to the Blacksmith. Type `rpg forge <item>` to craft an item. **Warriors receive a flat +20 bonus to their RNG quality roll.**');
       
-    let catalog = '';
+    let craftableCatalog = '';
+    let missingCatalog = '';
+
     for (const [key, blueprint] of Object.entries(BLUEPRINTS)) {
       const hasBlueprint = inventory.find((i: any) => i.itemKey === blueprint.requiredBlueprint);
       if (!hasBlueprint || hasBlueprint.quantity < 1) {
           continue; // Permanently shield undiscovered recipes
       }
 
+      let isCraftable = true;
       let matString = '';
-      for (const [matKey, qty] of Object.entries(blueprint.materials)) {
+      for (const [matKey, qty] of Object.entries(blueprint.materials as Record<string, number>)) {
         const emoji = getEmoji(matKey);
         matString += `\`${qty}x\` ${emoji} **${matKey.replace(/_/g, ' ').replace(/\\b\\w/g, (c: string) => c.toUpperCase())}**, `;
+        
+        const invItem = inventory.find((i: any) => i.itemKey === matKey);
+        if (!invItem || invItem.quantity < qty) {
+           isCraftable = false;
+        }
       }
       matString = matString.slice(0, -2); 
       
       const reqBp = blueprint.requiredBlueprint.replace(/_/g, ' ').replace(/\\b\\w/g, (c: string) => c.toUpperCase());
       const reqEmoji = getEmoji(blueprint.requiredBlueprint);
-      catalog += `**${blueprint.name}** (\`${key}\`)\n📜 **Requires:** 1x ${reqEmoji} \`${reqBp}\` \n🧱 **Materials:** ${matString}\n\n`;
+      const outputStr = `**${blueprint.name}** (\`${key}\`)\n📜 **Requires:** 1x ${reqEmoji} \`${reqBp}\` \n🧱 **Materials:** ${matString}\n\n`;
+      
+      if (isCraftable) {
+          craftableCatalog += outputStr;
+      } else {
+          missingCatalog += outputStr;
+      }
     }
     
-    if (catalog.length === 0) {
+    if (craftableCatalog.length === 0 && missingCatalog.length === 0) {
         menuEmbed.addFields({ name: 'Available Blueprints', value: "*You haven't discovered any forging schematics yet. Battle monsters in the wild or explore dungeons to find Blueprints.*" });
     } else {
-        const recipes = catalog.split('\n\n');
-        let currentField = '';
-        let firstField = true;
-        for(let recipe of recipes) {
-            if (!recipe.trim()) continue;
-            if (currentField.length + recipe.length > 1000) {
-                menuEmbed.addFields({ name: firstField ? 'Available Blueprints' : '\u200B', value: currentField });
-                currentField = recipe + '\n\n';
-                firstField = false;
-            } else {
-                currentField += recipe + '\n\n';
+        const addCatalogToEmbed = (catalog: string, title: string) => {
+            if (catalog.length === 0) return;
+            const recipes = catalog.split('\n\n');
+            let currentField = '';
+            let firstField = true;
+            for (let recipe of recipes) {
+                if (!recipe.trim()) continue;
+                if (currentField.length + recipe.length > 1000) {
+                    menuEmbed.addFields({ name: firstField ? title : '\u200B', value: currentField });
+                    currentField = recipe + '\n\n';
+                    firstField = false;
+                } else {
+                    currentField += recipe + '\n\n';
+                }
             }
-        }
-        if (currentField.trim()) {
-            menuEmbed.addFields({ name: firstField ? 'Available Blueprints' : '\u200B', value: currentField });
-        }
+            if (currentField.trim()) {
+                menuEmbed.addFields({ name: firstField ? title : '\u200B', value: currentField });
+            }
+        };
+
+        if (craftableCatalog.length > 0) addCatalogToEmbed(craftableCatalog, '🟢 Ready to Craft');
+        if (missingCatalog.length > 0) addCatalogToEmbed(missingCatalog, '🔴 Missing Materials');
     }
     return message.reply({ embeds: [menuEmbed] });
   }
