@@ -41,16 +41,16 @@ client.on(Events.MessageCreate, async (message) => {
     } else if (command === 'start') {
         try {
             await startCommand.execute(message, args);
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            await message.reply('Error executing start command.');
+            await message.reply(`Error executing start command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
     } else if (command === 'hunt') {
         try {
             await huntCommand.execute(message);
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            await message.reply('Error executing hunt command.');
+            await message.reply(`Error executing hunt command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
     }
 });
