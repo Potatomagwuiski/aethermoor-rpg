@@ -47,6 +47,12 @@ export const ITEM_EMOJIS: Record<string, string> = {
     'health_potion_2': '🧪',
     'mana_potion_1': '🧪',
     
+    // Monster Drops
+    'goblin_ear': '👺',
+    'slime_core': '💧',
+    'wolf_pelt': '🐺',
+    'mythic_dragon_scale': '🟪',
+    
     // Default fallback
     'default': '📦'
 };

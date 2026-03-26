@@ -16,6 +16,15 @@ const BLUEPRINTS: Record<string, any> = {
       epic: { key: 'epic_iron_sword', name: '🟪 [Epic Iron Sword]', dps: 75 }
     }
   },
+  'wolf_slayer': {
+    name: 'Wolf Slayer Sword',
+    requiredBlueprint: 'blueprint_wolf_slayer',
+    materials: { iron: 5, wolf_pelt: 10 },
+    outputs: {
+      rare: { key: 'rare_wolf_slayer', name: '🟦 [Rare Wolf Slayer]', dps: 85 },
+      epic: { key: 'epic_wolf_slayer', name: '🟪 [Epic Wolf Slayer]', dps: 150 }
+    }
+  },
   'void_blade': {
     name: 'Void Blade',
     requiredBlueprint: 'blueprint_void_blade',
@@ -152,6 +161,10 @@ export async function executeForge(message: Message, args: string[]) {
     else if (roll >= 40) resultOutput = blueprint.outputs.uncommon;
     else resultOutput = blueprint.outputs.common;
   } 
+  else if (recipeId === 'wolf_slayer') {
+    if (roll >= 90) resultOutput = blueprint.outputs.epic;
+    else resultOutput = blueprint.outputs.rare;
+  }
   else if (recipeId === 'void_blade') {
     if (roll >= 115) resultOutput = blueprint.outputs.legendary; // Effectively requires a Warrior or extremely lucky standard roll + outside buffs
     else if (roll >= 80) resultOutput = blueprint.outputs.epic;

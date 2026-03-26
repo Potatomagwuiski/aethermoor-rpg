@@ -6,6 +6,12 @@ export const ITEM_SELL_PRICES: Record<string, number> = {
     'elderwood': 25,
     'moon_herb': 50,
     
+    // Monster Drops
+    'goblin_ear': 10,
+    'slime_core': 15,
+    'wolf_pelt': 20,
+    'mythic_dragon_scale': 1000,
+    
     // Forged Weapons
     'common_iron_sword': 100,
     'uncommon_iron_sword': 300,

@@ -131,6 +131,24 @@ export async function execute(message: Message) {
 
   await prisma.$transaction(dbOperations);
 
+  // --- MONSTER GENERATION & LOOT ---
+  const monsters = [
+    { name: 'Goblin', emoji: '👺', drop: 'goblin_ear', dropName: 'Goblin Ear' },
+    { name: 'Slime', emoji: '💧', drop: 'slime_core', dropName: 'Slime Core' },
+    { name: 'Dire Wolf', emoji: '🐺', drop: 'wolf_pelt', dropName: 'Wolf Pelt' }
+  ];
+  const mob = monsters[Math.floor(Math.random() * monsters.length)];
+  let monsterDropString = '';
+
+  if (Math.random() <= 0.3) {
+    monsterDropString = `🦴 \`[1x ${mob.dropName}]\``;
+    dbOperations.push(prisma.inventoryItem.upsert({
+      where: { playerId_itemKey: { playerId: player.id, itemKey: mob.drop } },
+      update: { quantity: { increment: 1 } },
+      create: { playerId: player.id, itemKey: mob.drop, quantity: 1 }
+    }));
+  }
+
   // --- THE GACHA LOOT SYSTEM ---
   let gachaLootString = '';
   if (Math.random() <= 0.15) { // 15% chance to trigger an item drop
@@ -141,7 +159,10 @@ export async function execute(message: Message) {
       gachaLootString = '🟧 `[✨ Blueprint: Void Blade ✨]`';
       dropKey = 'blueprint_void_blade';
     }
-    else if (rarityRoll > 0.98) gachaLootString = '🟪 `[Blueprint: Epic Mage Staff]`';
+    else if (rarityRoll > 0.98) {
+      gachaLootString = '🟪 `[Blueprint: Wolf Slayer]`';
+      dropKey = 'blueprint_wolf_slayer';
+    }
     else if (rarityRoll > 0.95) {
       gachaLootString = '🗝️ `[Dungeon Key]`';
       dropKey = 'dungeon_key';
@@ -164,9 +185,9 @@ export async function execute(message: Message) {
 
   // Format the Dopamine Delivery
   const embed = new EmbedBuilder()
-    .setTitle(`⚔️ Hunt Resolved: Goblin`)
+    .setTitle(`⚔️ Hunt Resolved: ${mob.name}`)
     .setColor(jackpotTriggered ? (player.activeClass === PlayerClass.ROGUE ? 0xFF0000 : 0xFFD700) : 0x2B2D31)
-    .setDescription(`You swung your 🗡️ weapon resulting in a rapid clash. The 👺 Goblin retaliated.\n\n**Combat Log:**\nDamage Dealt: 💥 ${baseDamage}\nDamage Taken: 🩸 ${damageTaken}\n\n🏆 **Reward:** 🪙 ${goldReward} Gold | ✨ ${xpReward} XP\n\n`)
+    .setDescription(`You swung your 🗡️ weapon resulting in a rapid clash. The ${mob.emoji} ${mob.name} retaliated.\n\n**Combat Log:**\nDamage Dealt: 💥 ${baseDamage}\nDamage Taken: 🩸 ${damageTaken}\n\n🏆 **Reward:** 🪙 ${goldReward} Gold | ✨ ${xpReward} XP\n\n`)
     .addFields(
       { name: 'Your Class', value: player.activeClass, inline: true },
       { name: 'Raw Damage Output', value: jackpotTriggered && player.activeClass === PlayerClass.ROGUE ? `**💥 ${baseDamage} CRIT! 💥**` : (player.activeClass === PlayerClass.NECROMANCER ? `[${Math.floor(baseDamage/10)} DMG x 10 Minions]` : `${baseDamage} DMG`), inline: true }
