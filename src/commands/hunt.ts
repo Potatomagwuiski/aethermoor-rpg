@@ -97,11 +97,12 @@ export async function execute(message: Message) {
   let jackpotTriggered = false;
   let jackpotMessage = '';
   
-  // The HP Penalty
-  let damageTaken = Math.floor(Math.random() * 8) + 3; // 3 to 10 damage per hunt
+  // The HP Penalty - Monsters now deal damage scaling with Player Level
+  let baseEnemyThreat = 5 + (player.level * 3); // Lv 1 = ~8 DMG, Lv 10 = ~35 DMG
+  let damageTaken = Math.floor(Math.random() * baseEnemyThreat) + Math.floor(baseEnemyThreat / 2);
   
   // Apply Flat Damage Reduction from Armor + Class Armor Passives
-  let mitigated = Math.floor(gearDef / 2); // 2 DEF = 1 Damage absorbed
+  let mitigated = Math.floor(gearDef * 0.75); // 1 DEF = 0.75 Damage Absorbed
   if (armorClass === 'HEAVY_ARMOR') {
     damageTaken = Math.floor(damageTaken * 0.9); // 10% Flat mitigation
   } else if (armorClass === 'LIGHT_ARMOR') {
@@ -125,24 +126,24 @@ export async function execute(message: Message) {
       const dmgMultiplier = player.agi / Math.max(1, player.end);
       baseDamage = Math.floor(15 * dmgMultiplier);
 
-      // FINESSE: Combat Style = Fast Crits | Special Thing = Loot Hoarder
-      if (Math.random() > 0.8) {
+      // FINESSE: Combat Style = Fast Crits | Special = Pickpocket
+      if (Math.random() > 0.95) {
         jackpotTriggered = true;
-        baseDamage = Math.floor(baseDamage * 2.5); // The satisfying crit
-        goldReward = 50 * slotMultiplier; // The Loot Hoarder economy injector
-        jackpotMessage = '🗡️ **ASSASSIN\'S CRIT!** You found a massive stash of pure gold!';
+        baseDamage = Math.floor(baseDamage * 2.5); 
+        goldReward += 15 * slotMultiplier;
+        jackpotMessage = '🗡️ **ASSASSIN\'S CRIT!** You found a hidden coin purse on the monster!';
       }
       break;
     }
     case 'HEAVY_WEAPON': {
       baseDamage = player.str * 5; 
 
-      // HEAVY: Combat Style = Heavy Hits | Special Thing = Crafting Master
-      if (Math.random() > 0.8) {
+      // HEAVY: Combat Style = Heavy Hits | Special = Sunder
+      if (Math.random() > 0.95) {
         jackpotTriggered = true;
-        baseDamage = 9999;
-        craftingItemDrop = "rare_meteorite_ingot"; // The Crafting Master unique drop
-        jackpotMessage = '🪓 **DECAPITATION!** You shattered their armor and salvaged a Rare Meteorite Ingot!';
+        baseDamage = Math.floor(baseDamage * 3);
+        craftingItemDrop = "gold_ore"; 
+        jackpotMessage = '🪓 **SUNDERING STRIKE!** You shattered their defenses and salvaged some Gold Ore!';
       }
       break;
     }
@@ -150,11 +151,11 @@ export async function execute(message: Message) {
       const dmgMultiplier = player.int / Math.max(1, player.str);
       baseDamage = Math.floor(20 * dmgMultiplier);
 
-      // MAGIC: Combat Style = Magic | Special Thing = EXP Booster
-      if (Math.random() > 0.8) {
+      // MAGIC: Combat Style = Magic | Special = EXP Surge
+      if (Math.random() > 0.95) {
         jackpotTriggered = true;
-        xpReward = 50 * slotMultiplier; // The EXP Booster progression multiplier
-        jackpotMessage = '🎇 **WILD MAGIC!** You absorbed the chaotic leylines for a massive EXP Surge!';
+        xpReward += 15 * slotMultiplier; 
+        jackpotMessage = '🎇 **WILD MAGIC!** You absorbed the chaotic leylines for an EXP Surge!';
       }
       break;
     }
