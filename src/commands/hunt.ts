@@ -88,162 +88,7 @@ export async function execute(message: Message) {
   const zoneTiers: Record<string, number> = { lumina_plains: 1, whispering_woods: 2, ironpeak_mountains: 3, ashen_wastes: 5, abyssal_depths: 10 };
   const tier = zoneTiers[currentZone] || 1;
 
-  // Baseline Engine Stats
-  let baseDamage = 10;
-  let linesOfExecution = 1;
-  // --- ECONOMY REWARDS ---
-  let baseGold = 5 * tier;
-  let baseXP = Math.floor(Math.random() * 21 * tier) + (15 * tier); 
-  
-  let goldReward = baseGold * slotMultiplier;
-  let xpReward = baseXP * slotMultiplier;
-  
-  let craftingItemDrop: string | null = null;
-  let jackpotTriggered = false;
-  let jackpotMessage = '';
-  
-  // --- PRE-COMBAT CULINARY BUFF PARSING ---
-  let buffMessage = '';
-  let activeBuff = player.activeBuff;
-  if (activeBuff && player.buffExpiresAt && player.buffExpiresAt > new Date()) {
-    if (activeBuff === 'ATK_10') { gearAtk += 10; buffMessage = '✨ **Buff Active:** Roasted Trout (+10 ATK)'; }
-    if (activeBuff === 'HP_25') { player.maxHp += 25; player.hp += 25; buffMessage = '✨ **Buff Active:** Koi Soup (+25 MAX HP)'; }
-    if (activeBuff === 'DEF_50') { gearDef += 50; buffMessage = '✨ **Buff Active:** Glacial Filet (+50 DEF)'; }
-    if (activeBuff === 'CRIT_15') { gearCrit += 15; buffMessage = '✨ **Buff Active:** Spicy Eel (+15% CRIT)'; }
-    if (activeBuff === 'ATK_100_LS_10') { gearAtk += 100; gearLifesteal += 10; buffMessage = '✨ **Buff Active:** Void Sashimi (+100 ATK, 10% LIFESTEAL)'; }
-  } else if (activeBuff) {
-    await prisma.player.update({ where: { id: player.id }, data: { activeBuff: null, buffExpiresAt: null } });
-    activeBuff = null;
-  }
-  
-  // The HP Penalty - Brutal Scaler Phase 25 (Early Game Adjusted)
-  let baseEnemyThreat = Math.floor(tier * 20) + Math.floor(player.level * 6) + 15; 
-  let damageTaken = Math.floor(Math.random() * baseEnemyThreat) + Math.floor(baseEnemyThreat / 2);
-  
-  // Apply Flat Damage Reduction from Armor + Class Armor Passives + Player Endurance
-  let mitigated = Math.floor(gearDef * 0.75) + Math.floor(player.end * 2);
-  if (armorClass === 'HEAVY_ARMOR') {
-    damageTaken = Math.floor(damageTaken * 0.9); // 10% Flat mitigation
-  } else if (armorClass === 'LIGHT_ARMOR') {
-    gearEvasion += 15; // +15% Flat Evasion
-  } else if (armorClass === 'CLOTH') {
-    // Regenerate 5% Max HP at the end of combat (Mana Shield)
-    damageTaken -= Math.floor(player.maxHp * 0.05); 
-  }
-  
-  damageTaken -= mitigated;
-
-  let evadedText = '';
-  if (Math.random() * 100 < gearEvasion) {
-    damageTaken = 0; // Negative damage means heal, but you don't heal if you perfectly evade.
-    evadedText = ' 💨 (Dodged!)';
-  }
-
-  // Gear-Specific Instant Mathematics & Rewards (The "You Are What You Wear" systemic injection)
-  switch (weaponClass) {
-    case 'FINESSE_WEAPON': {
-      baseDamage = player.agi * 4;
-
-      // FINESSE: Combat Style = Fast Crits | Special = Pickpocket
-      if (Math.random() > 0.95) {
-        jackpotTriggered = true;
-        baseDamage = Math.floor(baseDamage * 2.5); 
-        goldReward += 15 * slotMultiplier;
-        jackpotMessage = '🗡️ **ASSASSIN\'S CRIT!** You found a hidden coin purse on the monster!';
-      }
-      break;
-    }
-    case 'HEAVY_WEAPON': {
-      baseDamage = player.str * 5; 
-
-      // HEAVY: Combat Style = Heavy Hits | Special = Sunder
-      if (Math.random() > 0.95) {
-        jackpotTriggered = true;
-        baseDamage = Math.floor(baseDamage * 3);
-        craftingItemDrop = "gold_ore"; 
-        jackpotMessage = '🪓 **SUNDERING STRIKE!** You shattered their defenses and salvaged some Gold Ore!';
-      }
-      break;
-    }
-    case 'MAGIC_WEAPON': {
-      baseDamage = player.int * 6;
-
-      // MAGIC: Combat Style = Magic | Special = EXP Surge
-      if (Math.random() > 0.95) {
-        jackpotTriggered = true;
-        xpReward += 15 * slotMultiplier; 
-        jackpotMessage = '🎇 **WILD MAGIC!** You absorbed the chaotic leylines for an EXP Surge!';
-      }
-      break;
-    }
-    default:
-      baseDamage = 5;
-      break;
-  }
-
-  // Inject Gear ATK
-  baseDamage += gearAtk;
-
-  // Evaluate Crit from Weapons
-  let critText = '';
-  if (Math.random() * 100 < gearCrit) {
-    baseDamage = Math.floor(baseDamage * 2);
-    critText = '💥 (CRIT!) ';
-  }
-
-  // Evaluate Lifesteal from Weapons
-  let lifestealHeal = 0;
-  let vampText = '';
-  if (gearLifesteal > 0) {
-    lifestealHeal = Math.floor(baseDamage * (gearLifesteal / 100));
-    if (lifestealHeal > 0) vampText = ` 🦇 (+${lifestealHeal} HP)`;
-  }
-
-  // Provide Leveling Engine Logic
-  let currentLevel = player.level;
-  let currentXp = player.xp + xpReward;
-  let pointsGained = 0;
-
-  while (currentXp >= currentLevel * 100) {
-    currentXp -= currentLevel * 100;
-    currentLevel++;
-    pointsGained += 3;
-  }
-
-  const levelsGained = currentLevel - player.level;
-
-  // Handle Database Transactions for Real Rewards
-  const newHpCalc = Math.min(player.maxHp, player.hp - damageTaken + lifestealHeal);
-
-  const updateData: any = {
-    gold: { increment: goldReward },
-    level: currentLevel,
-    xp: currentXp,
-    hp: newHpCalc
-  };
-
-  if (levelsGained > 0) {
-    updateData.pointsAvailable = { increment: pointsGained };
-    updateData.maxHp = { increment: levelsGained * 5 };
-    updateData.hp = { increment: levelsGained * 5 };
-  }
-
-  const dbOperations = [];
-  dbOperations.push(prisma.player.update({
-    where: { discordId },
-    data: updateData
-  }));
-
-  if (craftingItemDrop) {
-    dbOperations.push(prisma.inventoryItem.upsert({
-      where: { playerId_itemKey: { playerId: player.id, itemKey: craftingItemDrop } },
-      update: { quantity: { increment: 1 } },
-      create: { playerId: player.id, itemKey: craftingItemDrop, quantity: 1 }
-    }));
-  }
-
-
-  // --- MONSTER GENERATION & LOOT ---
+  // --- MONSTER GENERATION HOIST ---
   const ZONED_MOBS: Record<string, any[]> = {
     lumina_plains: [
       { name: 'Acid Slime', emoji: '💧', loot: [{ key: 'slime_core', name: 'Slime Core', chance: 0.5 }, { key: 'acid_vial', name: 'Acid Vial', chance: 0.15 }] },
@@ -270,8 +115,144 @@ export async function execute(message: Message) {
 
   const monsters = ZONED_MOBS[currentZone] || ZONED_MOBS['lumina_plains'];
   const mob = monsters[Math.floor(Math.random() * monsters.length)];
-  let monsterDropStrings: string[] = [];
 
+  // --- PRE-COMBAT CULINARY BUFF PARSING ---
+  let buffMessage = '';
+  let activeBuff = player.activeBuff;
+  if (activeBuff && player.buffExpiresAt && player.buffExpiresAt > new Date()) {
+    if (activeBuff === 'ATK_10') { gearAtk += 10; buffMessage = '✨ **Buff Active:** Roasted Trout (+10 ATK)'; }
+    if (activeBuff === 'HP_25') { player.maxHp += 25; player.hp += 25; buffMessage = '✨ **Buff Active:** Koi Soup (+25 MAX HP)'; }
+    if (activeBuff === 'DEF_50') { gearDef += 50; buffMessage = '✨ **Buff Active:** Glacial Filet (+50 DEF)'; }
+    if (activeBuff === 'CRIT_15') { gearCrit += 15; buffMessage = '✨ **Buff Active:** Spicy Eel (+15% CRIT)'; }
+    if (activeBuff === 'ATK_100_LS_10') { gearAtk += 100; gearLifesteal += 10; buffMessage = '✨ **Buff Active:** Void Sashimi (+100 ATK, 10% LIFESTEAL)'; }
+  } else if (activeBuff) {
+    await prisma.player.update({ where: { id: player.id }, data: { activeBuff: null, buffExpiresAt: null } });
+    activeBuff = null;
+  }
+
+  // --- THE AUTO-BATTLER PHYSICS LOOP ---
+  let monsterMaxHp = Math.floor(tier * 150) + Math.floor(player.level * 20);
+  let monsterHp = monsterMaxHp;
+  let monsterAttackPower = Math.floor(tier * 20) + Math.floor(player.level * 6) + 15;
+
+  let playerHp = player.hp;
+  if (playerHp <= 0) playerHp = 1;
+
+  let jackpotTriggered = false;
+  let jackpotMessage = '';
+  let craftingItemDrop: string | null = null;
+  
+  // Base Damage Injection via Class Type
+  let playerBaseOutput = 10;
+  if (weaponClass === 'FINESSE_WEAPON') playerBaseOutput = player.agi * 4;
+  if (weaponClass === 'HEAVY_WEAPON') playerBaseOutput = player.str * 5;
+  if (weaponClass === 'MAGIC_WEAPON') playerBaseOutput = player.int * 6;
+
+  // Class Passives prep
+  if (armorClass === 'LIGHT_ARMOR') gearEvasion += 15;
+
+  let rounds = 0;
+  let totalDamageDealt = 0;
+  let totalDamageTaken = 0;
+  let totalLifesteal = 0;
+  let didCrit = false;
+  let didEvade = false;
+
+  const MAX_ROUNDS = 20;
+
+  while (playerHp > 0 && monsterHp > 0 && rounds < MAX_ROUNDS) {
+    rounds++;
+
+    // 1. Player Attacks!
+    let roundDps = playerBaseOutput + gearAtk;
+    
+    // Weapon Procs
+    if (weaponClass === 'FINESSE_WEAPON' && Math.random() > 0.95 && rounds === 1) {
+      jackpotTriggered = true;
+      roundDps = Math.floor(roundDps * 2.5);
+      jackpotMessage = '🗡️ **ASSASSIN\'S STRIKE!** You found a hidden coin purse on the monster!';
+    } else if (weaponClass === 'HEAVY_WEAPON' && Math.random() > 0.95 && rounds === 1) {
+      jackpotTriggered = true;
+      roundDps = Math.floor(roundDps * 3);
+      craftingItemDrop = "gold_ore"; 
+      jackpotMessage = '🪓 **SUNDERING STRIKE!** You shattered their defenses and salvaged some Gold Ore!';
+    } else if (weaponClass === 'MAGIC_WEAPON' && Math.random() > 0.95 && rounds === 1) {
+      jackpotTriggered = true;
+      jackpotMessage = '🎇 **WILD MAGIC!** You absorbed the chaotic leylines for an EXP Surge!';
+    }
+
+    if (Math.random() * 100 < gearCrit) {
+      roundDps = Math.floor(roundDps * 2);
+      didCrit = true;
+    }
+
+    // Lifesteal calculation
+    if (gearLifesteal > 0) {
+      const heal = Math.floor(roundDps * (gearLifesteal / 100));
+      playerHp = Math.min(player.maxHp, playerHp + heal);
+      totalLifesteal += heal;
+    }
+
+    monsterHp -= roundDps;
+    totalDamageDealt += roundDps;
+
+    if (monsterHp <= 0) break; // Monster SLAIN!
+
+    // 2. Monster Counter-Attacks!
+    let rawIncoming = Math.floor(Math.random() * monsterAttackPower) + Math.floor(monsterAttackPower / 2);
+    
+    // Mitigation Engine
+    let mitigation = Math.floor(gearDef * 0.75) + Math.floor(player.end * 2);
+    if (armorClass === 'HEAVY_ARMOR') rawIncoming = Math.floor(rawIncoming * 0.9); // 10% Flat mitigation
+
+    rawIncoming -= mitigation;
+    if (rawIncoming < 0) rawIncoming = 0;
+
+    if (Math.random() * 100 < gearEvasion) {
+      rawIncoming = 0;
+      didEvade = true;
+    }
+
+    playerHp -= rawIncoming;
+    totalDamageTaken += rawIncoming;
+  }
+
+  // --- FAILURE STATE (DEATH PENALTY) ---
+  if (playerHp <= 0 || rounds >= MAX_ROUNDS) {
+    const goldLost = Math.floor(player.gold * 0.1);
+    await prisma.player.update({
+      where: { discordId },
+      data: { hp: 1, gold: { decrement: goldLost } }
+    });
+
+    const deathEmbed = new EmbedBuilder()
+      .setTitle(`☠️ DEFEAT: SLAIN BY ${mob.name.toUpperCase()}`)
+      .setColor(0x8B0000)
+      .setDescription(`You swung your **${weaponName}** but you lacked the DPS and Defenses to survive the ${currentZone.replace('_', ' ')}.\n\nThe ${mob.emoji} ${mob.name} overwhelmed you after **${rounds} Rounds** of combat.\n\n🔻 **You lost ${goldLost} Gold (10%).**\n❤️ **You are heavily injured. Use Potions to heal before hunting again.**`)
+      .addFields(
+        { name: 'Damage Dealt', value: `${totalDamageDealt} DMG`, inline: true },
+        { name: 'Damage Taken', value: `${totalDamageTaken} DMG`, inline: true }
+      );
+    return message.reply({ embeds: [deathEmbed] });
+  }
+
+  // --- VICTORY STATE (REWARDS) ---
+  if (armorClass === 'CLOTH') {
+    playerHp = Math.min(player.maxHp, playerHp + Math.floor(player.maxHp * 0.05)); // Mana Shield regen
+  }
+
+  let baseGold = 5 * tier;
+  let baseXP = Math.floor(Math.random() * 21 * tier) + (15 * tier); 
+  let goldReward = baseGold * slotMultiplier;
+  let xpReward = baseXP * slotMultiplier;
+
+  if (jackpotTriggered && weaponClass === 'FINESSE_WEAPON') goldReward += 15 * slotMultiplier;
+  if (jackpotTriggered && weaponClass === 'MAGIC_WEAPON') xpReward += 15 * slotMultiplier;
+
+  let dbOperations = [];
+  
+  // Loot Drops
+  let monsterDropStrings: string[] = [];
   for (const item of mob.loot) {
     if (Math.random() <= item.chance) {
       monsterDropStrings.push(`${getEmoji(item.key)} \`[${slotMultiplier}x ${item.name}]\``);
@@ -282,41 +263,31 @@ export async function execute(message: Message) {
       }));
     }
   }
+
+  if (craftingItemDrop) {
+    dbOperations.push(prisma.inventoryItem.upsert({
+      where: { playerId_itemKey: { playerId: player.id, itemKey: craftingItemDrop } },
+      update: { quantity: { increment: 1 } },
+      create: { playerId: player.id, itemKey: craftingItemDrop, quantity: 1 }
+    }));
+  }
+
   let monsterDropString = monsterDropStrings.join('\n');
 
-  // --- THE GACHA LOOT SYSTEM ---
+  // THE GACHA SYSTEM
   const COMMON_BPS = [{key: 'blueprint_bronze_sword', name:'Bronze Sword'}, {key:'blueprint_bronze_dagger', name:'Bronze Dagger'}, {key:'blueprint_wood_staff', name:'Wood Staff'}, {key:'blueprint_bone_scythe', name:'Bone Scythe'}, {key:'blueprint_bronze_helmet', name:'Bronze Helmet'}, {key:'blueprint_bronze_chestplate', name:'Bronze Chestplate'}, {key:'blueprint_bronze_boots', name:'Bronze Boots'}];
   const UNCOMMON_BPS = [{key: 'blueprint_iron_greatsword', name:'Iron Greatsword'}, {key:'blueprint_venom_shiv', name:'Venom Shiv'}, {key:'blueprint_moonlight_staff', name:'Moonlight Staff'}, {key:'blueprint_soul_reaper', name:'Soul Reaper'}, {key:'blueprint_iron_pickaxe', name:'Iron Pickaxe'}, {key:'blueprint_iron_axe', name:'Iron Axe'}];
   const EPIC_BPS = [{key: 'blueprint_mythril_cleaver', name:'Mythril Cleaver'}, {key:'blueprint_shadow_blade', name:'Shadow Blade'}, {key:'blueprint_meteor_staff', name:'Meteor Staff'}, {key:'blueprint_lich_tome', name:'Lich Tome'}, {key:'blueprint_wolf_slayer', name:'Wolf Slayer Sword'}, {key:'blueprint_mythril_pickaxe', name:'Mythril Pickaxe'}, {key:'blueprint_mythril_axe', name:'Mythril Axe'}];
   
   let gachaLootString = '';
-  if (Math.random() <= 0.25) { // 25% chance to trigger an item drop
+  if (Math.random() <= 0.25) { 
     const rarityRoll = Math.random();
     let dropKey = '';
-
-    if (rarityRoll > 0.999) {
-      gachaLootString = '🟧 `[✨ Blueprint: Void Blade ✨]`';
-      dropKey = 'blueprint_void_blade';
-    }
-    else if (rarityRoll > 0.95) {
-      const bp = EPIC_BPS[Math.floor(Math.random() * EPIC_BPS.length)];
-      gachaLootString = `🟪 \`[Blueprint: ${bp.name}]\``;
-      dropKey = bp.key;
-    }
-    else if (rarityRoll > 0.90) {
-      gachaLootString = '🗝️ `[Dungeon Key]`';
-      dropKey = 'dungeon_key';
-    }
-    else if (rarityRoll > 0.70) {
-      const bp = UNCOMMON_BPS[Math.floor(Math.random() * UNCOMMON_BPS.length)];
-      gachaLootString = `🟦 \`[Blueprint: ${bp.name}]\``;
-      dropKey = bp.key;
-    }
-    else {
-      const bp = COMMON_BPS[Math.floor(Math.random() * COMMON_BPS.length)];
-      gachaLootString = `⬜ \`[Blueprint: ${bp.name}]\``;
-      dropKey = bp.key;
-    }
+    if (rarityRoll > 0.999) { gachaLootString = '🟧 `[✨ Blueprint: Void Blade ✨]`'; dropKey = 'blueprint_void_blade'; }
+    else if (rarityRoll > 0.95) { const bp = EPIC_BPS[Math.floor(Math.random() * EPIC_BPS.length)]; gachaLootString = `🟪 \`[Blueprint: ${bp.name}]\``; dropKey = bp.key; }
+    else if (rarityRoll > 0.90) { gachaLootString = '🗝️ `[Dungeon Key]`'; dropKey = 'dungeon_key'; }
+    else if (rarityRoll > 0.70) { const bp = UNCOMMON_BPS[Math.floor(Math.random() * UNCOMMON_BPS.length)]; gachaLootString = `🟦 \`[Blueprint: ${bp.name}]\``; dropKey = bp.key; }
+    else { const bp = COMMON_BPS[Math.floor(Math.random() * COMMON_BPS.length)]; gachaLootString = `⬜ \`[Blueprint: ${bp.name}]\``; dropKey = bp.key; }
 
     if (dropKey) {
       dbOperations.push(prisma.inventoryItem.upsert({
@@ -327,44 +298,53 @@ export async function execute(message: Message) {
     }
   }
 
-  // Format the Dopamine Delivery
+  // Leveling Engine
+  let currentLevel = player.level;
+  let currentXp = player.xp + xpReward;
+  let pointsGained = 0;
+
+  while (currentXp >= currentLevel * 100) {
+    currentXp -= currentLevel * 100;
+    currentLevel++;
+    pointsGained += 3;
+  }
+  const levelsGained = currentLevel - player.level;
+
+  const updateData: any = { gold: { increment: goldReward }, level: currentLevel, xp: currentXp, hp: playerHp };
+  if (levelsGained > 0) {
+    updateData.pointsAvailable = { increment: pointsGained };
+    updateData.maxHp = { increment: levelsGained * 5 };
+    updateData.hp = { increment: levelsGained * 5 };
+  }
+
+  dbOperations.push(prisma.player.update({ where: { discordId }, data: updateData }));
+
+  // Discord Embed Presentation
   let extraLoot = '';
   if (monsterDropString) extraLoot += `\n${monsterDropString}`;
   if (buffMessage) extraLoot += `\n${buffMessage}`;
 
   let slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **${slotMultiplier}x Multiplier!**`;
-  if (isSlotJackpot) {
-    slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **!!! ${slotMultiplier}x JACKPOT MULTIPLIER !!!** 🔥`;
-  }
+  if (isSlotJackpot) slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **!!! ${slotMultiplier}x JACKPOT MULTIPLIER !!!** 🔥`;
 
   const styleDisplay = weaponClass === 'NONE' ? 'Unarmed' : weaponClass.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+
+  let critText = didCrit ? '💥 (Critical Strikes) ' : '';
+  let vampText = totalLifesteal > 0 ? ` 🦇 (+${totalLifesteal} HP Regen)` : '';
+  let evadeText = didEvade ? ' 💨 (Dodged!)' : '';
 
   const embed = new EmbedBuilder()
     .setTitle(`⚔️ Hunt Resolved: ${mob.name}`)
     .setColor(jackpotTriggered || isSlotJackpot ? (weaponClass === 'FINESSE_WEAPON' ? 0xFF0000 : 0xFFD700) : 0x2B2D31)
-    .setDescription(`You swung your **${weaponName}** resulting in a rapid clash. The ${mob.emoji} ${mob.name} retaliated against your **${armorName}**.\n\n**Combat Log:**\nDamage Dealt: 💥 ${critText}${baseDamage}${vampText}\nDamage Taken: 🩸 ${damageTaken}${evadedText}\n\n${slotMachineString}\n\n🛍️ **Final Payout:** 🪙 ${goldReward} Gold | ✨ ${xpReward} XP${extraLoot}\n\n`)
+    .setDescription(`You swung your **${weaponName}** leading to an intense exchange. The ${mob.emoji} ${mob.name} retaliated against your **${armorName}**.\n\n**Combat Log (${rounds} Rounds):**\nDamage Dealt: 💥 ${critText}${totalDamageDealt}${vampText}\nDamage Taken: 🩸 ${totalDamageTaken}${evadeText}\n\n${slotMachineString}\n\n🛍️ **Final Payout:** 🪙 ${goldReward} Gold | ✨ ${xpReward} XP${extraLoot}\n\n`)
     .addFields(
       { name: 'Your Style', value: styleDisplay, inline: true },
-      { name: 'Raw Damage Output', value: jackpotTriggered && weaponClass === 'FINESSE_WEAPON' ? `**💥 ${baseDamage} CRIT! 💥**` : `${baseDamage} DMG`, inline: true }
+      { name: 'Total Damage Output', value: `${totalDamageDealt} DMG`, inline: true }
     );
 
-  if (jackpotTriggered) {
-    embed.addFields({ name: '!!! JACKPOT !!!', value: jackpotMessage });
-    if (weaponClass === 'FINESSE_WEAPON') embed.addFields({ name: 'Loot Stolen', value: `💰 +${goldReward} Gold`});
-    if (weaponClass === 'MAGIC_WEAPON') embed.addFields({ name: 'Knowledge Gained', value: `✨ +${xpReward} EXP`});
-    if (weaponClass === 'HEAVY_WEAPON') embed.addFields({ name: 'Salvaged Material', value: `🔨 1x Rare Meteorite Ingot`});
-  } else {
-    embed.addFields({ name: 'Rewards', value: `+${goldReward} Gold, +${xpReward} EXP` });
-  }
-
-  if (levelsGained > 0) {
-    embed.addFields({ name: '🌟 LEVEL UP!', value: `You reached Level **${currentLevel}**! (+${pointsGained} Stat Points). Type \`rpg stat\` to spend them!`});
-  }
-
-  // Inject Gacha visual pulling addiction
-  if (gachaLootString) {
-    embed.addFields({ name: '🎁 MYSTERY LOOT DROP!', value: `You found a rare blueprint schematic:\n${gachaLootString}`});
-  }
+  if (jackpotTriggered) embed.addFields({ name: '!!! JACKPOT !!!', value: jackpotMessage });
+  if (levelsGained > 0) embed.addFields({ name: '🌟 LEVEL UP!', value: `You reached Level **${currentLevel}**! (+${pointsGained} Stat Points). Type \`rpg stat\` to spend them!`});
+  if (gachaLootString) embed.addFields({ name: '🎁 MYSTERY LOOT DROP!', value: `You found a rare blueprint schematic:\n${gachaLootString}`});
 
   await prisma.$transaction(dbOperations);
 
