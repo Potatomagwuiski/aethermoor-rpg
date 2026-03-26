@@ -45,7 +45,8 @@ export async function executeProfile(message: Message, args: string[]) {
   if (player.equipment.length === 0) gearText = '*No weapons or armor equipped.*';
   else {
     player.equipment.forEach(gear => {
-      gearText += `• [${gear.rarity}] **${gear.baseItemKey.toUpperCase()}** (+${gear.bonusAtk} ATK | +${gear.bonusDef} DEF)\n`;
+      const emoji = getEmoji(gear.baseItemKey);
+      gearText += `• ${emoji} **${gear.name}** (+${gear.bonusAtk}⚔️ | +${gear.bonusDef}🛡️)\n`;
     });
   }
   embed.addFields({ name: '⚔️ Equipped Gear', value: gearText });
@@ -55,7 +56,7 @@ export async function executeProfile(message: Message, args: string[]) {
   if (player.tools.length === 0) toolsText = '*No gathering tools equipped.*';
   else {
     player.tools.forEach(tool => {
-      toolsText += `• [${tool.rarity}] **${tool.type}** (x${tool.yieldMultiplier} Yield)\n`;
+      toolsText += `• **${tool.name}** (x${tool.yieldMultiplier} Yield)\n`;
     });
   }
   embed.addFields({ name: '⛏️ Gathering Tools', value: toolsText });
