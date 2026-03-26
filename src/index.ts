@@ -12,6 +12,7 @@ import { executeShop, executeBuy } from './commands/shop.js';
 import { executeDungeon } from './commands/dungeon.js';
 import { executeForge } from './commands/forge.js';
 import { executeHeal } from './commands/heal.js';
+import { executeCook } from './commands/cook.js';
 import { executeHelp } from './commands/help.js';
 import { executeInventory } from './commands/inventory.js';
 import { executeProfile } from './commands/profile.js';
@@ -141,6 +142,13 @@ client.on(Events.MessageCreate, async (message) => {
         } catch (error: any) {
             console.error(error);
             await message.reply(`Error executing help command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
+    } else if (command === 'cook') {
+        try {
+            await executeCook(message, args);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing cook command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
     } else if (command === 'reset') {
         try {

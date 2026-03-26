@@ -102,8 +102,22 @@ export async function execute(message: Message) {
   let jackpotTriggered = false;
   let jackpotMessage = '';
   
-  // The HP Penalty - Monsters now deal damage scaling deeply with Zone Tier & Level
-  let baseEnemyThreat = Math.floor(tier * (5 + (player.level * 1.5))); 
+  // --- PRE-COMBAT CULINARY BUFF PARSING ---
+  let buffMessage = '';
+  let activeBuff = player.activeBuff;
+  if (activeBuff && player.buffExpiresAt && player.buffExpiresAt > new Date()) {
+    if (activeBuff === 'ATK_10') { gearAtk += 10; buffMessage = '✨ **Buff Active:** Roasted Trout (+10 ATK)'; }
+    if (activeBuff === 'HP_25') { player.maxHp += 25; player.hp += 25; buffMessage = '✨ **Buff Active:** Koi Soup (+25 MAX HP)'; }
+    if (activeBuff === 'DEF_50') { gearDef += 50; buffMessage = '✨ **Buff Active:** Glacial Filet (+50 DEF)'; }
+    if (activeBuff === 'CRIT_15') { gearCrit += 15; buffMessage = '✨ **Buff Active:** Spicy Eel (+15% CRIT)'; }
+    if (activeBuff === 'ATK_100_LS_10') { gearAtk += 100; gearLifesteal += 10; buffMessage = '✨ **Buff Active:** Void Sashimi (+100 ATK, 10% LIFESTEAL)'; }
+  } else if (activeBuff) {
+    await prisma.player.update({ where: { id: player.id }, data: { activeBuff: null, buffExpiresAt: null } });
+    activeBuff = null;
+  }
+  
+  // The HP Penalty - Brutal Scaler Phase 25
+  let baseEnemyThreat = Math.floor(tier * 10) + Math.floor(player.level * 4.5); 
   let damageTaken = Math.floor(Math.random() * baseEnemyThreat) + Math.floor(baseEnemyThreat / 2);
   
   // Apply Flat Damage Reduction from Armor + Class Armor Passives + Player Endurance
@@ -316,6 +330,7 @@ export async function execute(message: Message) {
   // Format the Dopamine Delivery
   let extraLoot = '';
   if (monsterDropString) extraLoot += `\n${monsterDropString}`;
+  if (buffMessage) extraLoot += `\n${buffMessage}`;
 
   let slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **${slotMultiplier}x Multiplier!**`;
   if (isSlotJackpot) {

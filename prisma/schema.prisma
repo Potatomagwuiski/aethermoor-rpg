@@ -58,6 +58,10 @@ model Player {
   // Geographical Flow
   location        String   @default("lumina_plains")
 
+  // Culinary Buffs
+  activeBuff      String?
+  buffExpiresAt   DateTime?
+
   // Core Allocatable Attributes
   pointsAvailable Int      @default(0)
   str             Int      @default(5)
