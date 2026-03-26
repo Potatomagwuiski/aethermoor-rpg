@@ -1,6 +1,7 @@
 import { Message, EmbedBuilder } from 'discord.js';
 import prisma from '../db.js';
 import redisClient from '../redis.js';
+import { getEmoji } from '../utils/emojis.js';
 
 export async function execute(message: Message) {
   const discordId = message.author.id;
@@ -259,7 +260,7 @@ export async function execute(message: Message) {
 
   for (const item of mob.loot) {
     if (Math.random() <= item.chance) {
-      monsterDropStrings.push(`🦴 \`[${slotMultiplier}x ${item.name}]\``);
+      monsterDropStrings.push(`${getEmoji(item.key)} \`[${slotMultiplier}x ${item.name}]\``);
       dbOperations.push(prisma.inventoryItem.upsert({
         where: { playerId_itemKey: { playerId: player.id, itemKey: item.key } },
         update: { quantity: { increment: slotMultiplier } },

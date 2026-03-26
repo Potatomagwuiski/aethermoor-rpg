@@ -6,7 +6,7 @@ import { getEmoji } from '../utils/emojis.js';
 const BLUEPRINTS: Record<string, any> = {
   // --- WARRIOR ---
   'iron_sword': {
-    name: 'Iron Sword', requiredBlueprint: 'blueprint_iron_sword', materials: { iron: 5, wood: 2 },
+    name: 'Iron Sword', requiredBlueprint: 'blueprint_iron_sword', materials: { copper: 10, tin: 5, wood: 5, goblin_ear: 2 },
     outputs: {
       common: { key: 'common_iron_sword', name: '⬜ [Common Iron Sword]', dps: 15 },
       uncommon: { key: 'uncommon_iron_sword', name: '🟩 [Uncommon Iron Sword]', dps: 25 },
@@ -15,7 +15,7 @@ const BLUEPRINTS: Record<string, any> = {
     }
   },
   'steel_greatsword': {
-    name: 'Steel Greatsword', requiredBlueprint: 'blueprint_steel_greatsword', materials: { iron: 15, elderwood: 5, wolf_pelt: 2 },
+    name: 'Steel Greatsword', requiredBlueprint: 'blueprint_steel_greatsword', materials: { iron: 20, coal: 10, ashwood: 5, wolf_pelt: 5 },
     outputs: {
       common: { key: 'common_steel_greatsword', name: '⬜ [Common Steel Greatsword]', dps: 30 },
       uncommon: { key: 'uncommon_steel_greatsword', name: '🟩 [Uncommon Steel Greatsword]', dps: 60 },
@@ -24,7 +24,7 @@ const BLUEPRINTS: Record<string, any> = {
     }
   },
   'wolf_slayer': {
-    name: 'Wolf Slayer Sword', requiredBlueprint: 'blueprint_wolf_slayer', materials: { iron: 5, wolf_pelt: 10 },
+    name: 'Wolf Slayer Sword', requiredBlueprint: 'blueprint_wolf_slayer', materials: { steel_ore: 15, silver: 10, bone_shard: 20 },
     outputs: { rare: { key: 'rare_wolf_slayer', name: '🟦 [Rare Wolf Slayer]', dps: 85 }, epic: { key: 'epic_wolf_slayer', name: '🟪 [Epic Wolf Slayer]', dps: 150 } }
   },
   'mythril_cleaver': {
@@ -38,7 +38,7 @@ const BLUEPRINTS: Record<string, any> = {
 
   // --- ROGUE ---
   'iron_dagger': {
-    name: 'Iron Dagger', requiredBlueprint: 'blueprint_iron_dagger', materials: { iron: 3, wood: 1 },
+    name: 'Iron Dagger', requiredBlueprint: 'blueprint_iron_dagger', materials: { copper: 5, tin: 5, bat_wing: 2 },
     outputs: {
       common: { key: 'common_iron_dagger', name: '⬜ [Common Iron Dagger]', dps: 12 },
       uncommon: { key: 'uncommon_iron_dagger', name: '🟩 [Uncommon Iron Dagger]', dps: 20 },
@@ -47,7 +47,7 @@ const BLUEPRINTS: Record<string, any> = {
     }
   },
   'venom_shiv': {
-    name: 'Venom Shiv', requiredBlueprint: 'blueprint_venom_shiv', materials: { iron: 10, slime_core: 10 },
+    name: 'Venom Shiv', requiredBlueprint: 'blueprint_venom_shiv', materials: { iron: 15, mooncap_mushroom: 10, wolf_fang: 5 },
     outputs: { rare: { key: 'rare_venom_shiv', name: '🟦 [Rare Venom Shiv]', dps: 90 }, epic: { key: 'epic_venom_shiv', name: '🟪 [Epic Venom Shiv]', dps: 160 } }
   },
   'shadow_blade': {
@@ -57,7 +57,7 @@ const BLUEPRINTS: Record<string, any> = {
 
   // --- MAGE ---
   'wood_staff': {
-    name: 'Wood Staff', requiredBlueprint: 'blueprint_wood_staff', materials: { wood: 5, moon_herb: 5 },
+    name: 'Wood Staff', requiredBlueprint: 'blueprint_wood_staff', materials: { wood: 10, basic_herb: 5, slime_core: 2 },
     outputs: {
       common: { key: 'common_wood_staff', name: '⬜ [Common Wood Staff]', dps: 15 },
       uncommon: { key: 'uncommon_wood_staff', name: '🟩 [Uncommon Wood Staff]', dps: 25 },
@@ -66,7 +66,7 @@ const BLUEPRINTS: Record<string, any> = {
     }
   },
   'moonlight_staff': {
-    name: 'Moonlight Staff', requiredBlueprint: 'blueprint_moonlight_staff', materials: { elderwood: 15, mythril: 5 },
+    name: 'Moonlight Staff', requiredBlueprint: 'blueprint_moonlight_staff', materials: { ashwood: 15, moon_herb: 5, living_wood: 2 },
     outputs: { rare: { key: 'rare_moonlight_staff', name: '🟦 [Rare Moonlight Staff]', dps: 120 }, epic: { key: 'epic_moonlight_staff', name: '🟪 [Epic Moonlight Staff]', dps: 210 } }
   },
   'meteor_staff': {
@@ -76,7 +76,7 @@ const BLUEPRINTS: Record<string, any> = {
 
   // --- NECROMANCER ---
   'bone_scythe': {
-    name: 'Bone Scythe', requiredBlueprint: 'blueprint_bone_scythe', materials: { iron: 5, wood: 5, goblin_ear: 5 },
+    name: 'Bone Scythe', requiredBlueprint: 'blueprint_bone_scythe', materials: { copper: 5, wood: 5, goblin_ear: 5 },
     outputs: {
       common: { key: 'common_bone_scythe', name: '⬜ [Common Bone Scythe]', dps: 20 },
       uncommon: { key: 'uncommon_bone_scythe', name: '🟩 [Uncommon Bone Scythe]', dps: 35 },
@@ -85,7 +85,7 @@ const BLUEPRINTS: Record<string, any> = {
     }
   },
   'soul_reaper': {
-    name: 'Soul Reaper', requiredBlueprint: 'blueprint_soul_reaper', materials: { iron: 15, wolf_pelt: 10, lich_soul: 1 },
+    name: 'Soul Reaper', requiredBlueprint: 'blueprint_soul_reaper', materials: { iron: 15, coal: 5, wolf_pelt: 10 },
     outputs: { rare: { key: 'rare_soul_reaper', name: '🟦 [Rare Soul Reaper]', dps: 150 }, epic: { key: 'epic_soul_reaper', name: '🟪 [Epic Soul Reaper]', dps: 260 } }
   },
   'lich_tome': {
@@ -95,25 +95,25 @@ const BLUEPRINTS: Record<string, any> = {
 
   // --- ARMOR ---
   'iron_helmet': {
-    name: 'Iron Helmet', requiredBlueprint: 'blueprint_iron_helmet', materials: { iron: 10 },
+    name: 'Iron Helmet', requiredBlueprint: 'blueprint_iron_helmet', materials: { copper: 15, tin: 5 },
     outputs: { common: { key: 'common_iron_helmet', name: '⬜ [Common Iron Helmet]', defense: 5 }, uncommon: { key: 'uncommon_iron_helmet', name: '🟩 [Uncommon Iron Helmet]', defense: 10 }, rare: { key: 'rare_iron_helmet', name: '🟦 [Rare Iron Helmet]', defense: 20 }, epic: { key: 'epic_iron_helmet', name: '🟪 [Epic Iron Helmet]', defense: 40 } }
   },
   'iron_chestplate': {
-    name: 'Iron Chestplate', requiredBlueprint: 'blueprint_iron_chestplate', materials: { iron: 25 },
+    name: 'Iron Chestplate', requiredBlueprint: 'blueprint_iron_chestplate', materials: { copper: 20, tin: 10 },
     outputs: { common: { key: 'common_iron_chestplate', name: '⬜ [Common Iron Chestplate]', defense: 10 }, uncommon: { key: 'uncommon_iron_chestplate', name: '🟩 [Uncommon Iron Chestplate]', defense: 20 }, rare: { key: 'rare_iron_chestplate', name: '🟦 [Rare Iron Chestplate]', defense: 40 }, epic: { key: 'epic_iron_chestplate', name: '🟪 [Epic Iron Chestplate]', defense: 80 } }
   },
   'iron_boots': {
-    name: 'Iron Boots', requiredBlueprint: 'blueprint_iron_boots', materials: { iron: 8 },
+    name: 'Iron Boots', requiredBlueprint: 'blueprint_iron_boots', materials: { copper: 10, tin: 5 },
     outputs: { common: { key: 'common_iron_boots', name: '⬜ [Common Iron Boots]', defense: 4 }, uncommon: { key: 'uncommon_iron_boots', name: '🟩 [Uncommon Iron Boots]', defense: 8 }, rare: { key: 'rare_iron_boots', name: '🟦 [Rare Iron Boots]', defense: 16 }, epic: { key: 'epic_iron_boots', name: '🟪 [Epic Iron Boots]', defense: 32 } }
   },
 
   // --- TOOLS ---
   'iron_pickaxe': {
-    name: 'Iron Pickaxe', requiredBlueprint: 'blueprint_iron_pickaxe', materials: { iron: 15, wood: 10 },
+    name: 'Iron Pickaxe', requiredBlueprint: 'blueprint_iron_pickaxe', materials: { copper: 15, wood: 10 },
     outputs: { common: { key: 'common_iron_pickaxe', name: '⬜ [Common Iron Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'COMMON', yieldMultiplier: 1.25 }, uncommon: { key: 'uncommon_iron_pickaxe', name: '🟩 [Uncommon Iron Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'UNCOMMON', yieldMultiplier: 1.75 }, rare: { key: 'rare_iron_pickaxe', name: '🟦 [Rare Iron Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'RARE', yieldMultiplier: 2.5 } }
   },
   'steel_pickaxe': {
-    name: 'Steel Pickaxe', requiredBlueprint: 'blueprint_steel_pickaxe', materials: { iron: 40, elderwood: 10 },
+    name: 'Steel Pickaxe', requiredBlueprint: 'blueprint_steel_pickaxe', materials: { iron: 20, coal: 10, ashwood: 10 },
     outputs: { common: { key: 'common_steel_pickaxe', name: '⬜ [Common Steel Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'COMMON', yieldMultiplier: 2.0 }, uncommon: { key: 'uncommon_steel_pickaxe', name: '🟩 [Uncommon Steel Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'UNCOMMON', yieldMultiplier: 2.75 }, rare: { key: 'rare_steel_pickaxe', name: '🟦 [Rare Steel Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'RARE', yieldMultiplier: 4.0 } }
   },
   'mythril_pickaxe': {
@@ -121,11 +121,11 @@ const BLUEPRINTS: Record<string, any> = {
     outputs: { common: { key: 'common_mythril_pickaxe', name: '⬜ [Common Mythril Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'COMMON', yieldMultiplier: 3.5 }, uncommon: { key: 'uncommon_mythril_pickaxe', name: '🟩 [Uncommon Mythril Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'UNCOMMON', yieldMultiplier: 5.0 }, rare: { key: 'rare_mythril_pickaxe', name: '🟦 [Rare Mythril Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'RARE', yieldMultiplier: 8.0 } }
   },
   'iron_axe': {
-    name: 'Iron Axe', requiredBlueprint: 'blueprint_iron_axe', materials: { iron: 10, wood: 15 },
+    name: 'Iron Axe', requiredBlueprint: 'blueprint_iron_axe', materials: { copper: 10, wood: 15 },
     outputs: { common: { key: 'common_iron_axe', name: '⬜ [Common Iron Axe]', isTool: true, type: 'AXE', rarity: 'COMMON', yieldMultiplier: 1.25 }, uncommon: { key: 'uncommon_iron_axe', name: '🟩 [Uncommon Iron Axe]', isTool: true, type: 'AXE', rarity: 'UNCOMMON', yieldMultiplier: 1.75 }, rare: { key: 'rare_iron_axe', name: '🟦 [Rare Iron Axe]', isTool: true, type: 'AXE', rarity: 'RARE', yieldMultiplier: 2.5 } }
   },
   'steel_axe': {
-    name: 'Steel Axe', requiredBlueprint: 'blueprint_steel_axe', materials: { iron: 25, elderwood: 25 },
+    name: 'Steel Axe', requiredBlueprint: 'blueprint_steel_axe', materials: { iron: 15, coal: 15, ashwood: 15 },
     outputs: { common: { key: 'common_steel_axe', name: '⬜ [Common Steel Axe]', isTool: true, type: 'AXE', rarity: 'COMMON', yieldMultiplier: 2.0 }, uncommon: { key: 'uncommon_steel_axe', name: '🟩 [Uncommon Steel Axe]', isTool: true, type: 'AXE', rarity: 'UNCOMMON', yieldMultiplier: 2.75 }, rare: { key: 'rare_steel_axe', name: '🟦 [Rare Steel Axe]', isTool: true, type: 'AXE', rarity: 'RARE', yieldMultiplier: 4.0 } }
   },
   'mythril_axe': {

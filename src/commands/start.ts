@@ -27,7 +27,8 @@ export async function execute(message: Message, args: string[]) {
     .addFields(
       { name: '⚔️ Step 1: The Grind', value: 'Type **`rpg hunt`** immediately. You will instantly fight a monster, gain ✨ XP, and earn 🪙 Gold. Keep doing this to trigger massive random 🎰 Jackpots or 15% 🎁 Gacha Drops!' },
       { name: '⚒️ Step 2: The Resources', value: 'Take a break from blood. Type **`rpg mine`**, **`rpg chop`**, **`rpg fish`**, or **`rpg farm`** to gather raw crafting materials like 🪨 Iron and 🪵 Wood.' },
-      { name: '📜 Step 3: The Knowledge', value: 'Once you gather enough wealth and materials, type **`rpg help`** to view all Advanced mechanics like 🏰 Dungeons, the 🛒 Shop, and 🔨 Weapon Forging.' }
+      { name: '🌍 Step 3: The World', value: 'You begin in the **Lumina Plains**. Once you reach Level 10, type **`rpg travel whispering_woods`** to move to tier 2 for harder monsters and rarer resources!' },
+      { name: '📜 Step 4: The Knowledge', value: 'Once you gather enough wealth and materials, type **`rpg help`** to view all Advanced mechanics like 🏰 Dungeons, the 🛒 Shop, and 🔨 Weapon Forging.' }
     )
     .setFooter({ text: 'The void constantly shifts. What will you become? (Type rpg hunt)' });
 
