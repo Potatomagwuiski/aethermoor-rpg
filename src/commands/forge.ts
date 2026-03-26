@@ -5,22 +5,22 @@ import { getEmoji } from '../utils/emojis.js';
 // Define the blueprint requirements and outputs
 const BLUEPRINTS: Record<string, any> = {
   // --- WARRIOR ---
-  'iron_sword': {
-    name: 'Iron Sword', requiredBlueprint: 'blueprint_iron_sword', materials: { copper: 10, tin: 5, wood: 5, goblin_ear: 2 },
+  'bronze_sword': {
+    name: 'Bronze Sword', requiredBlueprint: 'blueprint_bronze_sword', materials: { copper: 10, tin: 5, wood: 5, goblin_ear: 2 },
     outputs: {
-      common: { key: 'common_iron_sword', name: '⬜ [Common Iron Sword]', dps: 15 },
-      uncommon: { key: 'uncommon_iron_sword', name: '🟩 [Uncommon Iron Sword]', dps: 25 },
-      rare: { key: 'rare_iron_sword', name: '🟦 [Rare Iron Sword]', dps: 40 },
-      epic: { key: 'epic_iron_sword', name: '🟪 [Epic Iron Sword]', dps: 75 }
+      common: { key: 'common_bronze_sword', name: '⬜ [Common Bronze Sword]', dps: 15 },
+      uncommon: { key: 'uncommon_bronze_sword', name: '🟩 [Uncommon Bronze Sword]', dps: 25 },
+      rare: { key: 'rare_bronze_sword', name: '🟦 [Rare Bronze Sword]', dps: 40 },
+      epic: { key: 'epic_bronze_sword', name: '🟪 [Epic Bronze Sword]', dps: 75 }
     }
   },
-  'steel_greatsword': {
-    name: 'Steel Greatsword', requiredBlueprint: 'blueprint_steel_greatsword', materials: { iron: 20, coal: 10, ashwood: 5, wolf_pelt: 5 },
+  'iron_greatsword': {
+    name: 'Iron Greatsword', requiredBlueprint: 'blueprint_iron_greatsword', materials: { iron: 20, coal: 10, ashwood: 5, wolf_pelt: 5 },
     outputs: {
-      common: { key: 'common_steel_greatsword', name: '⬜ [Common Steel Greatsword]', dps: 30 },
-      uncommon: { key: 'uncommon_steel_greatsword', name: '🟩 [Uncommon Steel Greatsword]', dps: 60 },
-      rare: { key: 'rare_steel_greatsword', name: '🟦 [Rare Steel Greatsword]', dps: 100 },
-      epic: { key: 'epic_steel_greatsword', name: '🟪 [Epic Steel Greatsword]', dps: 160 }
+      common: { key: 'common_iron_greatsword', name: '⬜ [Common Iron Greatsword]', dps: 30 },
+      uncommon: { key: 'uncommon_iron_greatsword', name: '🟩 [Uncommon Iron Greatsword]', dps: 60 },
+      rare: { key: 'rare_iron_greatsword', name: '🟦 [Rare Iron Greatsword]', dps: 100 },
+      epic: { key: 'epic_iron_greatsword', name: '🟪 [Epic Iron Greatsword]', dps: 160 }
     }
   },
   'wolf_slayer': {
@@ -37,13 +37,13 @@ const BLUEPRINTS: Record<string, any> = {
   },
 
   // --- ROGUE ---
-  'iron_dagger': {
-    name: 'Iron Dagger', requiredBlueprint: 'blueprint_iron_dagger', materials: { copper: 5, tin: 5, bat_wing: 2 },
+  'bronze_dagger': {
+    name: 'Bronze Dagger', requiredBlueprint: 'blueprint_bronze_dagger', materials: { copper: 5, tin: 5, bat_wing: 2 },
     outputs: {
-      common: { key: 'common_iron_dagger', name: '⬜ [Common Iron Dagger]', dps: 12 },
-      uncommon: { key: 'uncommon_iron_dagger', name: '🟩 [Uncommon Iron Dagger]', dps: 20 },
-      rare: { key: 'rare_iron_dagger', name: '🟦 [Rare Iron Dagger]', dps: 35 },
-      epic: { key: 'epic_iron_dagger', name: '🟪 [Epic Iron Dagger]', dps: 60 }
+      common: { key: 'common_bronze_dagger', name: '⬜ [Common Bronze Dagger]', dps: 12 },
+      uncommon: { key: 'uncommon_bronze_dagger', name: '🟩 [Uncommon Bronze Dagger]', dps: 20 },
+      rare: { key: 'rare_bronze_dagger', name: '🟦 [Rare Bronze Dagger]', dps: 35 },
+      epic: { key: 'epic_bronze_dagger', name: '🟪 [Epic Bronze Dagger]', dps: 60 }
     }
   },
   'venom_shiv': {
@@ -94,39 +94,39 @@ const BLUEPRINTS: Record<string, any> = {
   },
 
   // --- ARMOR ---
-  'iron_helmet': {
-    name: 'Iron Helmet', requiredBlueprint: 'blueprint_iron_helmet', materials: { copper: 15, tin: 5 },
-    outputs: { common: { key: 'common_iron_helmet', name: '⬜ [Common Iron Helmet]', defense: 5 }, uncommon: { key: 'uncommon_iron_helmet', name: '🟩 [Uncommon Iron Helmet]', defense: 10 }, rare: { key: 'rare_iron_helmet', name: '🟦 [Rare Iron Helmet]', defense: 20 }, epic: { key: 'epic_iron_helmet', name: '🟪 [Epic Iron Helmet]', defense: 40 } }
+  'bronze_helmet': {
+    name: 'Bronze Helmet', requiredBlueprint: 'blueprint_bronze_helmet', materials: { copper: 15, tin: 5 },
+    outputs: { common: { key: 'common_bronze_helmet', name: '⬜ [Common Bronze Helmet]', defense: 5 }, uncommon: { key: 'uncommon_bronze_helmet', name: '🟩 [Uncommon Bronze Helmet]', defense: 10 }, rare: { key: 'rare_bronze_helmet', name: '🟦 [Rare Bronze Helmet]', defense: 20 }, epic: { key: 'epic_bronze_helmet', name: '🟪 [Epic Bronze Helmet]', defense: 40 } }
   },
-  'iron_chestplate': {
-    name: 'Iron Chestplate', requiredBlueprint: 'blueprint_iron_chestplate', materials: { copper: 20, tin: 10 },
-    outputs: { common: { key: 'common_iron_chestplate', name: '⬜ [Common Iron Chestplate]', defense: 10 }, uncommon: { key: 'uncommon_iron_chestplate', name: '🟩 [Uncommon Iron Chestplate]', defense: 20 }, rare: { key: 'rare_iron_chestplate', name: '🟦 [Rare Iron Chestplate]', defense: 40 }, epic: { key: 'epic_iron_chestplate', name: '🟪 [Epic Iron Chestplate]', defense: 80 } }
+  'bronze_chestplate': {
+    name: 'Bronze Chestplate', requiredBlueprint: 'blueprint_bronze_chestplate', materials: { copper: 20, tin: 10 },
+    outputs: { common: { key: 'common_bronze_chestplate', name: '⬜ [Common Bronze Chestplate]', defense: 10 }, uncommon: { key: 'uncommon_bronze_chestplate', name: '🟩 [Uncommon Bronze Chestplate]', defense: 20 }, rare: { key: 'rare_bronze_chestplate', name: '🟦 [Rare Bronze Chestplate]', defense: 40 }, epic: { key: 'epic_bronze_chestplate', name: '🟪 [Epic Bronze Chestplate]', defense: 80 } }
   },
-  'iron_boots': {
-    name: 'Iron Boots', requiredBlueprint: 'blueprint_iron_boots', materials: { copper: 10, tin: 5 },
-    outputs: { common: { key: 'common_iron_boots', name: '⬜ [Common Iron Boots]', defense: 4 }, uncommon: { key: 'uncommon_iron_boots', name: '🟩 [Uncommon Iron Boots]', defense: 8 }, rare: { key: 'rare_iron_boots', name: '🟦 [Rare Iron Boots]', defense: 16 }, epic: { key: 'epic_iron_boots', name: '🟪 [Epic Iron Boots]', defense: 32 } }
+  'bronze_boots': {
+    name: 'Bronze Boots', requiredBlueprint: 'blueprint_bronze_boots', materials: { copper: 10, tin: 5 },
+    outputs: { common: { key: 'common_bronze_boots', name: '⬜ [Common Bronze Boots]', defense: 4 }, uncommon: { key: 'uncommon_bronze_boots', name: '🟩 [Uncommon Bronze Boots]', defense: 8 }, rare: { key: 'rare_bronze_boots', name: '🟦 [Rare Bronze Boots]', defense: 16 }, epic: { key: 'epic_bronze_boots', name: '🟪 [Epic Bronze Boots]', defense: 32 } }
   },
 
   // --- TOOLS ---
-  'iron_pickaxe': {
-    name: 'Iron Pickaxe', requiredBlueprint: 'blueprint_iron_pickaxe', materials: { copper: 15, wood: 10 },
-    outputs: { common: { key: 'common_iron_pickaxe', name: '⬜ [Common Iron Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'COMMON', yieldMultiplier: 1.25 }, uncommon: { key: 'uncommon_iron_pickaxe', name: '🟩 [Uncommon Iron Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'UNCOMMON', yieldMultiplier: 1.75 }, rare: { key: 'rare_iron_pickaxe', name: '🟦 [Rare Iron Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'RARE', yieldMultiplier: 2.5 } }
+  'bronze_pickaxe': {
+    name: 'Bronze Pickaxe', requiredBlueprint: 'blueprint_bronze_pickaxe', materials: { copper: 15, wood: 10 },
+    outputs: { common: { key: 'common_bronze_pickaxe', name: '⬜ [Common Bronze Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'COMMON', yieldMultiplier: 1.25 }, uncommon: { key: 'uncommon_bronze_pickaxe', name: '🟩 [Uncommon Bronze Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'UNCOMMON', yieldMultiplier: 1.75 }, rare: { key: 'rare_bronze_pickaxe', name: '🟦 [Rare Bronze Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'RARE', yieldMultiplier: 2.5 } }
   },
-  'steel_pickaxe': {
-    name: 'Steel Pickaxe', requiredBlueprint: 'blueprint_steel_pickaxe', materials: { iron: 20, coal: 10, ashwood: 10 },
-    outputs: { common: { key: 'common_steel_pickaxe', name: '⬜ [Common Steel Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'COMMON', yieldMultiplier: 2.0 }, uncommon: { key: 'uncommon_steel_pickaxe', name: '🟩 [Uncommon Steel Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'UNCOMMON', yieldMultiplier: 2.75 }, rare: { key: 'rare_steel_pickaxe', name: '🟦 [Rare Steel Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'RARE', yieldMultiplier: 4.0 } }
+  'iron_pickaxe': {
+    name: 'Iron Pickaxe', requiredBlueprint: 'blueprint_iron_pickaxe', materials: { iron: 20, coal: 10, ashwood: 10 },
+    outputs: { common: { key: 'common_iron_pickaxe', name: '⬜ [Common Iron Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'COMMON', yieldMultiplier: 2.0 }, uncommon: { key: 'uncommon_iron_pickaxe', name: '🟩 [Uncommon Iron Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'UNCOMMON', yieldMultiplier: 2.75 }, rare: { key: 'rare_iron_pickaxe', name: '🟦 [Rare Iron Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'RARE', yieldMultiplier: 4.0 } }
   },
   'mythril_pickaxe': {
     name: 'Mythril Pickaxe', requiredBlueprint: 'blueprint_mythril_pickaxe', materials: { mythril: 30, elderwood: 20 },
     outputs: { common: { key: 'common_mythril_pickaxe', name: '⬜ [Common Mythril Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'COMMON', yieldMultiplier: 3.5 }, uncommon: { key: 'uncommon_mythril_pickaxe', name: '🟩 [Uncommon Mythril Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'UNCOMMON', yieldMultiplier: 5.0 }, rare: { key: 'rare_mythril_pickaxe', name: '🟦 [Rare Mythril Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'RARE', yieldMultiplier: 8.0 } }
   },
-  'iron_axe': {
-    name: 'Iron Axe', requiredBlueprint: 'blueprint_iron_axe', materials: { copper: 10, wood: 15 },
-    outputs: { common: { key: 'common_iron_axe', name: '⬜ [Common Iron Axe]', isTool: true, type: 'AXE', rarity: 'COMMON', yieldMultiplier: 1.25 }, uncommon: { key: 'uncommon_iron_axe', name: '🟩 [Uncommon Iron Axe]', isTool: true, type: 'AXE', rarity: 'UNCOMMON', yieldMultiplier: 1.75 }, rare: { key: 'rare_iron_axe', name: '🟦 [Rare Iron Axe]', isTool: true, type: 'AXE', rarity: 'RARE', yieldMultiplier: 2.5 } }
+  'bronze_axe': {
+    name: 'Bronze Axe', requiredBlueprint: 'blueprint_bronze_axe', materials: { copper: 10, wood: 15 },
+    outputs: { common: { key: 'common_bronze_axe', name: '⬜ [Common Bronze Axe]', isTool: true, type: 'AXE', rarity: 'COMMON', yieldMultiplier: 1.25 }, uncommon: { key: 'uncommon_bronze_axe', name: '🟩 [Uncommon Bronze Axe]', isTool: true, type: 'AXE', rarity: 'UNCOMMON', yieldMultiplier: 1.75 }, rare: { key: 'rare_bronze_axe', name: '🟦 [Rare Bronze Axe]', isTool: true, type: 'AXE', rarity: 'RARE', yieldMultiplier: 2.5 } }
   },
-  'steel_axe': {
-    name: 'Steel Axe', requiredBlueprint: 'blueprint_steel_axe', materials: { iron: 15, coal: 15, ashwood: 15 },
-    outputs: { common: { key: 'common_steel_axe', name: '⬜ [Common Steel Axe]', isTool: true, type: 'AXE', rarity: 'COMMON', yieldMultiplier: 2.0 }, uncommon: { key: 'uncommon_steel_axe', name: '🟩 [Uncommon Steel Axe]', isTool: true, type: 'AXE', rarity: 'UNCOMMON', yieldMultiplier: 2.75 }, rare: { key: 'rare_steel_axe', name: '🟦 [Rare Steel Axe]', isTool: true, type: 'AXE', rarity: 'RARE', yieldMultiplier: 4.0 } }
+  'iron_axe': {
+    name: 'Iron Axe', requiredBlueprint: 'blueprint_iron_axe', materials: { iron: 15, coal: 15, ashwood: 15 },
+    outputs: { common: { key: 'common_iron_axe', name: '⬜ [Common Iron Axe]', isTool: true, type: 'AXE', rarity: 'COMMON', yieldMultiplier: 2.0 }, uncommon: { key: 'uncommon_iron_axe', name: '🟩 [Uncommon Iron Axe]', isTool: true, type: 'AXE', rarity: 'UNCOMMON', yieldMultiplier: 2.75 }, rare: { key: 'rare_iron_axe', name: '🟦 [Rare Iron Axe]', isTool: true, type: 'AXE', rarity: 'RARE', yieldMultiplier: 4.0 } }
   },
   'mythril_axe': {
     name: 'Mythril Axe', requiredBlueprint: 'blueprint_mythril_axe', materials: { mythril: 20, elderwood: 30 },
@@ -201,7 +201,7 @@ export async function executeForge(message: Message, args: string[]) {
   const blueprint = BLUEPRINTS[recipeId];
 
   if (!blueprint) {
-    return message.reply(`That is not a valid Forge recipe. Known blueprints: \`iron_sword\`, \`void_blade\`.`);
+    return message.reply(`That is not a valid Forge recipe. Known blueprints: \`bronze_sword\`, \`void_blade\`.`);
   }
 
   // 1. Check if they have the Blueprint unlocked

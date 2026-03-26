@@ -38,23 +38,23 @@ export const ITEM_EMOJIS: Record<string, string> = {
     
     // Tools
     'basic_pickaxe': '⛏️',
+    'bronze_pickaxe': '⛏️',
     'iron_pickaxe': '⛏️',
-    'steel_pickaxe': '⛏️',
     'mythril_pickaxe': '⛏️',
     'basic_axe': '🪓',
+    'bronze_axe': '🪓',
     'iron_axe': '🪓',
-    'steel_axe': '🪓',
     'mythril_axe': '🪓',
     
     // Weapons
     'copper_sword': '🗡️',
-    'iron_sword': '🗡️',
+    'bronze_sword': '🗡️',
     'steel_sword': '⚔️',
     'mythril_sword': '🗡️',
     
-    'steel_greatsword': '⚔️',
+    'iron_greatsword': '⚔️',
     'mythril_cleaver': '🪓',
-    'iron_dagger': '🔪',
+    'bronze_dagger': '🔪',
     'venom_shiv': '🦂',
     'shadow_blade': '🌌',
     'wood_staff': '🦯',
@@ -65,22 +65,22 @@ export const ITEM_EMOJIS: Record<string, string> = {
     'lich_tome': '📖',
     
     // Armor
-    'iron_helmet': '🪖',
-    'iron_chestplate': '👕',
-    'iron_boots': '👞',
+    'bronze_helmet': '🪖',
+    'bronze_chestplate': '👕',
+    'bronze_boots': '👞',
     
     // Blueprints
+    'blueprint_bronze_pickaxe': '📜',
     'blueprint_iron_pickaxe': '📜',
-    'blueprint_steel_pickaxe': '📜',
     'blueprint_mythril_pickaxe': '📜',
+    'blueprint_bronze_axe': '📜',
     'blueprint_iron_axe': '📜',
-    'blueprint_steel_axe': '📜',
     'blueprint_mythril_axe': '📜',
     
-    'blueprint_iron_sword': '📜',
-    'blueprint_steel_greatsword': '📜',
+    'blueprint_bronze_sword': '📜',
+    'blueprint_iron_greatsword': '📜',
     'blueprint_mythril_cleaver': '📜',
-    'blueprint_iron_dagger': '📜',
+    'blueprint_bronze_dagger': '📜',
     'blueprint_venom_shiv': '📜',
     'blueprint_shadow_blade': '📜',
     'blueprint_wood_staff': '📜',
@@ -89,9 +89,9 @@ export const ITEM_EMOJIS: Record<string, string> = {
     'blueprint_bone_scythe': '📜',
     'blueprint_soul_reaper': '📜',
     'blueprint_lich_tome': '📜',
-    'blueprint_iron_helmet': '📜',
-    'blueprint_iron_chestplate': '📜',
-    'blueprint_iron_boots': '📜',
+    'blueprint_bronze_helmet': '📜',
+    'blueprint_bronze_chestplate': '📜',
+    'blueprint_bronze_boots': '📜',
     'blueprint_wolf_slayer': '📜',
     'blueprint_void_blade': '📜',
     

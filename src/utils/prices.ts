@@ -46,14 +46,14 @@ export const ITEM_SELL_PRICES: Record<string, number> = {
     'behemoth_bone': 3000,
     
     // Forged Weapons
-    'common_iron_sword': 100, 'uncommon_iron_sword': 300, 'rare_iron_sword': 800, 'epic_iron_sword': 2000,
+    'common_bronze_sword': 100, 'uncommon_bronze_sword': 300, 'rare_bronze_sword': 800, 'epic_bronze_sword': 2000,
     'rare_wolf_slayer': 1200, 'epic_wolf_slayer': 3500,
     'rare_void_blade': 5000, 'epic_void_blade': 15000, 'legendary_void_blade': 50000,
     
-    'common_steel_greatsword': 300, 'uncommon_steel_greatsword': 800, 'rare_steel_greatsword': 2000, 'epic_steel_greatsword': 5000,
+    'common_iron_greatsword': 300, 'uncommon_iron_greatsword': 800, 'rare_iron_greatsword': 2000, 'epic_iron_greatsword': 5000,
     'rare_mythril_cleaver': 3000, 'epic_mythril_cleaver': 8000,
     
-    'common_iron_dagger': 100, 'uncommon_iron_dagger': 300, 'rare_iron_dagger': 800, 'epic_iron_dagger': 2000,
+    'common_bronze_dagger': 100, 'uncommon_bronze_dagger': 300, 'rare_bronze_dagger': 800, 'epic_bronze_dagger': 2000,
     'rare_venom_shiv': 1200, 'epic_venom_shiv': 3500,
     'rare_shadow_blade': 5000, 'epic_shadow_blade': 15000, 'legendary_shadow_blade': 50000,
     
@@ -66,24 +66,24 @@ export const ITEM_SELL_PRICES: Record<string, number> = {
     'rare_lich_tome': 6000, 'epic_lich_tome': 18000, 'legendary_lich_tome': 60000,
 
     // Armor
-    'common_iron_helmet': 100, 'uncommon_iron_helmet': 300, 'rare_iron_helmet': 800, 'epic_iron_helmet': 2000,
-    'common_iron_chestplate': 200, 'uncommon_iron_chestplate': 600, 'rare_iron_chestplate': 1500, 'epic_iron_chestplate': 4000,
-    'common_iron_boots': 100, 'uncommon_iron_boots': 300, 'rare_iron_boots': 800, 'epic_iron_boots': 2000,
+    'common_bronze_helmet': 100, 'uncommon_bronze_helmet': 300, 'rare_bronze_helmet': 800, 'epic_bronze_helmet': 2000,
+    'common_bronze_chestplate': 200, 'uncommon_bronze_chestplate': 600, 'rare_bronze_chestplate': 1500, 'epic_bronze_chestplate': 4000,
+    'common_bronze_boots': 100, 'uncommon_bronze_boots': 300, 'rare_bronze_boots': 800, 'epic_bronze_boots': 2000,
     
     // Forged Tools
-    'common_iron_pickaxe': 150, 'uncommon_iron_pickaxe': 500, 'rare_iron_pickaxe': 1500,
-    'common_steel_pickaxe': 400, 'uncommon_steel_pickaxe': 1200, 'rare_steel_pickaxe': 3000,
+    'common_bronze_pickaxe': 150, 'uncommon_bronze_pickaxe': 500, 'rare_bronze_pickaxe': 1500,
+    'common_iron_pickaxe': 400, 'uncommon_iron_pickaxe': 1200, 'rare_iron_pickaxe': 3000,
     'common_mythril_pickaxe': 1000, 'uncommon_mythril_pickaxe': 3000, 'rare_mythril_pickaxe': 8000,
   
-    'common_iron_axe': 150, 'uncommon_iron_axe': 500, 'rare_iron_axe': 1500,
-    'common_steel_axe': 400, 'uncommon_steel_axe': 1200, 'rare_steel_axe': 3000,
+    'common_bronze_axe': 150, 'uncommon_bronze_axe': 500, 'rare_bronze_axe': 1500,
+    'common_iron_axe': 400, 'uncommon_iron_axe': 1200, 'rare_iron_axe': 3000,
     'common_mythril_axe': 1000, 'uncommon_mythril_axe': 3000, 'rare_mythril_axe': 8000,
   
     // Blueprints
-    'blueprint_iron_sword': 2000,
-    'blueprint_steel_greatsword': 5000,
+    'blueprint_bronze_sword': 2000,
+    'blueprint_iron_greatsword': 5000,
     'blueprint_mythril_cleaver': 15000,
-    'blueprint_iron_dagger': 2000,
+    'blueprint_bronze_dagger': 2000,
     'blueprint_venom_shiv': 5000,
     'blueprint_shadow_blade': 50000,
     'blueprint_wood_staff': 2000,
@@ -93,15 +93,15 @@ export const ITEM_SELL_PRICES: Record<string, number> = {
     'blueprint_soul_reaper': 8000,
     'blueprint_lich_tome': 60000,
 
-    'blueprint_iron_helmet': 2000,
-    'blueprint_iron_chestplate': 4000,
-    'blueprint_iron_boots': 2000,
+    'blueprint_bronze_helmet': 2000,
+    'blueprint_bronze_chestplate': 4000,
+    'blueprint_bronze_boots': 2000,
     
-    'blueprint_iron_pickaxe': 3000,
-    'blueprint_steel_pickaxe': 8000,
+    'blueprint_bronze_pickaxe': 3000,
+    'blueprint_iron_pickaxe': 8000,
     'blueprint_mythril_pickaxe': 20000,
-    'blueprint_iron_axe': 3000,
-    'blueprint_steel_axe': 8000,
+    'blueprint_bronze_axe': 3000,
+    'blueprint_iron_axe': 8000,
     'blueprint_mythril_axe': 20000,
     
     'blueprint_wolf_slayer': 10000,
