@@ -168,7 +168,7 @@ export async function executeForge(message: Message, args: string[]) {
       let matString = '';
       for (const [matKey, qty] of Object.entries(blueprint.materials as Record<string, number>)) {
         const emoji = getEmoji(matKey);
-        matString += `\`${qty}x\` ${emoji} **${matKey.replace(/_/g, ' ').replace(/\\b\\w/g, (c: string) => c.toUpperCase())}**, `;
+        matString += `\`${qty}x\` ${emoji} **${matKey.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}**, `;
         
         const invItem = inventory.find((i: any) => i.itemKey === matKey);
         if (!invItem || invItem.quantity < qty) {
@@ -177,7 +177,7 @@ export async function executeForge(message: Message, args: string[]) {
       }
       matString = matString.slice(0, -2); 
       
-      const reqBp = blueprint.requiredBlueprint.replace(/_/g, ' ').replace(/\\b\\w/g, (c: string) => c.toUpperCase());
+      const reqBp = blueprint.requiredBlueprint.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
       const reqEmoji = getEmoji(blueprint.requiredBlueprint);
       const outputStr = `**${blueprint.name}** (\`${key}\`)\n📜 **Requires:** 1x ${reqEmoji} \`${reqBp}\` \n🧱 **Materials:** ${matString}\n\n`;
       

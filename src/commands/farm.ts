@@ -49,50 +49,80 @@ export async function executeFarm(message: Message, args: string[]) {
     slotMultiplier = slotMultiplier * slotMultiplier; // Square the multiplier on three of a kind!
   }
 
-  // Pure RNG farming node table
-  const roll = Math.random();
-  let materialDrop = '';
-  let dropQuantity = 0;
-  let flavorText = '';
+  // Geographical node table
+  const zone = player.location || 'lumina_plains';
 
-  if (roll > 0.95) {
-    materialDrop = 'moon_herb';
-    dropQuantity = 1 * slotMultiplier;
-    flavorText = 'You harvested a delicate, luminescent flower: a ✨ **Moon Herb**!';
-  } else if (roll > 0.6) {
-    materialDrop = 'potato';
-    dropQuantity = (Math.floor(Math.random() * 3) + 1) * slotMultiplier;
-    flavorText = `You dug through the dirt and pulled out **${dropQuantity} Potatoes**.`;
-  } else {
-    materialDrop = 'wheat';
-    dropQuantity = (Math.floor(Math.random() * 5) + 1) * slotMultiplier;
-    flavorText = `You scythed down tall grass and gathered **${dropQuantity} sheaves of Wheat**.`;
+  let primaryDropKey = 'basic_herb';
+  let secondaryDropKey = 'potato';
+  let epicDropKey = 'moon_herb';
+
+  if (zone === 'whispering_woods') {
+      primaryDropKey = 'mooncap_mushroom';
+      secondaryDropKey = 'wheat';
+      epicDropKey = 'living_wood';
+  } else if (zone === 'ironpeak_mountains') {
+      primaryDropKey = 'frost_lotus';
+      secondaryDropKey = 'potato';
+      epicDropKey = 'stone_core';
+  } else if (zone === 'ashen_wastes') {
+      primaryDropKey = 'cinderbloom';
+      secondaryDropKey = 'wheat';
+      epicDropKey = 'hellfire_essence';
+  } else if (zone === 'abyssal_depths') {
+      primaryDropKey = 'nightmare_kelp';
+      secondaryDropKey = 'potato';
+      epicDropKey = 'void_fragment';
   }
+
+  const finalPrimary = Math.floor((Math.random() * 3) + 1) * slotMultiplier;
+  let finalSecondary = 0;
+  let finalEpic = 0;
+
+  if (Math.random() > 0.5) finalSecondary = Math.floor((Math.random() * 2) + 1) * slotMultiplier;
+  if (Math.random() > 0.95) finalEpic = 1 * slotMultiplier;
 
   const xpReward = 2 * slotMultiplier;
 
-  // Transaction: Add to inventory, give a tiny bit of XP (Gathering XP)
-  await prisma.$transaction([
-    prisma.player.update({
-      where: { id: player.id },
-      data: { xp: { increment: xpReward } }
-    }),
-    prisma.inventoryItem.upsert({
-      where: { playerId_itemKey: { playerId: player.id, itemKey: materialDrop } },
-      update: { quantity: { increment: dropQuantity } },
-      create: { playerId: player.id, itemKey: materialDrop, quantity: dropQuantity }
-    })
-  ]);
+  const ops: any[] = [];
+  ops.push(prisma.player.update({
+    where: { id: player.id },
+    data: { xp: { increment: xpReward } }
+  }));
+
+  if (finalPrimary > 0) ops.push(prisma.inventoryItem.upsert({
+    where: { playerId_itemKey: { playerId: player.id, itemKey: primaryDropKey } },
+    update: { quantity: { increment: finalPrimary } },
+    create: { playerId: player.id, itemKey: primaryDropKey, quantity: finalPrimary }
+  }));
+
+  if (finalSecondary > 0) ops.push(prisma.inventoryItem.upsert({
+    where: { playerId_itemKey: { playerId: player.id, itemKey: secondaryDropKey } },
+    update: { quantity: { increment: finalSecondary } },
+    create: { playerId: player.id, itemKey: secondaryDropKey, quantity: finalSecondary }
+  }));
+
+  if (finalEpic > 0) ops.push(prisma.inventoryItem.upsert({
+    where: { playerId_itemKey: { playerId: player.id, itemKey: epicDropKey } },
+    update: { quantity: { increment: finalEpic } },
+    create: { playerId: player.id, itemKey: epicDropKey, quantity: finalEpic }
+  }));
+
+  await prisma.$transaction(ops);
 
   let slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **${slotMultiplier}x Multiplier!**`;
   if (isSlotJackpot) {
     slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **!!! ${slotMultiplier}x JACKPOT MULTIPLIER !!!** 🔥`;
   }
 
+  let dropOutput = '';
+  if (finalPrimary > 0) dropOutput += `+${finalPrimary} ${primaryDropKey.replace(/_/g, ' ').toUpperCase()}\n`;
+  if (finalSecondary > 0) dropOutput += `+${finalSecondary} ${secondaryDropKey.replace(/_/g, ' ').toUpperCase()}\n`;
+  if (finalEpic > 0) dropOutput += `+${finalEpic} ${epicDropKey.replace(/_/g, ' ').toUpperCase()}\n`;
+
   const embed = new EmbedBuilder()
     .setTitle('🌾 Farming Resolved')
     .setColor(isSlotJackpot ? 0xFFD700 : 0x32CD32) // LimeGreen
-    .setDescription(`${flavorText}\n\n${slotMachineString}\n\n**Loot Dropped:**\n+${dropQuantity} ${materialDrop.replace('_', ' ').toUpperCase()}\n\n**XP Gained:**\n✨ +${xpReward} EXP`);
+    .setDescription(`You tended to the soil and harvested the region's flora.\n\n${slotMachineString}\n\n**Loot Dropped:**\n${dropOutput}\n**XP Gained:**\n✨ +${xpReward} EXP`);
 
   return message.reply({ embeds: [embed] });
 }

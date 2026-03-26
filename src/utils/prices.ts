@@ -22,6 +22,15 @@ export const ITEM_SELL_PRICES: Record<string, number> = {
     'frost_lotus': 25,
     'cinderbloom': 60,
     'nightmare_kelp': 150,
+
+    // Aquatic (Fishing)
+    'seaweed': 1,
+    'river_trout': 2,
+    'golden_koi': 8,
+    'glacier_cod': 25,
+    'lava_eel': 60,
+    'void_bass': 150,
+    'golden_pearl': 500,
     
     // Monster Parts
     'goblin_ear': 5,

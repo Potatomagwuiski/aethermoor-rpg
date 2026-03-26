@@ -30,6 +30,15 @@ export const ITEM_EMOJIS: Record<string, string> = {
     'cinderbloom': '🌺',
     'nightmare_kelp': '🦑',
     
+    // Aquatic (Fishing)
+    'seaweed': '🌿',
+    'river_trout': '🐟',
+    'golden_koi': '🐡',
+    'glacier_cod': '🐟',
+    'lava_eel': '🐍',
+    'void_bass': '🦑',
+    'golden_pearl': '🦪',
+    
     // Ingots
     'copper_ingot': '🟧',
     'iron_ingot': '⬜',
