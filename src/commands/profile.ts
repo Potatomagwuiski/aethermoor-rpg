@@ -1,5 +1,6 @@
 import { Message, EmbedBuilder } from 'discord.js';
 import { prisma } from '../db.js';
+import { getEmoji } from '../utils/emojis.js';
 
 export async function executeProfile(message: Message, args: string[]) {
   // If args[0] exists, try to look up another player by ping!
@@ -59,7 +60,7 @@ export async function executeProfile(message: Message, args: string[]) {
   }
   embed.addFields({ name: '⛏️ Gathering Tools', value: toolsText });
 
-  // Backpack Preview (Top 10 Items by Quantity)
+  // Inventory Preview (Top 10 Items by Quantity)
   const sortedInventory = player.inventory.sort((a, b) => b.quantity - a.quantity);
   const topItems = sortedInventory.slice(0, 10);
   let invText = '';
@@ -67,16 +68,16 @@ export async function executeProfile(message: Message, args: string[]) {
   if (topItems.length === 0) invText = '*Inventory is completely empty.*';
   else {
     topItems.forEach(item => {
-      // Basic formatting to look pretty
+      // Basic formatting to look pretty with synced Emojis
       const prettyKey = item.itemKey.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-      invText += `\`x${item.quantity}\` **${prettyKey}**\n`;
+      invText += `\`x${item.quantity}\` ${getEmoji(item.itemKey)} **${prettyKey}**\n`;
     });
     if (sortedInventory.length > 10) {
       invText += `\n*...and ${sortedInventory.length - 10} more item types.* Use \`rpg inv\` to see everything.`;
     }
   }
   
-  embed.addFields({ name: '🎒 Backpack Preview', value: invText });
+  embed.addFields({ name: '🎒 Inventory Preview', value: invText });
 
   embed.setFooter({ text: 'Tip: Use `rpg stat` to view attributes & `rpg inv` for full item list!' });
 
