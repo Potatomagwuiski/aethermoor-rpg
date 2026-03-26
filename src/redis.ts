@@ -6,8 +6,11 @@ const redisClient = createClient({
     url: process.env.REDIS_URL as string,
     disableOfflineQueue: true,
     socket: {
-        family: 4, // Force IPv4 - Railway internal networking fix
-        connectTimeout: 5000
+        connectTimeout: 5000,
+        reconnectStrategy: (retries) => {
+            if (retries > 5) return new Error('Max redis connection retries reached');
+            return Math.min(retries * 100, 3000);
+        }
     }
 });
 
