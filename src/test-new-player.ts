@@ -14,7 +14,7 @@ async function runTest() {
       discordId,
       name: 'Fresh Spawn',
       level: 1,
-      hp: 100,
+      hp: 1,
       maxHp: 100,
       gold: 0,
     }

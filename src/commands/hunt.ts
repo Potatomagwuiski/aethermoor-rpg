@@ -247,13 +247,26 @@ export async function execute(message: Message) {
       data: { hp: 1, gold: { decrement: goldLost } }
     });
 
+    const averageDps = rounds > 0 ? Math.floor(totalDamageDealt / rounds) : 0;
+    const mitigationPerRound = Math.floor(gearDef * 0.75) + Math.floor(player.end * 2);
+
+    let tip = '';
+    if (monsterHp > (monsterMaxHp * 0.5)) {
+        tip = `💡 *Tip: You barely scratched it! You need a much stronger Weapon or an ATK Potion.*`;
+    } else if ((totalDamageTaken / (rounds || 1)) > (player.maxHp * 0.2)) {
+        tip = `💡 *Tip: You took massive damage per round. Upgrade your Armor or boost your END!*`;
+    } else {
+        tip = `💡 *Tip: It was a close fight! You just ran out of HP. Drink a Health Potion before hunting!*`;
+    }
+
     const deathEmbed = new EmbedBuilder()
       .setTitle(`☠️ DEFEAT: SLAIN BY ${mob.name.toUpperCase()}`)
       .setColor(0x8B0000)
       .setDescription(`You swung your **${weaponName}** but you lacked the DPS and Defenses to survive the ${currentZone.replace('_', ' ')}.\n\nThe ${mob.emoji} ${mob.name} overwhelmed you after **${rounds} Rounds** of combat.\n\n🔻 **You lost ${goldLost} Gold (10%).**\n❤️ **You are heavily injured. Use Potions to heal before hunting again.**`)
       .addFields(
         { name: 'Damage Dealt', value: `${totalDamageDealt} DMG`, inline: true },
-        { name: 'Damage Taken', value: `${totalDamageTaken} DMG`, inline: true }
+        { name: 'Damage Taken', value: `${totalDamageTaken} DMG`, inline: true },
+        { name: '🔬 Combat Analysis', value: `**Avg Output**: ${averageDps} DMG/Round\n**Armor Mitigated**: ${mitigationPerRound} DMG/Round\n\n${tip}` }
       );
     return message.reply({ embeds: [deathEmbed] });
   }
