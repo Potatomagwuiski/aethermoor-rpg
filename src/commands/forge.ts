@@ -3,7 +3,7 @@ import { prisma } from '../db.js';
 import { getEmoji } from '../utils/emojis.js';
 
 // Define the blueprint requirements and outputs
-const BLUEPRINTS: Record<string, any> = {
+export const BLUEPRINTS: Record<string, any> = {
   // --- WARRIOR ---
   'bronze_sword': {
     name: 'Bronze Sword', requiredBlueprint: 'blueprint_bronze_sword', materials: { copper: 10, tin: 5, wood: 5, goblin_ear: 2 },

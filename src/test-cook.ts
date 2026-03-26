@@ -12,7 +12,45 @@ async function runTest() {
   
   console.log(`Testing using Player: ${player.name} (${player.discordId})`);
 
-  // 1. Inject Materials
+  // 1. Force Level 2 & 250 Max HP for a clear Victory scenario
+  await prisma.player.update({
+    where: { id: player.id },
+    data: { level: 2, hp: 250, maxHp: 250, gold: 1000 }
+  });
+
+  // 2. Equip Basic Gear
+  const existingEq = await prisma.equipment.findFirst({
+    where: { playerId: player.id, slot: 'WEAPON', equipped: true }
+  });
+  if (!existingEq) {
+    await prisma.equipment.create({
+      data: { 
+        playerId: player.id, 
+        slot: 'WEAPON', 
+        baseItemKey: 'bronze_sword',
+        name: 'Bronze Sword',
+        equipped: true 
+      }
+    });
+  }
+
+  // 2b. Equip Armor
+  const existingArmor = await prisma.equipment.findFirst({
+    where: { playerId: player.id, slot: 'ARMOR', equipped: true }
+  });
+  if (!existingArmor) {
+    await prisma.equipment.create({
+      data: { 
+        playerId: player.id, 
+        slot: 'ARMOR', 
+        baseItemKey: 'bronze_chestplate',
+        name: 'Bronze Chestplate',
+        equipped: true 
+      }
+    });
+  }
+
+  // 3. Inject Materials
   await prisma.inventoryItem.upsert({
     where: { playerId_itemKey: { playerId: player.id, itemKey: 'river_trout' } },
     update: { quantity: 10 },
@@ -25,7 +63,7 @@ async function runTest() {
     create: { playerId: player.id, itemKey: 'wood', quantity: 10 }
   });
 
-  // 2. Mock Discord Message
+  // 4. Mock Discord Message
   const mockMessage: any = {
     author: { id: player.discordId, username: player.name },
     reply: async (response: any) => {
@@ -46,11 +84,11 @@ async function runTest() {
     }
   };
 
-  // 3. Test Cook
+  // 5. Test Cook
   console.log('\n=> Executing: rpg cook roasted_trout');
   await executeCook(mockMessage, ['roasted_trout']);
 
-  // 4. Test Hunt
+  // 6. Test Hunt
   console.log('\n=> Executing: rpg hunt');
   await huntExecute(mockMessage);
 

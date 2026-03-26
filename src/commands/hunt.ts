@@ -2,6 +2,7 @@ import { Message, EmbedBuilder } from 'discord.js';
 import prisma from '../db.js';
 import redisClient from '../redis.js';
 import { getEmoji } from '../utils/emojis.js';
+import { BLUEPRINTS } from './forge.js';
 
 export async function execute(message: Message) {
   const discordId = message.author.id;
@@ -53,6 +54,24 @@ export async function execute(message: Message) {
     gearCrit += eq.bonusCrit;
     gearLifesteal += eq.bonusLifesteal;
     gearEvasion += eq.bonusEvasion;
+
+    // Phase 26 Auto-Battler Fix: Dynamically Fetch Base Stats from Forge Registry
+    let baseKey = eq.baseItemKey;
+    let rarityLabel = 'common';
+    if (baseKey.includes('_')) {
+        const parts = baseKey.split('_');
+        if (['common', 'uncommon', 'rare', 'epic', 'legendary'].includes(parts[0])) {
+            rarityLabel = parts.shift() as string;
+            baseKey = parts.join('_');
+        }
+    }
+
+    if (BLUEPRINTS[baseKey] && BLUEPRINTS[baseKey].outputs[rarityLabel]) {
+        const baseStats = BLUEPRINTS[baseKey].outputs[rarityLabel];
+        if (baseStats.dps) gearAtk += baseStats.dps;
+        if (baseStats.defense) gearDef += baseStats.defense;
+    }
+
     if (eq.slot === 'WEAPON') {
       weaponName = eq.name || weaponName;
       weaponClass = eq.equipmentClass;
