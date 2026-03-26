@@ -79,6 +79,17 @@ export const ITEM_SELL_PRICES: Record<string, number> = {
     'common_bronze_chestplate': 200, 'uncommon_bronze_chestplate': 600, 'rare_bronze_chestplate': 1500, 'epic_bronze_chestplate': 4000,
     'common_bronze_boots': 100, 'uncommon_bronze_boots': 300, 'rare_bronze_boots': 800, 'epic_bronze_boots': 2000,
     
+    'common_leather_tunic': 200, 'uncommon_leather_tunic': 600, 'rare_leather_tunic': 1500, 'epic_leather_tunic': 4000,
+    'common_apprentice_robe': 200, 'uncommon_apprentice_robe': 600, 'rare_apprentice_robe': 1500, 'epic_apprentice_robe': 4000,
+
+    'common_scout_cloak': 500, 'uncommon_scout_cloak': 1500, 'rare_scout_cloak': 4000, 'epic_scout_cloak': 10000,
+    'common_mystic_robe': 500, 'uncommon_mystic_robe': 1500, 'rare_mystic_robe': 4000, 'epic_mystic_robe': 10000,
+    'common_iron_chestplate': 500, 'uncommon_iron_chestplate': 1500, 'rare_iron_chestplate': 4000, 'epic_iron_chestplate': 10000,
+
+    'common_steel_chestplate': 1200, 'uncommon_steel_chestplate': 3500, 'rare_steel_chestplate': 8000, 'epic_steel_chestplate': 20000,
+    'common_shadow_tunic': 1200, 'uncommon_shadow_tunic': 3500, 'rare_shadow_tunic': 8000, 'epic_shadow_tunic': 20000,
+    'common_lich_mantle': 1200, 'uncommon_lich_mantle': 3500, 'rare_lich_mantle': 8000, 'epic_lich_mantle': 20000,
+    
     // Forged Tools
     'common_bronze_pickaxe': 150, 'uncommon_bronze_pickaxe': 500, 'rare_bronze_pickaxe': 1500,
     'common_iron_pickaxe': 400, 'uncommon_iron_pickaxe': 1200, 'rare_iron_pickaxe': 3000,
@@ -101,11 +112,14 @@ export const ITEM_SELL_PRICES: Record<string, number> = {
     'blueprint_bone_scythe': 3000,
     'blueprint_soul_reaper': 8000,
     'blueprint_lich_tome': 60000,
-
-    'blueprint_bronze_helmet': 2000,
+    'blueprint_iron_chestplate': 8000,
+    'blueprint_steel_chestplate': 20000,
+    'blueprint_scout_cloak': 8000,
+    'blueprint_mystic_robe': 8000,
+    'blueprint_shadow_tunic': 20000,
+    'blueprint_lich_mantle': 20000,
     'blueprint_bronze_chestplate': 4000,
     'blueprint_bronze_boots': 2000,
-    
     'blueprint_bronze_pickaxe': 3000,
     'blueprint_iron_pickaxe': 8000,
     'blueprint_mythril_pickaxe': 20000,

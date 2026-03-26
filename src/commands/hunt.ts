@@ -326,8 +326,9 @@ export async function execute(message: Message) {
     { key: 'blueprint_venom_shiv', name: 'Venom Shiv' },
     { key: 'blueprint_moonlight_staff', name: 'Moonlight Staff' },
     { key: 'blueprint_soul_reaper', name: 'Soul Reaper' },
-    { key: 'blueprint_steel_pickaxe', name: 'Steel Pickaxe' },
-    { key: 'blueprint_steel_axe', name: 'Steel Axe' }
+    { key: 'blueprint_scout_cloak', name: 'Scout Cloak' },
+    { key: 'blueprint_mystic_robe', name: 'Mystic Robe' },
+    { key: 'blueprint_iron_chestplate', name: 'Iron Chestplate' }
   ];
   const EPIC_BPS = [
     { key: 'blueprint_mythril_cleaver', name: 'Mythril Cleaver' },
@@ -335,8 +336,9 @@ export async function execute(message: Message) {
     { key: 'blueprint_meteor_staff', name: 'Meteor Staff' },
     { key: 'blueprint_lich_tome', name: 'Lich Tome' },
     { key: 'blueprint_wolf_slayer', name: 'Wolf Slayer Sword' },
-    { key: 'blueprint_mythril_pickaxe', name: 'Mythril Pickaxe' },
-    { key: 'blueprint_mythril_axe', name: 'Mythril Axe' }
+    { key: 'blueprint_steel_chestplate', name: 'Steel Chestplate' },
+    { key: 'blueprint_shadow_tunic', name: 'Shadow Tunic' },
+    { key: 'blueprint_lich_mantle', name: 'Lich Mantle' }
   ];
   
   let gachaLootString = '';

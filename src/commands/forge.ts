@@ -93,7 +93,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { rare: { key: 'rare_lich_tome', name: '🟦 [Rare Lich Tome]', dps: 350 }, epic: { key: 'epic_lich_tome', name: '🟪 [Epic Lich Tome]', dps: 600 }, legendary: { key: 'legendary_lich_tome', name: '🟧 [✨ LEGENDARY LICH TOME ✨]', dps: 1000 } }
   },
 
-  // --- ARMOR ---
+  // --- HEAVY ARMOR (WARRIORS) ---
   'bronze_helmet': {
     name: 'Bronze Helmet', materials: { copper: 15, tin: 5 },
     outputs: { common: { key: 'common_bronze_helmet', name: '⬜ [Common Bronze Helmet]', defense: 5 }, uncommon: { key: 'uncommon_bronze_helmet', name: '🟩 [Uncommon Bronze Helmet]', defense: 10 }, rare: { key: 'rare_bronze_helmet', name: '🟦 [Rare Bronze Helmet]', defense: 20 }, epic: { key: 'epic_bronze_helmet', name: '🟪 [Epic Bronze Helmet]', defense: 40 } }
@@ -102,11 +102,46 @@ export const BLUEPRINTS: Record<string, any> = {
     name: 'Bronze Chestplate', materials: { copper: 20, tin: 10 },
     outputs: { common: { key: 'common_bronze_chestplate', name: '⬜ [Common Bronze Chestplate]', defense: 10 }, uncommon: { key: 'uncommon_bronze_chestplate', name: '🟩 [Uncommon Bronze Chestplate]', defense: 20 }, rare: { key: 'rare_bronze_chestplate', name: '🟦 [Rare Bronze Chestplate]', defense: 40 }, epic: { key: 'epic_bronze_chestplate', name: '🟪 [Epic Bronze Chestplate]', defense: 80 } }
   },
+  'iron_chestplate': {
+    name: 'Iron Chestplate', requiredBlueprint: 'blueprint_iron_chestplate', materials: { iron: 25, coal: 15 },
+    outputs: { common: { key: 'common_iron_chestplate', name: '⬜ [Common Iron Chestplate]', defense: 25 }, uncommon: { key: 'uncommon_iron_chestplate', name: '🟩 [Uncommon Iron Chestplate]', defense: 45 }, rare: { key: 'rare_iron_chestplate', name: '🟦 [Rare Iron Chestplate]', defense: 80 }, epic: { key: 'epic_iron_chestplate', name: '🟪 [Epic Iron Chestplate]', defense: 150 } }
+  },
+  'steel_chestplate': {
+    name: 'Steel Chestplate', requiredBlueprint: 'blueprint_steel_chestplate', materials: { mythril: 20, coal: 10, elderwood: 10 },
+    outputs: { common: { key: 'common_steel_chestplate', name: '⬜ [Common Steel Chestplate]', defense: 65 }, uncommon: { key: 'uncommon_steel_chestplate', name: '🟩 [Uncommon Steel Chestplate]', defense: 120 }, rare: { key: 'rare_steel_chestplate', name: '🟦 [Rare Steel Chestplate]', defense: 240 }, epic: { key: 'epic_steel_chestplate', name: '🟪 [Epic Steel Chestplate]', defense: 450 } }
+  },
   'bronze_boots': {
     name: 'Bronze Boots', materials: { copper: 10, tin: 5 },
     outputs: { common: { key: 'common_bronze_boots', name: '⬜ [Common Bronze Boots]', defense: 4 }, uncommon: { key: 'uncommon_bronze_boots', name: '🟩 [Uncommon Bronze Boots]', defense: 8 }, rare: { key: 'rare_bronze_boots', name: '🟦 [Rare Bronze Boots]', defense: 16 }, epic: { key: 'epic_bronze_boots', name: '🟪 [Epic Bronze Boots]', defense: 32 } }
   },
 
+  // --- CLOTH ARMOR (MAGES) ---
+  'apprentice_robe': {
+    name: 'Apprentice Robe', materials: { wood: 15, basic_herb: 5, bat_wing: 2 },
+    outputs: { common: { key: 'common_apprentice_robe', name: '⬜ [Common Apprentice Robe]', defense: 4 }, uncommon: { key: 'uncommon_apprentice_robe', name: '🟩 [Uncommon Apprentice Robe]', defense: 8 }, rare: { key: 'rare_apprentice_robe', name: '🟦 [Rare Apprentice Robe]', defense: 16 }, epic: { key: 'epic_apprentice_robe', name: '🟪 [Epic Apprentice Robe]', defense: 32 } }
+  },
+  'mystic_robe': {
+    name: 'Mystic Robe', requiredBlueprint: 'blueprint_mystic_robe', materials: { iron: 15, moon_herb: 10, slime_core: 5 },
+    outputs: { common: { key: 'common_mystic_robe', name: '⬜ [Common Mystic Robe]', defense: 12 }, uncommon: { key: 'uncommon_mystic_robe', name: '🟩 [Uncommon Mystic Robe]', defense: 22 }, rare: { key: 'rare_mystic_robe', name: '🟦 [Rare Mystic Robe]', defense: 40 }, epic: { key: 'epic_mystic_robe', name: '🟪 [Epic Mystic Robe]', defense: 75 } }
+  },
+  'lich_mantle': {
+    name: 'Lich Mantle', requiredBlueprint: 'blueprint_lich_mantle', materials: { mythril: 15, shadow_dust: 20, void_fragment: 2 },
+    outputs: { common: { key: 'common_lich_mantle', name: '⬜ [Common Lich Mantle]', defense: 45 }, uncommon: { key: 'uncommon_lich_mantle', name: '🟩 [Uncommon Lich Mantle]', defense: 85 }, rare: { key: 'rare_lich_mantle', name: '🟦 [Rare Lich Mantle]', defense: 160 }, epic: { key: 'epic_lich_mantle', name: '🟪 [Epic Lich Mantle]', defense: 300 } }
+  },
+
+  // --- LIGHT ARMOR (ROGUES) ---
+  'leather_tunic': {
+    name: 'Leather Tunic', materials: { copper: 10, wood: 10, bat_wing: 2 },
+    outputs: { common: { key: 'common_leather_tunic', name: '⬜ [Common Leather Tunic]', defense: 8 }, uncommon: { key: 'uncommon_leather_tunic', name: '🟩 [Uncommon Leather Tunic]', defense: 16 }, rare: { key: 'rare_leather_tunic', name: '🟦 [Rare Leather Tunic]', defense: 32 }, epic: { key: 'epic_leather_tunic', name: '🟪 [Epic Leather Tunic]', defense: 60 } }
+  },
+  'scout_cloak': {
+    name: 'Scout Cloak', requiredBlueprint: 'blueprint_scout_cloak', materials: { iron: 20, ashwood: 10, wolf_pelt: 10 },
+    outputs: { common: { key: 'common_scout_cloak', name: '⬜ [Common Scout Cloak]', defense: 18 }, uncommon: { key: 'uncommon_scout_cloak', name: '🟩 [Uncommon Scout Cloak]', defense: 35 }, rare: { key: 'rare_scout_cloak', name: '🟦 [Rare Scout Cloak]', defense: 65 }, epic: { key: 'epic_scout_cloak', name: '🟪 [Epic Scout Cloak]', defense: 120 } }
+  },
+  'shadow_tunic': {
+    name: 'Shadow Tunic', requiredBlueprint: 'blueprint_shadow_tunic', materials: { mythril: 15, shadow_dust: 15, void_fragment: 2 },
+    outputs: { common: { key: 'common_shadow_tunic', name: '⬜ [Common Shadow Tunic]', defense: 60 }, uncommon: { key: 'uncommon_shadow_tunic', name: '🟩 [Uncommon Shadow Tunic]', defense: 110 }, rare: { key: 'rare_shadow_tunic', name: '🟦 [Rare Shadow Tunic]', defense: 220 }, epic: { key: 'epic_shadow_tunic', name: '🟪 [Epic Shadow Tunic]', defense: 400 } }
+  },
   // --- TOOLS ---
   'bronze_pickaxe': {
     name: 'Bronze Pickaxe', materials: { copper: 15, wood: 10 },

@@ -76,7 +76,16 @@ export const ITEM_EMOJIS: Record<string, string> = {
     // Armor
     'bronze_helmet': '🪖',
     'bronze_chestplate': '👕',
+    'iron_chestplate': '👕',
+    'steel_chestplate': '👕',
     'bronze_boots': '👞',
+    
+    'leather_tunic': '🦺',
+    'apprentice_robe': '🥋',
+    'scout_cloak': '🧥',
+    'mystic_robe': '👘',
+    'shadow_tunic': '🥋',
+    'lich_mantle': '🥻',
     
     // Blueprints
     'blueprint_bronze_pickaxe': '📜',
@@ -98,6 +107,13 @@ export const ITEM_EMOJIS: Record<string, string> = {
     'blueprint_bone_scythe': '📜',
     'blueprint_soul_reaper': '📜',
     'blueprint_lich_tome': '📜',
+
+    'blueprint_iron_chestplate': '📜',
+    'blueprint_steel_chestplate': '📜',
+    'blueprint_scout_cloak': '📜',
+    'blueprint_mystic_robe': '📜',
+    'blueprint_shadow_tunic': '📜',
+    'blueprint_lich_mantle': '📜',
     'blueprint_bronze_helmet': '📜',
     'blueprint_bronze_chestplate': '📜',
     'blueprint_bronze_boots': '📜',
