@@ -11,6 +11,7 @@ import { executeFarm } from './commands/farm.js';
 import { executeShop, executeBuy } from './commands/shop.js';
 import { executeDungeon } from './commands/dungeon.js';
 import { executeForge } from './commands/forge.js';
+import { executeHelp } from './commands/help.js';
 
 const client = new Client({
     intents: [
@@ -113,8 +114,15 @@ client.on(Events.MessageCreate, async (message) => {
             console.error(error);
             await message.reply(`Error executing forge command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
+    } else if (command === 'help') {
+        try {
+            await executeHelp(message, args);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing help command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
     } else {
-        await message.reply('Unknown command. Try: `rpg start <class>`, `rpg hunt`, `rpg dungeon`, `rpg shop`, `rpg mine`, `rpg forge`, etc.');
+        await message.reply('Unknown command. Try: `rpg help` to see all commands.');
     }
 });
 
