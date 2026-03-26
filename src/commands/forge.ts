@@ -29,7 +29,25 @@ const BLUEPRINTS: Record<string, any> = {
 
 export async function executeForge(message: Message, args: string[]) {
   if (args.length === 0) {
-    return message.reply(`🔨 **The Forge**\nYou must specify what you want to forge.\nUse \`rpg forge <weapon_name>\`\n*Example:* \`rpg forge iron_sword\``);
+    const embed = new EmbedBuilder()
+      .setTitle('🔨 The Forge')
+      .setColor(0xE67E22)
+      .setDescription('Welcome to the Blacksmith. Type `rpg forge <item>` to craft an item. **Warriors receive a flat +20 bonus to their RNG quality roll.**');
+      
+    let catalog = '';
+    for (const [key, blueprint] of Object.entries(BLUEPRINTS)) {
+      let matString = '';
+      for (const [matKey, qty] of Object.entries(blueprint.materials)) {
+        matString += `\`${qty}x ${matKey.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}\`, `;
+      }
+      matString = matString.slice(0, -2); 
+      
+      const reqBp = blueprint.requiredBlueprint.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
+      catalog += `**${blueprint.name}** (\`${key}\`)\n📜 **Requires:** 1x \`${reqBp}\` \n🧱 **Materials:** ${matString}\n\n`;
+    }
+    
+    embed.addFields({ name: 'Available Blueprints', value: catalog });
+    return message.reply({ embeds: [embed] });
   }
 
   const recipeId = args[0].toLowerCase();
