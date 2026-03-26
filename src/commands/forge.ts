@@ -177,9 +177,23 @@ export async function executeForge(message: Message, args: string[]) {
     if (catalog.length === 0) {
         menuEmbed.addFields({ name: 'Available Blueprints', value: "*You haven't discovered any forging schematics yet. Battle monsters in the wild or explore dungeons to find Blueprints.*" });
     } else {
-        menuEmbed.addFields({ name: 'Available Blueprints', value: catalog });
+        const recipes = catalog.split('\n\n');
+        let currentField = '';
+        let firstField = true;
+        for(let recipe of recipes) {
+            if (!recipe.trim()) continue;
+            if (currentField.length + recipe.length > 1000) {
+                menuEmbed.addFields({ name: firstField ? 'Available Blueprints' : '\u200B', value: currentField });
+                currentField = recipe + '\n\n';
+                firstField = false;
+            } else {
+                currentField += recipe + '\n\n';
+            }
+        }
+        if (currentField.trim()) {
+            menuEmbed.addFields({ name: firstField ? 'Available Blueprints' : '\u200B', value: currentField });
+        }
     }
-    
     return message.reply({ embeds: [menuEmbed] });
   }
 
@@ -299,12 +313,20 @@ export async function executeForge(message: Message, args: string[]) {
       else if (resultOutput.key.includes('rare')) r = 'RARE';
       else if (resultOutput.key.includes('uncommon')) r = 'UNCOMMON';
 
+      let eClass: any = 'ANY';
+      const keyStr = resultOutput.key.toLowerCase();
+      if (keyStr.includes('sword') || keyStr.includes('axe') || keyStr.includes('cleaver') || keyStr.includes('blade') || keyStr.includes('mace')) eClass = 'HEAVY_WEAPON';
+      else if (keyStr.includes('dagger') || keyStr.includes('bow') || keyStr.includes('shiv') || keyStr.includes('rapier')) eClass = 'FINESSE_WEAPON';
+      else if (keyStr.includes('staff') || keyStr.includes('wand') || keyStr.includes('tome') || keyStr.includes('grimoire')) eClass = 'MAGIC_WEAPON';
+
       dbOperations.push(prisma.equipment.create({
           data: {
               playerId: player.id,
               baseItemKey: resultOutput.key,
               name: finalName,
               rarity: r,
+              slot: 'WEAPON',
+              equipmentClass: eClass,
               bonusAtk: bAtk,
               bonusDef: bDef,
               bonusCrit: bCrit,
@@ -347,12 +369,20 @@ export async function executeForge(message: Message, args: string[]) {
       else if (resultOutput.key.includes('rare')) r = 'RARE';
       else if (resultOutput.key.includes('uncommon')) r = 'UNCOMMON';
 
+      let eClass: any = 'ANY';
+      const keyStr = resultOutput.key.toLowerCase();
+      if (keyStr.includes('plate') || keyStr.includes('mail') || keyStr.includes('shield')) eClass = 'HEAVY_ARMOR';
+      else if (keyStr.includes('leather') || keyStr.includes('cloak') || keyStr.includes('tunic') || keyStr.includes('boots')) eClass = 'LIGHT_ARMOR';
+      else if (keyStr.includes('robe') || keyStr.includes('mantle') || keyStr.includes('hood') || keyStr.includes('hat')) eClass = 'CLOTH';
+
       dbOperations.push(prisma.equipment.create({
           data: {
               playerId: player.id,
               baseItemKey: resultOutput.key,
               name: finalName,
               rarity: r,
+              slot: 'ARMOR',
+              equipmentClass: eClass,
               bonusAtk: bAtk,
               bonusDef: bDef,
               bonusCrit: bCrit,

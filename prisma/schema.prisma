@@ -30,6 +30,22 @@ enum ToolType {
   AXE
   FISHING_ROD
   SICKLE
+  HOE
+}
+
+enum EquipmentSlot {
+  WEAPON
+  ARMOR
+}
+
+enum EquipmentClass {
+  HEAVY_WEAPON
+  FINESSE_WEAPON
+  MAGIC_WEAPON
+  HEAVY_ARMOR
+  LIGHT_ARMOR
+  CLOTH
+  ANY
 }
 
 model Player {
@@ -85,6 +101,8 @@ model Equipment {
   baseItemKey   String
   name          String?
   rarity        Rarity  @default(COMMON)
+  slot          EquipmentSlot  @default(WEAPON)
+  equipmentClass EquipmentClass @default(ANY)
   upgradeLevel  Int     @default(0)
   
   // Procedural Gacha Affixes

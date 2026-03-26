@@ -6,7 +6,12 @@ export async function execute(message: Message) {
   const discordId = message.author.id;
 
   const player = await prisma.player.findUnique({
-    where: { discordId }
+    where: { discordId },
+    include: {
+        equipment: {
+            where: { equipped: true }
+        }
+    }
   });
 
   if (!player) {
@@ -29,6 +34,25 @@ export async function execute(message: Message) {
     slotMultiplier = slotMultiplier * slotMultiplier; // Square the multiplier on three of a kind!
   }
 
+  // Fetch Equipped Gear
+  let gearAtk = 0;
+  let gearDef = 0;
+  let gearCrit = 0;
+  let gearLifesteal = 0;
+  let gearEvasion = 0;
+  let weaponName = 'Fists';
+  let armorName = 'Casual Clothes';
+
+  for (const eq of player.equipment || []) {
+    gearAtk += eq.bonusAtk;
+    gearDef += eq.bonusDef;
+    gearCrit += eq.bonusCrit;
+    gearLifesteal += eq.bonusLifesteal;
+    gearEvasion += eq.bonusEvasion;
+    if (eq.slot === 'WEAPON') weaponName = eq.name || weaponName;
+    if (eq.slot === 'ARMOR') armorName = eq.name || armorName;
+  }
+
   // Baseline Engine Stats
   let baseDamage = 10;
   let linesOfExecution = 1;
@@ -44,7 +68,18 @@ export async function execute(message: Message) {
   let jackpotMessage = '';
   
   // The HP Penalty
-  const damageTaken = Math.floor(Math.random() * 8) + 3; // 3 to 10 damage per hunt
+  let damageTaken = Math.floor(Math.random() * 8) + 3; // 3 to 10 damage per hunt
+  
+  // Apply Flat Damage Reduction from Armor
+  let mitigated = Math.floor(gearDef / 2); // 2 DEF = 1 Damage absorbed
+  damageTaken -= mitigated;
+  if (damageTaken < 1) damageTaken = 1;
+
+  let evadedText = '';
+  if (Math.random() * 100 < gearEvasion) {
+    damageTaken = 0;
+    evadedText = ' 💨 (Dodged!)';
+  }
 
   // Class-Specific Instant Mathematics & Rewards
   switch (player.activeClass) {
@@ -106,6 +141,24 @@ export async function execute(message: Message) {
       break;
   }
 
+  // Inject Gear ATK
+  baseDamage += gearAtk;
+
+  // Evaluate Crit from Weapons
+  let critText = '';
+  if (Math.random() * 100 < gearCrit) {
+    baseDamage = Math.floor(baseDamage * 2);
+    critText = '💥 (CRIT!) ';
+  }
+
+  // Evaluate Lifesteal from Weapons
+  let lifestealHeal = 0;
+  let vampText = '';
+  if (gearLifesteal > 0) {
+    lifestealHeal = Math.floor(baseDamage * (gearLifesteal / 100));
+    if (lifestealHeal > 0) vampText = ` 🦇 (+${lifestealHeal} HP)`;
+  }
+
   // Provide Leveling Engine Logic
   let currentLevel = player.level;
   let currentXp = player.xp + xpReward;
@@ -120,11 +173,13 @@ export async function execute(message: Message) {
   const levelsGained = currentLevel - player.level;
 
   // Handle Database Transactions for Real Rewards
+  const newHpCalc = Math.min(player.maxHp, player.hp - damageTaken + lifestealHeal);
+
   const updateData: any = {
     gold: { increment: goldReward },
     level: currentLevel,
     xp: currentXp,
-    hp: { decrement: damageTaken }
+    hp: newHpCalc
   };
 
   if (levelsGained > 0) {
@@ -229,7 +284,7 @@ export async function execute(message: Message) {
   const embed = new EmbedBuilder()
     .setTitle(`⚔️ Hunt Resolved: ${mob.name}`)
     .setColor(jackpotTriggered || isSlotJackpot ? (player.activeClass === PlayerClass.ROGUE ? 0xFF0000 : 0xFFD700) : 0x2B2D31)
-    .setDescription(`You swung your 🗡️ weapon resulting in a rapid clash. The ${mob.emoji} ${mob.name} retaliated.\n\n**Combat Log:**\nDamage Dealt: 💥 ${baseDamage}\nDamage Taken: 🩸 ${damageTaken}\n\n${slotMachineString}\n\n🛍️ **Final Payout:** 🪙 ${goldReward} Gold | ✨ ${xpReward} XP${extraLoot}\n\n`)
+    .setDescription(`You swung your **${weaponName}** resulting in a rapid clash. The ${mob.emoji} ${mob.name} retaliated against your **${armorName}**.\n\n**Combat Log:**\nDamage Dealt: 💥 ${critText}${baseDamage}${vampText}\nDamage Taken: 🩸 ${damageTaken}${evadedText}\n\n${slotMachineString}\n\n🛍️ **Final Payout:** 🪙 ${goldReward} Gold | ✨ ${xpReward} XP${extraLoot}\n\n`)
     .addFields(
       { name: 'Your Class', value: player.activeClass, inline: true },
       { name: 'Raw Damage Output', value: jackpotTriggered && player.activeClass === PlayerClass.ROGUE ? `**💥 ${baseDamage} CRIT! 💥**` : (player.activeClass === PlayerClass.NECROMANCER ? `[${Math.floor(baseDamage/10)} DMG x 10 Minions]` : `${baseDamage} DMG`), inline: true }
