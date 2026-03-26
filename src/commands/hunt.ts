@@ -325,11 +325,18 @@ export async function execute(message: Message) {
   if (Math.random() <= 0.25) { 
     const rarityRoll = Math.random();
     let dropKey = '';
-    if (rarityRoll > 0.999) { gachaLootString = '🟧 `[✨ Blueprint: Void Blade ✨]`'; dropKey = 'blueprint_void_blade'; }
-    else if (rarityRoll > 0.95) { const bp = EPIC_BPS[Math.floor(Math.random() * EPIC_BPS.length)]; gachaLootString = `🟪 \`[Blueprint: ${bp.name}]\``; dropKey = bp.key; }
-    else if (rarityRoll > 0.90) { gachaLootString = '🗝️ `[Dungeon Key]`'; dropKey = 'dungeon_key'; }
-    else if (rarityRoll > 0.70) { const bp = UNCOMMON_BPS[Math.floor(Math.random() * UNCOMMON_BPS.length)]; gachaLootString = `🟦 \`[Blueprint: ${bp.name}]\``; dropKey = bp.key; }
-    else { const bp = COMMON_BPS[Math.floor(Math.random() * COMMON_BPS.length)]; gachaLootString = `⬜ \`[Blueprint: ${bp.name}]\``; dropKey = bp.key; }
+    
+    if (tier >= 3 && rarityRoll > 0.99) {
+      gachaLootString = '🟧 `[✨ Blueprint: Void Blade ✨]`'; dropKey = 'blueprint_void_blade';
+    } else if (tier >= 3 && rarityRoll > 0.90) {
+      const bp = EPIC_BPS[Math.floor(Math.random() * EPIC_BPS.length)]; gachaLootString = `🟪 \`[Blueprint: ${bp.name}]\``; dropKey = bp.key;
+    } else if (tier >= 2 && rarityRoll > 0.70) {
+      const bp = UNCOMMON_BPS[Math.floor(Math.random() * UNCOMMON_BPS.length)]; gachaLootString = `🟦 \`[Blueprint: ${bp.name}]\``; dropKey = bp.key;
+    } else if (rarityRoll > 0.95) {
+      gachaLootString = '🗝️ `[Dungeon Key]`'; dropKey = 'dungeon_key';
+    } else {
+      const bp = COMMON_BPS[Math.floor(Math.random() * COMMON_BPS.length)]; gachaLootString = `⬜ \`[Blueprint: ${bp.name}]\``; dropKey = bp.key;
+    }
 
     if (dropKey) {
       dbOperations.push(prisma.inventoryItem.upsert({

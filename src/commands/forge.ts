@@ -24,7 +24,7 @@ export const BLUEPRINTS: Record<string, any> = {
     }
   },
   'wolf_slayer': {
-    name: 'Wolf Slayer Sword', requiredBlueprint: 'blueprint_wolf_slayer', materials: { steel_ore: 15, silver: 10, bone_shard: 20 },
+    name: 'Wolf Slayer Sword', requiredBlueprint: 'blueprint_wolf_slayer', materials: { iron_ingot: 15, bone_shard: 20 },
     outputs: { rare: { key: 'rare_wolf_slayer', name: '🟦 [Rare Wolf Slayer]', dps: 85 }, epic: { key: 'epic_wolf_slayer', name: '🟪 [Epic Wolf Slayer]', dps: 150 } }
   },
   'mythril_cleaver': {
@@ -51,7 +51,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { rare: { key: 'rare_venom_shiv', name: '🟦 [Rare Venom Shiv]', dps: 90 }, epic: { key: 'epic_venom_shiv', name: '🟪 [Epic Venom Shiv]', dps: 160 } }
   },
   'shadow_blade': {
-    name: 'Shadow Blade', requiredBlueprint: 'blueprint_shadow_blade', materials: { mythril: 15, goblin_ear: 20 },
+    name: 'Shadow Blade', requiredBlueprint: 'blueprint_shadow_blade', materials: { mythril: 20, shadow_dust: 15, void_fragment: 2 },
     outputs: { rare: { key: 'rare_shadow_blade', name: '🟦 [Rare Shadow Blade]', dps: 220 }, epic: { key: 'epic_shadow_blade', name: '🟪 [Epic Shadow Blade]', dps: 380 }, legendary: { key: 'legendary_shadow_blade', name: '🟧 [✨ LEGENDARY SHADOW BLADE ✨]', dps: 600 } }
   },
 
@@ -89,7 +89,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { rare: { key: 'rare_soul_reaper', name: '🟦 [Rare Soul Reaper]', dps: 150 }, epic: { key: 'epic_soul_reaper', name: '🟪 [Epic Soul Reaper]', dps: 260 } }
   },
   'lich_tome': {
-    name: 'Lich Tome', requiredBlueprint: 'blueprint_lich_tome', materials: { elderwood: 10, mythril: 10, slime_core: 20, lich_soul: 2 },
+    name: 'Lich Tome', requiredBlueprint: 'blueprint_lich_tome', materials: { elderwood: 10, mythril: 10, shadow_dust: 20, void_fragment: 2 },
     outputs: { rare: { key: 'rare_lich_tome', name: '🟦 [Rare Lich Tome]', dps: 350 }, epic: { key: 'epic_lich_tome', name: '🟪 [Epic Lich Tome]', dps: 600 }, legendary: { key: 'legendary_lich_tome', name: '🟧 [✨ LEGENDARY LICH TOME ✨]', dps: 1000 } }
   },
 
