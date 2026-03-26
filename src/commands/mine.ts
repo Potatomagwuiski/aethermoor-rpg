@@ -41,10 +41,19 @@ export async function executeMine(message: Message) {
     toolName = `${tool.rarity} PICKAXE (x${yieldMultiplier} Yield)`;
   }
 
-  // --- THE ADRENALINE SLOT MACHINE ---
-  const d1 = Math.floor(Math.random() * 6) + 1;
-  const d2 = Math.floor(Math.random() * 6) + 1;
-  const d3 = Math.floor(Math.random() * 6) + 1;
+  // --- THE ADRENALINE SLOT MACHINE (RARITY LOADED) ---
+  let diceFaces = 3; // Bare Hands / Common Tool
+  if (hasPickaxe) {
+    const r = player.tools[0].rarity;
+    if (r === 'UNCOMMON') diceFaces = 4;
+    else if (r === 'RARE') diceFaces = 5;
+    else if (r === 'EPIC') diceFaces = 6;
+    else if (r === 'LEGENDARY') diceFaces = 8;
+  }
+
+  const d1 = Math.floor(Math.random() * diceFaces) + 1;
+  const d2 = Math.floor(Math.random() * diceFaces) + 1;
+  const d3 = Math.floor(Math.random() * diceFaces) + 1;
   let slotMultiplier = d1 + d2 + d3;
   let isSlotJackpot = false;
 

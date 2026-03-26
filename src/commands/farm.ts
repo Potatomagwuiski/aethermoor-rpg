@@ -1,18 +1,46 @@
 import { Message, EmbedBuilder } from 'discord.js';
 import { prisma } from '../db.js';
+import redisClient from '../redis.js';
 
 export async function executeFarm(message: Message, args: string[]) {
   const discordId = message.author.id;
-  const player = await prisma.player.findUnique({ where: { discordId } });
+  // 1. Redis Strict Cooldown Matrix (60 seconds)
+  const cdKey = `cd:farm:${discordId}`;
+  
+  if (redisClient.isReady) {
+      const isCooldown = await redisClient.get(cdKey);
+      if (isCooldown) {
+          return message.reply('🌾 *The soil needs time to recover. You must wait a minute before farming again.*');
+      }
+  }
+
+  const player = await prisma.player.findUnique({
+    where: { discordId },
+    include: { tools: { where: { type: 'HOE', equipped: true } } }
+  });
 
   if (!player) {
     return message.reply('You have not registered yet! Type `rpg start` to begin.');
   }
 
-  // --- THE ADRENALINE SLOT MACHINE ---
-  const d1 = Math.floor(Math.random() * 6) + 1;
-  const d2 = Math.floor(Math.random() * 6) + 1;
-  const d3 = Math.floor(Math.random() * 6) + 1;
+  // Lock the user for 60 seconds
+  if (redisClient.isReady) {
+      await redisClient.setEx(cdKey, 60, '1');
+  }
+
+  // --- THE ADRENALINE SLOT MACHINE (RARITY LOADED) ---
+  let diceFaces = 3; // Bare Hands / Common Tool
+  if (player.tools && player.tools.length > 0) {
+    const r = player.tools[0].rarity;
+    if (r === 'UNCOMMON') diceFaces = 4;
+    else if (r === 'RARE') diceFaces = 5;
+    else if (r === 'EPIC') diceFaces = 6;
+    else if (r === 'LEGENDARY') diceFaces = 8;
+  }
+
+  const d1 = Math.floor(Math.random() * diceFaces) + 1;
+  const d2 = Math.floor(Math.random() * diceFaces) + 1;
+  const d3 = Math.floor(Math.random() * diceFaces) + 1;
   let slotMultiplier = d1 + d2 + d3;
   let isSlotJackpot = false;
 

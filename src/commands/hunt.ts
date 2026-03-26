@@ -1,5 +1,6 @@
 import { Message, EmbedBuilder } from 'discord.js';
 import prisma from '../db.js';
+import redisClient from '../redis.js';
 
 export async function execute(message: Message) {
   const discordId = message.author.id;
@@ -21,16 +22,17 @@ export async function execute(message: Message) {
     return message.reply('💀 **YOU ARE DEAD.**\nYou cannot hunt until your body is restored. Buy a 🧪 **[Life Potion]** from the `rpg shop` and type `rpg heal`.');
   }
 
-  // --- THE ADRENALINE SLOT MACHINE ---
-  const d1 = Math.floor(Math.random() * 6) + 1;
-  const d2 = Math.floor(Math.random() * 6) + 1;
-  const d3 = Math.floor(Math.random() * 6) + 1;
-  let slotMultiplier = d1 + d2 + d3;
-  let isSlotJackpot = false;
-
-  if (d1 === d2 && d2 === d3) {
-    isSlotJackpot = true;
-    slotMultiplier = slotMultiplier * slotMultiplier; // Square the multiplier on three of a kind!
+  const cdKey = `cooldown:hunt:${discordId}`;
+  if (redisClient.isReady) {
+    try {
+      const isCooldown = await redisClient.get(cdKey);
+      if (isCooldown) {
+        return message.reply('⏳ **Exhausted!** You are still recovering from your last hunt. Wait a few seconds!');
+      }
+      await redisClient.setEx(cdKey, 10, '1'); // 10 second combat cooldown
+    } catch (e) {
+      console.error('Redis error', e);
+    }
   }
 
   // Fetch Equipped Gear
@@ -59,6 +61,27 @@ export async function execute(message: Message) {
       armorClass = eq.equipmentClass;
     }
   }
+
+  // --- THE ADRENALINE SLOT MACHINE (RARITY LOADED) ---
+  let diceFaces = 3; // Basic/Wood (Humble Beginnings)
+  const lowerName = weaponName.toLowerCase();
+  
+  if (lowerName.includes('iron') || lowerName.includes('bone') || lowerName.includes('rusty')) diceFaces = 4;
+  else if (lowerName.includes('steel') || lowerName.includes('venom') || lowerName.includes('soul')) diceFaces = 5;
+  else if (lowerName.includes('mythril') || lowerName.includes('shadow') || lowerName.includes('lich')) diceFaces = 6;
+  else if (lowerName.includes('moonlight') || lowerName.includes('meteor') || lowerName.includes('void')) diceFaces = 8;
+
+  const d1 = Math.floor(Math.random() * diceFaces) + 1;
+  const d2 = Math.floor(Math.random() * diceFaces) + 1;
+  const d3 = Math.floor(Math.random() * diceFaces) + 1;
+  let slotMultiplier = d1 + d2 + d3;
+  let isSlotJackpot = false;
+
+  if (d1 === d2 && d2 === d3) {
+    isSlotJackpot = true;
+    slotMultiplier = slotMultiplier * slotMultiplier; // Square the multiplier on three of a kind!
+  }
+
 
   // Baseline Engine Stats
   let baseDamage = 10;
