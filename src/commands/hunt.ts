@@ -1,6 +1,5 @@
 import { Message, EmbedBuilder } from 'discord.js';
 import prisma from '../db.js';
-import { PlayerClass } from '@prisma/client';
 
 export async function execute(message: Message) {
   const discordId = message.author.id;
@@ -42,6 +41,8 @@ export async function execute(message: Message) {
   let gearEvasion = 0;
   let weaponName = 'Fists';
   let armorName = 'Casual Clothes';
+  let weaponClass = 'NONE';
+  let armorClass = 'NONE';
 
   for (const eq of player.equipment || []) {
     gearAtk += eq.bonusAtk;
@@ -49,8 +50,14 @@ export async function execute(message: Message) {
     gearCrit += eq.bonusCrit;
     gearLifesteal += eq.bonusLifesteal;
     gearEvasion += eq.bonusEvasion;
-    if (eq.slot === 'WEAPON') weaponName = eq.name || weaponName;
-    if (eq.slot === 'ARMOR') armorName = eq.name || armorName;
+    if (eq.slot === 'WEAPON') {
+      weaponName = eq.name || weaponName;
+      weaponClass = eq.equipmentClass;
+    }
+    if (eq.slot === 'ARMOR') {
+      armorName = eq.name || armorName;
+      armorClass = eq.equipmentClass;
+    }
   }
 
   // Baseline Engine Stats
@@ -70,24 +77,32 @@ export async function execute(message: Message) {
   // The HP Penalty
   let damageTaken = Math.floor(Math.random() * 8) + 3; // 3 to 10 damage per hunt
   
-  // Apply Flat Damage Reduction from Armor
+  // Apply Flat Damage Reduction from Armor + Class Armor Passives
   let mitigated = Math.floor(gearDef / 2); // 2 DEF = 1 Damage absorbed
+  if (armorClass === 'HEAVY_ARMOR') {
+    damageTaken = Math.floor(damageTaken * 0.9); // 10% Flat mitigation
+  } else if (armorClass === 'LIGHT_ARMOR') {
+    gearEvasion += 15; // +15% Flat Evasion
+  } else if (armorClass === 'CLOTH') {
+    // Regenerate 5% Max HP at the end of combat (Mana Shield)
+    damageTaken -= Math.floor(player.maxHp * 0.05); 
+  }
+  
   damageTaken -= mitigated;
-  if (damageTaken < 1) damageTaken = 1;
 
   let evadedText = '';
   if (Math.random() * 100 < gearEvasion) {
-    damageTaken = 0;
+    damageTaken = 0; // Negative damage means heal, but you don't heal if you perfectly evade.
     evadedText = ' 💨 (Dodged!)';
   }
 
-  // Class-Specific Instant Mathematics & Rewards
-  switch (player.activeClass) {
-    case PlayerClass.ROGUE: {
+  // Gear-Specific Instant Mathematics & Rewards (The "You Are What You Wear" systemic injection)
+  switch (weaponClass) {
+    case 'FINESSE_WEAPON': {
       const dmgMultiplier = player.agi / Math.max(1, player.end);
       baseDamage = Math.floor(15 * dmgMultiplier);
 
-      // ROGUE: Combat Style = Fast Crits | Special Thing = Loot Hoarder
+      // FINESSE: Combat Style = Fast Crits | Special Thing = Loot Hoarder
       if (Math.random() > 0.8) {
         jackpotTriggered = true;
         baseDamage = Math.floor(baseDamage * 2.5); // The satisfying crit
@@ -96,10 +111,10 @@ export async function execute(message: Message) {
       }
       break;
     }
-    case PlayerClass.WARRIOR: {
+    case 'HEAVY_WEAPON': {
       baseDamage = player.str * 5; 
 
-      // WARRIOR: Combat Style = Heavy Hits | Special Thing = Crafting Master
+      // HEAVY: Combat Style = Heavy Hits | Special Thing = Crafting Master
       if (Math.random() > 0.8) {
         jackpotTriggered = true;
         baseDamage = 9999;
@@ -108,11 +123,11 @@ export async function execute(message: Message) {
       }
       break;
     }
-    case PlayerClass.MAGE: {
+    case 'MAGIC_WEAPON': {
       const dmgMultiplier = player.int / Math.max(1, player.str);
       baseDamage = Math.floor(20 * dmgMultiplier);
 
-      // MAGE: Combat Style = Magic | Special Thing = EXP Booster
+      // MAGIC: Combat Style = Magic | Special Thing = EXP Booster
       if (Math.random() > 0.8) {
         jackpotTriggered = true;
         xpReward = 50 * slotMultiplier; // The EXP Booster progression multiplier
@@ -120,22 +135,6 @@ export async function execute(message: Message) {
       }
       break;
     }
-    case PlayerClass.NECROMANCER: {
-      const dmgMultiplier = (player.int + player.end) / 20; // Needs both intelligence for magic, and endurance for pets
-      const swarmSize = Math.floor(5 + (dmgMultiplier * 5)); // Between 5 and infinite minions
-      const dmgPerMinion = Math.floor(2 * dmgMultiplier);
-      baseDamage = swarmSize * dmgPerMinion;
-
-      // NECROMANCER: Combat Style = Swarm Attrition | Special Thing = Gacha Feeder
-      if (Math.random() > 0.8) {
-        jackpotTriggered = true;
-        baseDamage = Math.floor(baseDamage * 1.5);
-        const soulsHarvested = 10;
-        jackpotMessage = `💀 **SOUL HARVEST!** Your swarm ripped out ${soulsHarvested} souls to feed your abomination!`;
-      }
-      break;
-    }
-    case PlayerClass.NONE:
     default:
       baseDamage = 5;
       break;
@@ -283,18 +282,18 @@ export async function execute(message: Message) {
 
   const embed = new EmbedBuilder()
     .setTitle(`⚔️ Hunt Resolved: ${mob.name}`)
-    .setColor(jackpotTriggered || isSlotJackpot ? (player.activeClass === PlayerClass.ROGUE ? 0xFF0000 : 0xFFD700) : 0x2B2D31)
+    .setColor(jackpotTriggered || isSlotJackpot ? (weaponClass === 'FINESSE_WEAPON' ? 0xFF0000 : 0xFFD700) : 0x2B2D31)
     .setDescription(`You swung your **${weaponName}** resulting in a rapid clash. The ${mob.emoji} ${mob.name} retaliated against your **${armorName}**.\n\n**Combat Log:**\nDamage Dealt: 💥 ${critText}${baseDamage}${vampText}\nDamage Taken: 🩸 ${damageTaken}${evadedText}\n\n${slotMachineString}\n\n🛍️ **Final Payout:** 🪙 ${goldReward} Gold | ✨ ${xpReward} XP${extraLoot}\n\n`)
     .addFields(
-      { name: 'Your Class', value: player.activeClass, inline: true },
-      { name: 'Raw Damage Output', value: jackpotTriggered && player.activeClass === PlayerClass.ROGUE ? `**💥 ${baseDamage} CRIT! 💥**` : (player.activeClass === PlayerClass.NECROMANCER ? `[${Math.floor(baseDamage/10)} DMG x 10 Minions]` : `${baseDamage} DMG`), inline: true }
+      { name: 'Your Style', value: weaponClass, inline: true },
+      { name: 'Raw Damage Output', value: jackpotTriggered && weaponClass === 'FINESSE_WEAPON' ? `**💥 ${baseDamage} CRIT! 💥**` : `${baseDamage} DMG`, inline: true }
     );
 
   if (jackpotTriggered) {
     embed.addFields({ name: '!!! JACKPOT !!!', value: jackpotMessage });
-    if (player.activeClass === PlayerClass.ROGUE) embed.addFields({ name: 'Loot Stolen', value: `💰 +${goldReward} Gold`});
-    if (player.activeClass === PlayerClass.MAGE) embed.addFields({ name: 'Knowledge Gained', value: `✨ +${xpReward} EXP`});
-    if (player.activeClass === PlayerClass.WARRIOR) embed.addFields({ name: 'Salvaged Material', value: `🔨 1x Rare Meteorite Ingot`});
+    if (weaponClass === 'FINESSE_WEAPON') embed.addFields({ name: 'Loot Stolen', value: `💰 +${goldReward} Gold`});
+    if (weaponClass === 'MAGIC_WEAPON') embed.addFields({ name: 'Knowledge Gained', value: `✨ +${xpReward} EXP`});
+    if (weaponClass === 'HEAVY_WEAPON') embed.addFields({ name: 'Salvaged Material', value: `🔨 1x Rare Meteorite Ingot`});
   } else {
     embed.addFields({ name: 'Rewards', value: `+${goldReward} Gold, +${xpReward} EXP` });
   }

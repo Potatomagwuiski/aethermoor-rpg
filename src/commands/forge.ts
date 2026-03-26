@@ -231,17 +231,10 @@ export async function executeForge(message: Message, args: string[]) {
     }));
   }
 
-  // 4. RNG Roll for Quality with Warrior Bonus
+  // 4. RNG Roll for Quality
   // Base 1-100 roll
   let roll = Math.floor(Math.random() * 100) + 1;
   let logAddition = '';
-  
-  if (player.activeClass === 'WARRIOR') {
-    roll += 20; // 20% flat boost to the rarity bracket
-    logAddition = '\n⚔️ *Warrior Passive: Perfected strikes increased roll quality by 20!*';
-  } else {
-    logAddition = '\n*Anyone can forge, but Warriors forge God-Tier weapons.*';
-  }
 
   // 5. Determine Result Based on Blueprint Tiers
   let resultOutput: any = null;

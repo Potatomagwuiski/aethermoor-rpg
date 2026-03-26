@@ -7,13 +7,7 @@ generator client {
   provider = "prisma-client-js"
 }
 
-enum PlayerClass {
-  WARRIOR
-  MAGE
-  ROGUE
-  NECROMANCER
-  NONE
-}
+// Player Classes have been entirely removed in Phase 18. Identity is now strictly tied to Equipment tags.
 
 
 
@@ -55,9 +49,7 @@ model Player {
   level           Int      @default(1)
   xp              Int      @default(0)
   gold            Int      @default(0)
-  activeClass     PlayerClass @default(NONE)
 
-  
   // Vitals
   hp              Int      @default(100)
   maxHp           Int      @default(100)

@@ -1,6 +1,5 @@
 import { Message, EmbedBuilder } from 'discord.js';
 import prisma from '../db.js';
-import { PlayerClass } from '@prisma/client';
 
 export async function executeEquip(message: Message, args: string[]) {
   const discordId = message.author.id;
@@ -10,7 +9,7 @@ export async function executeEquip(message: Message, args: string[]) {
   });
 
   if (!player) {
-    return message.reply('❌ You belong to the void. Type `rpg start <class>` to manifest a physical form.');
+    return message.reply('❌ You belong to the void. Type `rpg start` to manifest a physical form.');
   }
 
   const equipmentId = args[0];
@@ -40,17 +39,6 @@ export async function executeEquip(message: Message, args: string[]) {
 }
 
 async function equipItem(message: Message, player: any, item: any) {
-  const c = item.equipmentClass;
-  let allowed = false;
-
-  if (c === 'ANY') allowed = true;
-  else if (player.activeClass === PlayerClass.WARRIOR && (c === 'HEAVY_WEAPON' || c === 'HEAVY_ARMOR')) allowed = true;
-  else if (player.activeClass === PlayerClass.ROGUE && (c === 'FINESSE_WEAPON' || c === 'LIGHT_ARMOR')) allowed = true;
-  else if ((player.activeClass === PlayerClass.MAGE || player.activeClass === PlayerClass.NECROMANCER) && (c === 'MAGIC_WEAPON' || c === 'CLOTH')) allowed = true;
-
-  if (!allowed) {
-      return message.reply(`❌ **Class Restriction!** Your class (\`${player.activeClass}\`) cannot wield \`${c}\` items.`);
-  }
 
   // Transaction: Unequip current slot, equip new slot
   await prisma.$transaction([

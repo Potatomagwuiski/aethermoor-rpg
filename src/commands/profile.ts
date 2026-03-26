@@ -37,7 +37,7 @@ export async function executeProfile(message: Message, args: string[]) {
     .setTitle(`🌟 ${player.name}'s Profile`)
     .setColor(0x9B59B6)
     .setThumbnail(targetUser.displayAvatarURL())
-    .setDescription(`**Class:** ${player.activeClass}\n**Level:** ${player.level} (${player.xp} / ${player.level * 100} XP)\n**Health:** ❤️ ${Math.max(0, player.hp)} / ${player.maxHp}\n**Wealth:** 🪙 ${player.gold} Gold`);
+    .setDescription(`**Level:** ${player.level} (${player.xp} / ${player.level * 100} XP)\n**Health:** ❤️ ${Math.max(0, player.hp)} / ${player.maxHp}\n**Wealth:** 🪙 ${player.gold} Gold`);
 
   // Parse Equipment
   let gearText = '';
