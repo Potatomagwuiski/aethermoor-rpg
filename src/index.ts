@@ -1,11 +1,9 @@
+import 'dotenv/config';
 import { Client, GatewayIntentBits, Events } from 'discord.js';
-import * as dotenv from 'dotenv';
 import prisma from './db.js';
 import redisClient from './redis.js';
 import * as huntCommand from './commands/hunt.js';
 import * as startCommand from './commands/start.js';
-
-dotenv.config();
 
 const client = new Client({
     intents: [
