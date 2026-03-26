@@ -63,7 +63,7 @@ export async function execute(message: Message) {
   }
 
   // --- THE ADRENALINE SLOT MACHINE (RARITY LOADED) ---
-  let diceFaces = 3; // Basic/Wood (Humble Beginnings)
+  let diceFaces = 2; // Basic/Wood (Humble Beginnings)
   const lowerName = weaponName.toLowerCase();
   
   if (lowerName.includes('iron') || lowerName.includes('bone') || lowerName.includes('rusty')) diceFaces = 4;

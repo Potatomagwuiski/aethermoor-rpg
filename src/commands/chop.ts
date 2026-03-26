@@ -42,7 +42,7 @@ export async function executeChop(message: Message) {
   }
 
   // --- THE ADRENALINE SLOT MACHINE (RARITY LOADED) ---
-  let diceFaces = 3; // Bare Hands / Common Tool
+  let diceFaces = 2; // Bare Hands / Common Tool
   if (hasAxe) {
     const r = player.tools[0].rarity;
     if (r === 'UNCOMMON') diceFaces = 4;
