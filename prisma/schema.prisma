@@ -1,7 +1,6 @@
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
-  directUrl = "postgresql://postgres:jaOFaIrMRzdpiwvFIlEzAZqNNhpXbUHl@yamabiko.proxy.rlwy.net:19123/railway"
+  url      = "postgresql://postgres:jaOFaIrMRzdpiwvFIlEzAZqNNhpXbUHl@yamabiko.proxy.rlwy.net:19123/railway"
 }
 
 generator client {
