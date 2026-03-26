@@ -8,6 +8,7 @@ import { executeMine } from './commands/mine.js';
 import { executeChop } from './commands/chop.js';
 import { executeFish } from './commands/fish.js';
 import { executeFarm } from './commands/farm.js';
+import { executeShop, executeBuy } from './commands/shop.js';
 
 const client = new Client({
     intents: [
@@ -82,8 +83,22 @@ client.on(Events.MessageCreate, async (message) => {
             console.error(error);
             await message.reply(`Error executing farm command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
+    } else if (command === 'shop') {
+        try {
+            await executeShop(message, args);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing shop command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
+    } else if (command === 'buy') {
+        try {
+            await executeBuy(message, args);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing buy command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
     } else {
-        await message.reply('Unknown command. Try: `rpg start <class>`, `rpg hunt`, `rpg mine`, `rpg chop`, `rpg fish`, or `rpg farm`.');
+        await message.reply('Unknown command. Try: `rpg start <class>`, `rpg hunt`, `rpg mine`, `rpg chop`, `rpg shop`, `rpg buy`, or `rpg farm`.');
     }
 });
 
