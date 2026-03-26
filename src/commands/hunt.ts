@@ -95,4 +95,3 @@ export async function execute(message: Message) {
 
   return message.reply({ embeds: [embed] });
 }
-```
