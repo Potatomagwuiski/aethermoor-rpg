@@ -7,6 +7,8 @@ export const ITEM_EMOJIS: Record<string, string> = {
     'copper_ore': '🟤',
     'iron_ore': '🪨',
     'gold_ore': '🟡',
+    'elderwood': '🌳',
+    'moon_herb': '🌿',
     
     // Ingots
     'copper_ingot': '🟧',
@@ -29,9 +31,23 @@ export const ITEM_EMOJIS: Record<string, string> = {
     'iron_sword': '🗡️',
     'steel_sword': '⚔️',
     'mythril_sword': '🗡️',
-    'copper_dagger': '🔪',
+    
+    'steel_greatsword': '⚔️',
+    'mythril_cleaver': '🪓',
+    'iron_dagger': '🔪',
+    'venom_shiv': '🦂',
+    'shadow_blade': '🌌',
     'wood_staff': '🦯',
-    'iron_staff': '🪄',
+    'moonlight_staff': '🌔',
+    'meteor_staff': '☄️',
+    'bone_scythe': '🦴',
+    'soul_reaper': '👻',
+    'lich_tome': '📖',
+    
+    // Armor
+    'iron_helmet': '🪖',
+    'iron_chestplate': '👕',
+    'iron_boots': '👞',
     
     // Blueprints
     'blueprint_iron_pickaxe': '📜',
@@ -40,7 +56,24 @@ export const ITEM_EMOJIS: Record<string, string> = {
     'blueprint_iron_axe': '📜',
     'blueprint_steel_axe': '📜',
     'blueprint_mythril_axe': '📜',
+    
     'blueprint_iron_sword': '📜',
+    'blueprint_steel_greatsword': '📜',
+    'blueprint_mythril_cleaver': '📜',
+    'blueprint_iron_dagger': '📜',
+    'blueprint_venom_shiv': '📜',
+    'blueprint_shadow_blade': '📜',
+    'blueprint_wood_staff': '📜',
+    'blueprint_moonlight_staff': '📜',
+    'blueprint_meteor_staff': '📜',
+    'blueprint_bone_scythe': '📜',
+    'blueprint_soul_reaper': '📜',
+    'blueprint_lich_tome': '📜',
+    'blueprint_iron_helmet': '📜',
+    'blueprint_iron_chestplate': '📜',
+    'blueprint_iron_boots': '📜',
+    'blueprint_wolf_slayer': '📜',
+    'blueprint_void_blade': '📜',
     
     // Consumables
     'health_potion_1': '🧪',
@@ -52,6 +85,10 @@ export const ITEM_EMOJIS: Record<string, string> = {
     'slime_core': '💧',
     'wolf_pelt': '🐺',
     'mythic_dragon_scale': '🟪',
+    'dungeon_key': '🗝️',
+    'rare_meteorite_ingot': '☄️',
+    'lich_soul': '👻',
+    'behemoth_bone': '🦖',
     
     // Default fallback
     'default': '📦'

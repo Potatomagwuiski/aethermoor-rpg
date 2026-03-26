@@ -150,6 +150,10 @@ export async function execute(message: Message) {
   }
 
   // --- THE GACHA LOOT SYSTEM ---
+  const COMMON_BPS = [{key: 'blueprint_iron_sword', name:'Iron Sword'}, {key:'blueprint_iron_dagger', name:'Iron Dagger'}, {key:'blueprint_wood_staff', name:'Wood Staff'}, {key:'blueprint_bone_scythe', name:'Bone Scythe'}, {key:'blueprint_iron_helmet', name:'Iron Helmet'}, {key:'blueprint_iron_chestplate', name:'Iron Chestplate'}, {key:'blueprint_iron_boots', name:'Iron Boots'}];
+  const UNCOMMON_BPS = [{key: 'blueprint_steel_greatsword', name:'Steel Greatsword'}, {key:'blueprint_venom_shiv', name:'Venom Shiv'}, {key:'blueprint_moonlight_staff', name:'Moonlight Staff'}, {key:'blueprint_soul_reaper', name:'Soul Reaper'}];
+  const EPIC_BPS = [{key: 'blueprint_mythril_cleaver', name:'Mythril Cleaver'}, {key:'blueprint_shadow_blade', name:'Shadow Blade'}, {key:'blueprint_meteor_staff', name:'Meteor Staff'}, {key:'blueprint_lich_tome', name:'Lich Tome'}, {key:'blueprint_wolf_slayer', name:'Wolf Slayer Sword'}];
+  
   let gachaLootString = '';
   if (Math.random() <= 0.15) { // 15% chance to trigger an item drop
     const rarityRoll = Math.random();
@@ -159,19 +163,24 @@ export async function execute(message: Message) {
       gachaLootString = '🟧 `[✨ Blueprint: Void Blade ✨]`';
       dropKey = 'blueprint_void_blade';
     }
-    else if (rarityRoll > 0.98) {
-      gachaLootString = '🟪 `[Blueprint: Wolf Slayer]`';
-      dropKey = 'blueprint_wolf_slayer';
-    }
     else if (rarityRoll > 0.95) {
+      const bp = EPIC_BPS[Math.floor(Math.random() * EPIC_BPS.length)];
+      gachaLootString = `🟪 \`[Blueprint: ${bp.name}]\``;
+      dropKey = bp.key;
+    }
+    else if (rarityRoll > 0.90) {
       gachaLootString = '🗝️ `[Dungeon Key]`';
       dropKey = 'dungeon_key';
     }
-    else if (rarityRoll > 0.90) gachaLootString = '🟦 `[Rare Cobalt Shard]`';
-    else if (rarityRoll > 0.70) gachaLootString = '🟩 `[Blueprint: Iron Helmet]`';
+    else if (rarityRoll > 0.70) {
+      const bp = UNCOMMON_BPS[Math.floor(Math.random() * UNCOMMON_BPS.length)];
+      gachaLootString = `🟦 \`[Blueprint: ${bp.name}]\``;
+      dropKey = bp.key;
+    }
     else {
-      gachaLootString = '⬜ `[Blueprint: Iron Sword]`';
-      dropKey = 'blueprint_iron_sword';
+      const bp = COMMON_BPS[Math.floor(Math.random() * COMMON_BPS.length)];
+      gachaLootString = `⬜ \`[Blueprint: ${bp.name}]\``;
+      dropKey = bp.key;
     }
 
     if (dropKey) {
