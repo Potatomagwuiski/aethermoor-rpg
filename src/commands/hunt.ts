@@ -69,11 +69,22 @@ export async function execute(message: Message) {
   const embed = new EmbedBuilder()
     .setTitle(`⚔️ Hunt Resolved: Goblin`)
     .setColor(jackpotTriggered ? 0xFFD700 : 0x2B2D31)
-    .setDescription(`The engine calculated your stats in an instant.`)
-    .addFields(
-      { name: 'Your Class', value: player.activeClass, inline: true },
-      { name: 'Raw Damage Output', value: `${baseDamage} DMG`, inline: true }
-    );
+    .setDescription(`The engine calculated your stats in an instant.`);
+
+  const rogueJackpot = Math.random();
+  if (rogueJackpot > 0.8 && player.activeClass === PlayerClass.ROGUE) { // Added check for Rogue class
+    const critDamage = Math.floor(baseDamage * 2.5);
+    embed.setDescription('!!! JACKPOT !!!\n🗡️ **CRITICAL STRIKE!**');
+    embed.addFields({ name: 'Raw Damage Output', value: `**💥 ${critDamage} CRIT! 💥**` });
+    embed.addFields({ name: 'Result', value: `A perfect strike to a vital organ. The enemy was instantly deleted.` });
+    embed.setColor(0xFF0000); // Visceral Red
+    return message.reply({ embeds: [embed] });
+  }
+
+  embed.addFields(
+    { name: 'Your Class', value: player.activeClass, inline: true },
+    { name: 'Raw Damage Output', value: `${baseDamage} DMG`, inline: true }
+  );
 
   if (jackpotTriggered) {
     embed.addFields({ name: '!!! JACKPOT !!!', value: jackpotMessage });
@@ -84,3 +95,4 @@ export async function execute(message: Message) {
 
   return message.reply({ embeds: [embed] });
 }
+```
