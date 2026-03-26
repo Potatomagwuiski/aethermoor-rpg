@@ -24,6 +24,26 @@ const BLUEPRINTS: Record<string, any> = {
       epic: { key: 'epic_void_blade', name: '🟪 [Epic Void Blade]', dps: 200 },
       legendary: { key: 'legendary_void_blade', name: '🟧 [✨ LEGENDARY VOID BLADE ✨]', dps: 500 }
     }
+  },
+  'iron_pickaxe': {
+    name: 'Iron Pickaxe',
+    requiredBlueprint: 'blueprint_iron_pickaxe',
+    materials: { iron: 15, wood: 10 },
+    outputs: {
+      common: { key: 'common_iron_pickaxe', name: '⬜ [Common Iron Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'COMMON', yieldMultiplier: 1.25 },
+      uncommon: { key: 'uncommon_iron_pickaxe', name: '🟩 [Uncommon Iron Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'UNCOMMON', yieldMultiplier: 1.75 },
+      rare: { key: 'rare_iron_pickaxe', name: '🟦 [Rare Iron Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'RARE', yieldMultiplier: 2.5 }
+    }
+  },
+  'iron_axe': {
+    name: 'Iron Axe',
+    requiredBlueprint: 'blueprint_iron_axe',
+    materials: { iron: 10, wood: 15 },
+    outputs: {
+      common: { key: 'common_iron_axe', name: '⬜ [Common Iron Axe]', isTool: true, type: 'AXE', rarity: 'COMMON', yieldMultiplier: 1.25 },
+      uncommon: { key: 'uncommon_iron_axe', name: '🟩 [Uncommon Iron Axe]', isTool: true, type: 'AXE', rarity: 'UNCOMMON', yieldMultiplier: 1.75 },
+      rare: { key: 'rare_iron_axe', name: '🟦 [Rare Iron Axe]', isTool: true, type: 'AXE', rarity: 'RARE', yieldMultiplier: 2.5 }
+    }
   }
 };
 
@@ -120,6 +140,11 @@ export async function executeForge(message: Message, args: string[]) {
     else if (roll >= 80) resultOutput = blueprint.outputs.epic;
     else resultOutput = blueprint.outputs.rare;
   }
+  else if (recipeId === 'iron_pickaxe' || recipeId === 'iron_axe') {
+    if (roll >= 85) resultOutput = blueprint.outputs.rare;
+    else if (roll >= 50) resultOutput = blueprint.outputs.uncommon;
+    else resultOutput = blueprint.outputs.common;
+  }
 
   // Fallback safety
   if (!resultOutput) {
@@ -127,18 +152,36 @@ export async function executeForge(message: Message, args: string[]) {
   }
 
   // 6. Inject the generated Item
-  dbOperations.push(prisma.inventoryItem.upsert({
-    where: { playerId_itemKey: { playerId: player.id, itemKey: resultOutput.key } },
-    update: { quantity: { increment: 1 } },
-    create: { playerId: player.id, itemKey: resultOutput.key, quantity: 1 }
-  }));
+  if (resultOutput.isTool) {
+    dbOperations.push(prisma.tool.updateMany({
+      where: { playerId: player.id, type: resultOutput.type },
+      data: { equipped: false }
+    }));
+    dbOperations.push(prisma.tool.create({
+      data: {
+        playerId: player.id,
+        type: resultOutput.type,
+        equipped: true,
+        rarity: resultOutput.rarity,
+        yieldMultiplier: resultOutput.yieldMultiplier
+      }
+    }));
+  } else {
+    dbOperations.push(prisma.inventoryItem.upsert({
+      where: { playerId_itemKey: { playerId: player.id, itemKey: resultOutput.key } },
+      update: { quantity: { increment: 1 } },
+      create: { playerId: player.id, itemKey: resultOutput.key, quantity: 1 }
+    }));
+  }
 
   await prisma.$transaction(dbOperations);
+
+  const statLog = resultOutput.dps ? `+${resultOutput.dps} DPS` : `x${resultOutput.yieldMultiplier} Gathering Yield`;
 
   const embed = new EmbedBuilder()
     .setTitle(`🔨 Forged Completed: ${blueprint.name}`)
     .setColor(0xE67E22)
-    .setDescription(`You approach the glowing anvil and hammer the materials together. The heat solidifies the ore into a cohesive form.\n\n**Roll:** ${roll}\n${logAddition}\n\n**Result:** You forged a ${resultOutput.name} (+${resultOutput.dps} DPS)!`);
+    .setDescription(`You approach the glowing anvil and hammer the materials together. The heat solidifies the ore into a cohesive form.\n\n**Roll:** ${roll}\n${logAddition}\n\n**Result:** You forged a ${resultOutput.name} (${statLog})!`);
 
   return message.reply({ embeds: [embed] });
 }

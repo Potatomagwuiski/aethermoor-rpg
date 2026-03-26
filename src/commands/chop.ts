@@ -1,52 +1,117 @@
 import { Message, EmbedBuilder } from 'discord.js';
 import { prisma } from '../db.js';
+import redisClient from '../redis.js';
 
-export async function executeChop(message: Message, args: string[]) {
+export async function executeChop(message: Message) {
   const discordId = message.author.id;
-  const player = await prisma.player.findUnique({ where: { discordId } });
-
-  if (!player) {
-    return message.reply('You have not registered yet! Type `rpg start <class>` to begin.');
+  
+  // 1. Redis Strict Cooldown Matrix (60 seconds)
+  const cdKey = `cd:chop:${discordId}`;
+  const isCooldown = await redisClient.get(cdKey);
+  if (isCooldown) {
+    return message.reply('🪓 *Your hands are splintered. You must wait a minute before swinging your axe again.*');
   }
 
-  // Pure RNG chopping node table
-  const roll = Math.random();
-  let materialDrop = '';
-  let dropQuantity = 0;
-  let flavorText = '';
+  const player = await prisma.player.findUnique({
+    where: { discordId },
+    include: { tools: { where: { type: 'AXE', equipped: true } } }
+  });
 
-  if (roll > 0.95) {
-    materialDrop = 'elderwood_log';
-    dropQuantity = 1;
-    flavorText = 'You felled an ancient, glowing tree and harvested an ✨ **Elderwood Log**!';
-  } else if (roll > 0.6) {
-    materialDrop = 'pine_log';
-    dropQuantity = Math.floor(Math.random() * 3) + 1;
-    flavorText = `You swung your axe and chopped down **${dropQuantity} Pine Logs**.`;
-  } else {
-    materialDrop = 'wood_scrap';
-    dropQuantity = Math.floor(Math.random() * 5) + 1;
-    flavorText = `You hacked at some dry branches and gathered **${dropQuantity} Wood Scraps**.`;
+  if (!player) return message.reply('You are not of this world. Type `rpg start <class>`.');
+  if (player.hp <= 0) return message.reply('💀 You are dead! Drink a Life Potion before chopping wood.');
+
+  // Lock the user for 60 seconds
+  await redisClient.setEx(cdKey, 60, '1');
+
+  // 2. Progression Logic
+  let yieldMultiplier = 1;
+  let hasAxe = false;
+  let toolName = 'Bare Hands';
+
+  if (player.tools && player.tools.length > 0) {
+    const tool = player.tools[0];
+    yieldMultiplier = tool.yieldMultiplier;
+    hasAxe = true;
+    toolName = `${tool.rarity} AXE (x${yieldMultiplier} Yield)`;
   }
 
-  // Transaction: Add to inventory, give a tiny bit of XP (Gathering XP)
-  await prisma.$transaction([
-    prisma.player.update({
-      where: { id: player.id },
-      data: { xp: { increment: 2 } } // Small flat XP for gathering
-    }),
-    prisma.inventoryItem.upsert({
-      where: { playerId_itemKey: { playerId: player.id, itemKey: materialDrop } },
-      update: { quantity: { increment: dropQuantity } },
-      create: { playerId: player.id, itemKey: materialDrop, quantity: dropQuantity }
-    })
-  ]);
+  // 3. Mathematical Drops
+  const baseWood = Math.floor(Math.random() * 3) + 1; // 1 to 3 wood
+  let baseElderwood = 0;
+  let baseMoonHerb = 0;
+
+  if (hasAxe) {
+    const roll = Math.random() * 100;
+    if (roll > 50) baseElderwood = Math.floor(Math.random() * 2) + 1; // 1 to 2 elderwood
+    if (roll > 90) baseMoonHerb = 1; // 10% chance for Moon Herb (Alchemy ingredient)
+  }
+
+  const finalWood = Math.floor(baseWood * yieldMultiplier);
+  const finalElderwood = Math.floor(baseElderwood * yieldMultiplier);
+  const finalMoonHerb = Math.floor(baseMoonHerb * yieldMultiplier);
+  
+  const xpReward = 5;
+  const exhaustionDamage = 2;
+
+  // 4. Database Transactions
+  const ops: any[] = [];
+  
+  if (finalWood > 0) ops.push(prisma.inventoryItem.upsert({
+    where: { playerId_itemKey: { playerId: player.id, itemKey: 'wood' } },
+    update: { quantity: { increment: finalWood } },
+    create: { playerId: player.id, itemKey: 'wood', quantity: finalWood }
+  }));
+
+  if (finalElderwood > 0) ops.push(prisma.inventoryItem.upsert({
+    where: { playerId_itemKey: { playerId: player.id, itemKey: 'elderwood' } },
+    update: { quantity: { increment: finalElderwood } },
+    create: { playerId: player.id, itemKey: 'elderwood', quantity: finalElderwood }
+  }));
+
+  if (finalMoonHerb > 0) ops.push(prisma.inventoryItem.upsert({
+    where: { playerId_itemKey: { playerId: player.id, itemKey: 'moon_herb' } },
+    update: { quantity: { increment: finalMoonHerb } },
+    create: { playerId: player.id, itemKey: 'moon_herb', quantity: finalMoonHerb }
+  }));
+
+  // Leveling Engine
+  const currentLevel = player.level;
+  let currentXp = player.xp + xpReward;
+  let levelsGained = 0;
+  let xpNeeded = currentLevel * 100;
+
+  while (currentXp >= xpNeeded) {
+    levelsGained++;
+    currentXp -= xpNeeded;
+    xpNeeded = (currentLevel + levelsGained) * 100;
+  }
+  
+  const updateData: any = { 
+    xp: currentXp, 
+    level: currentLevel + levelsGained, 
+    hp: { decrement: exhaustionDamage } 
+  };
+  
+  if (levelsGained > 0) updateData.pointsAvailable = { increment: levelsGained * 3 };
+
+  ops.push(prisma.player.update({ where: { id: player.id }, data: updateData }));
+
+  await prisma.$transaction(ops);
+
+  // 5. Visual Output
+  let dropLog = `**+${finalWood} Wood**`;
+  if (finalElderwood > 0) dropLog += `\n**+${finalElderwood} Elderwood**`;
+  if (finalMoonHerb > 0) dropLog += `\n🌿 **+${finalMoonHerb} Moon Herb!** 🌿`;
 
   const embed = new EmbedBuilder()
-    .setTitle('🪓 Chopping Resolved')
-    .setColor(0x8B4513) // SaddleBrown
-    .setDescription(flavorText)
-    .addFields({ name: 'Rewards', value: `+${dropQuantity} ${materialDrop.replace('_', ' ').toUpperCase()}, +2 EXP`});
+    .setTitle(`🪓 The Great Forest`)
+    .setColor(0x27AE60)
+    .setDescription(`You slammed your **${toolName}** into the towering pines. The exertion dealt 🩸 **${exhaustionDamage} DMG** to your health.\n\n**Loot Dropped:**\n${dropLog}\n\n**XP Gained:** ✨ ${xpReward}`)
+    .setFooter({ text: '60s Cooldown started.' });
+
+  if (levelsGained > 0) {
+    embed.addFields({ name: '🌟 LEVEL UP!', value: `You reached Level **${currentLevel + levelsGained}**! (+${levelsGained * 3} Stat Points)` });
+  }
 
   return message.reply({ embeds: [embed] });
 }

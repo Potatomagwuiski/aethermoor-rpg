@@ -65,14 +65,14 @@ client.on(Events.MessageCreate, async (message) => {
         }
     } else if (command === 'mine') {
         try {
-            await executeMine(message, args);
+            await executeMine(message);
         } catch (error: any) {
             console.error(error);
             await message.reply(`Error executing mine command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
     } else if (command === 'chop') {
         try {
-            await executeChop(message, args);
+            await executeChop(message);
         } catch (error: any) {
             console.error(error);
             await message.reply(`Error executing chop command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
@@ -161,6 +161,7 @@ client.on(Events.MessageCreate, async (message) => {
             console.error(error);
             await message.reply(`Error executing inventory command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
+
     } else {
         await message.reply('❓ **Unknown command.** Try:\n⚔️ `rpg hunt` | 🏰 `rpg dungeon`\n⛏️ `rpg mine` | 🪓 `rpg chop` | 🎣 `rpg fish` | 🌾 `rpg farm`\n🛒 `rpg shop` | 💰 `rpg buy`\n🔨 `rpg forge` | 🧪 `rpg heal`\n📖 `rpg profile` | 🎒 `rpg inv`\n📊 `rpg stat` | ❓ `rpg help`');
     }
