@@ -17,7 +17,7 @@ export async function execute(message: Message, args: string[]) {
   if (args.length === 0) {
     const embed = new EmbedBuilder()
       .setTitle('Welcome to Aethermoor RPG!')
-      .setDescription('To begin your journey, you must select a starting class. Type `rpg start <class>`.\n\n**Available Classes:**\n- **warrior**: Focus on precise Forge manipulation and heavy damage.\n- **mage**: Focus on spellcasting, mana manipulation, and zone-skipping.\n- **rogue**: Focus on agility, critical hits, and massive loot jackpots.')
+      .setDescription('To begin your journey, you must select a starting class. Type `rpg start <class>`.\n\n**Available Classes:**\n- **warrior**: Slower but mathematically rolls god-tier affixes at the forge.\n- **mage**: Infinite scaling through XP surges and Self-Rune modifications.\n- **rogue**: Massive 100% crit chance economy and massive gold hoarding.\n- **necromancer**: Defensive swarm damage and sacrificing useless gacha pets to evolve an abomination.')
       .setColor(0x00FF00);
     return message.reply({ embeds: [embed] });
   }
@@ -28,8 +28,9 @@ export async function execute(message: Message, args: string[]) {
   if (chosenClassInput === 'WARRIOR') playerClass = PlayerClass.WARRIOR;
   else if (chosenClassInput === 'MAGE') playerClass = PlayerClass.MAGE;
   else if (chosenClassInput === 'ROGUE') playerClass = PlayerClass.ROGUE;
+  else if (chosenClassInput === 'NECROMANCER') playerClass = PlayerClass.NECROMANCER;
   else {
-    return message.reply('Invalid class! Please choose from: **warrior**, **mage**, or **rogue**.');
+    return message.reply('Invalid class! Please choose from: **warrior**, **mage**, **rogue**, or **necromancer**.');
   }
 
   await prisma.player.create({
