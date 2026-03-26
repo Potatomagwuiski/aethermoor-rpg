@@ -30,10 +30,13 @@ client.once(Events.ClientReady, async (readyClient) => {
     console.log(`Ready! Logged in as ${readyClient.user.tag}`);
     
     try {
+        await redisClient.connect();
+        console.log('Connected to Redis Cache Engine.');
+        
         const playerCount = await prisma.player.count();
         console.log(`Connected to PostgreSQL Database. Current players registered: ${playerCount}`);
     } catch (e) {
-        console.error('Failed to connect to PG db:', e);
+        console.error('Failed to connect to databases (Redis/PG):', e);
     }
 });
 
