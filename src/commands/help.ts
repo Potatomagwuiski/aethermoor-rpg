@@ -11,7 +11,7 @@ export async function executeHelp(message: Message, args: string[]) {
       { name: '⛏️ Gathering', value: '`rpg mine` - Extract Ores (Iron, Mythril).\n`rpg chop` - Fell Trees (Wood, Pine, Elderwood).\n`rpg fish` - Cast a line (Trout, Seaweed, Void Bass).\n`rpg farm` - Harvest crops (Wheat, Potatoes, Moon Herbs).' },
       { name: '🛒 Economy', value: '`rpg shop` - View the Grand Bazaar.\n`rpg buy <item> <qty>` - Purchase Lootboxes and Gacha Eggs to bypass the grind.' },
       { name: '🔨 Crafting', value: '`rpg forge <blueprint>` - Burn materials to craft custom weapons with randomized stats. (Warriors receive a massive RNG buff).' },
-      { name: '⚙️ Account Settings', value: '`rpg start <class>` - Register or completely reset your character to a new class.' }
+      { name: '⚙️ Account Settings', value: '`rpg start` - Register or completely reset your character.' }
     )
     .setFooter({ text: 'Coming Soon: rpg cook (Temporary Buffs), rpg hatch (Gacha Pets)' });
 

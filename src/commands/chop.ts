@@ -21,7 +21,7 @@ export async function executeChop(message: Message) {
     include: { tools: { where: { type: 'AXE', equipped: true } } }
   });
 
-  if (!player) return message.reply('You are not of this world. Type `rpg start <class>`.');
+  if (!player) return message.reply('You are not of this world. Type `rpg start`.');
   if (player.hp <= 0) return message.reply('💀 You are dead! Drink a Life Potion before chopping wood.');
 
   // Lock the user for 60 seconds

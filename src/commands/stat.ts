@@ -9,7 +9,7 @@ export async function executeStat(message: Message, commandName: string, args: s
   });
 
   if (!player) {
-    return message.reply('You belong to the void. Type `rpg start <class>` to manifest a physical form.');
+    return message.reply('You belong to the void. Type `rpg start` to manifest a physical form.');
   }
 
   // View Stats Dashboard

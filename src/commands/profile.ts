@@ -26,7 +26,7 @@ export async function executeProfile(message: Message, args: string[]) {
 
   if (!player) {
     if (targetId === message.author.id) {
-      return message.reply('You do not exist in the database. Type `rpg start <class>` to begin.');
+      return message.reply('You do not exist in the database. Type `rpg start` to begin.');
     } else {
       return message.reply(`That player has not stepped into Aethermoor yet.`);
     }

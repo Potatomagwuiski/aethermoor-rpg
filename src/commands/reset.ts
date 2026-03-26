@@ -9,7 +9,7 @@ export async function executeReset(message: Message, args: string[]) {
   });
 
   if (!player) {
-    return message.reply('You do not have a character to reset! Type `rpg start <class>` to begin.');
+    return message.reply('You do not have a character to reset! Type `rpg start` to begin.');
   }
 
   // To prevent Prisma foreign key errors, we manually delete child records first
@@ -25,7 +25,7 @@ export async function executeReset(message: Message, args: string[]) {
   const embed = new EmbedBuilder()
     .setTitle('⚠️ ACCOUNT ANNIHILATED ⚠️')
     .setColor(0xFF0000)
-    .setDescription('Your character, your gold, your inventory, and your legacy have been entirely erased from the timeline.\n\nYou are a blank slate. Type `rpg start <class>` to begin anew.');
+    .setDescription('Your character, your gold, your inventory, and your legacy have been entirely erased from the timeline.\n\nYou are a blank slate. Type `rpg start` to begin anew.');
 
   return message.reply({ embeds: [embed] });
 }

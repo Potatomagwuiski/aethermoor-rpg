@@ -13,7 +13,7 @@ export async function executeInventory(message: Message, args: string[]) {
   });
 
   if (!player) {
-    return message.reply('You belong to the void. Type `rpg start <class>` to begin.');
+    return message.reply('You belong to the void. Type `rpg start` to begin.');
   }
 
   const sortedInventory = player.inventory.sort((a, b) => b.quantity - a.quantity);

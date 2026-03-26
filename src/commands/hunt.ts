@@ -280,12 +280,14 @@ export async function execute(message: Message) {
     slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **!!! ${slotMultiplier}x JACKPOT MULTIPLIER !!!** 🔥`;
   }
 
+  const styleDisplay = weaponClass === 'NONE' ? 'Unarmed' : weaponClass.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+
   const embed = new EmbedBuilder()
     .setTitle(`⚔️ Hunt Resolved: ${mob.name}`)
     .setColor(jackpotTriggered || isSlotJackpot ? (weaponClass === 'FINESSE_WEAPON' ? 0xFF0000 : 0xFFD700) : 0x2B2D31)
     .setDescription(`You swung your **${weaponName}** resulting in a rapid clash. The ${mob.emoji} ${mob.name} retaliated against your **${armorName}**.\n\n**Combat Log:**\nDamage Dealt: 💥 ${critText}${baseDamage}${vampText}\nDamage Taken: 🩸 ${damageTaken}${evadedText}\n\n${slotMachineString}\n\n🛍️ **Final Payout:** 🪙 ${goldReward} Gold | ✨ ${xpReward} XP${extraLoot}\n\n`)
     .addFields(
-      { name: 'Your Style', value: weaponClass, inline: true },
+      { name: 'Your Style', value: styleDisplay, inline: true },
       { name: 'Raw Damage Output', value: jackpotTriggered && weaponClass === 'FINESSE_WEAPON' ? `**💥 ${baseDamage} CRIT! 💥**` : `${baseDamage} DMG`, inline: true }
     );
 

@@ -53,7 +53,7 @@ export async function executeBuy(message: Message, args: string[]) {
   const player = await prisma.player.findUnique({ where: { discordId } });
 
   if (!player) {
-    return message.reply('You have not registered yet! Type `rpg start <class>` to begin.');
+    return message.reply('You have not registered yet! Type `rpg start` to begin.');
   }
 
   if (player.gold < totalCost) {

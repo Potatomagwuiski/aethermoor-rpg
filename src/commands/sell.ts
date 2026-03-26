@@ -20,7 +20,7 @@ export async function executeSell(message: Message, args: string[]) {
   });
 
   if (!player) {
-    return message.reply('You have not registered yet! Type `rpg start <class>`.');
+    return message.reply('You have not registered yet! Type `rpg start`.');
   }
 
   const inventoryItem = await prisma.inventoryItem.findUnique({

@@ -141,7 +141,7 @@ export async function executeForge(message: Message, args: string[]) {
   });
 
   if (!player) {
-    return message.reply('You have not registered yet! Type `rpg start <class>`.');
+    return message.reply('You have not registered yet! Type `rpg start`.');
   }
 
   // Load inventory separately to bypass stale Prisma generated types

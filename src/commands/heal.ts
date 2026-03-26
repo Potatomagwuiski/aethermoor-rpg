@@ -10,7 +10,7 @@ export async function executeHeal(message: Message) {
   });
 
   if (!player) {
-    return message.reply('You belong to the void. Type `rpg start <class>` to manifest.');
+    return message.reply('You belong to the void. Type `rpg start` to manifest.');
   }
 
   if (player.hp >= player.maxHp) {

@@ -9,7 +9,7 @@ export async function executeDungeon(message: Message, args: string[]) {
   });
 
   if (!player) {
-    return message.reply('You have not registered yet! Type `rpg start <class>` to begin.');
+    return message.reply('You have not registered yet! Type `rpg start` to begin.');
   }
 
   if (player.hp <= 0) {
