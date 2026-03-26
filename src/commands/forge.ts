@@ -452,11 +452,17 @@ export async function executeForge(message: Message, args: string[]) {
 
   await prisma.$transaction(dbOperations);
 
+  let embedColor = 0xFFFFFF; // Common White
+  if (resultOutput.key.includes('uncommon')) embedColor = 0x2ECC71; // Green
+  else if (resultOutput.key.includes('rare')) embedColor = 0x3498DB; // Blue
+  else if (resultOutput.key.includes('epic')) embedColor = 0x9B59B6; // Purple
+  else if (resultOutput.key.includes('legendary')) embedColor = 0xF1C40F; // Gold
+
   const resultEmbed = new EmbedBuilder()
     .setTitle(`🔨 Forge Completed: ${blueprint.name}`)
-    .setColor(0xE67E22)
-    .setDescription(`You approach the glowing anvil and hammer the materials together. The heat solidifies the ore into a cohesive form.\n\n**Roll:** ${roll}\n${logAddition}`)
-    .addFields({ name: '✨ Forged Output', value: `${getEmoji(recipeId)} **${finalName}**\n${statLog}` });
+    .setColor(embedColor)
+    .setDescription(`*The Blacksmith's hammer rings out. Sparks fly as arcane energy fuses with the raw ore, violently cooling into its final form.*\n\n🎲 **Forging Roll:** \`${roll} / 100\`\n${logAddition}`)
+    .addFields({ name: '✨ Forged Output', value: `> ${getEmoji(recipeId)} **${finalName}**\n> ${statLog}` });
 
   return message.reply({ embeds: [resultEmbed] });
 }
