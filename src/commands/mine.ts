@@ -41,6 +41,18 @@ export async function executeMine(message: Message) {
     toolName = `${tool.rarity} PICKAXE (x${yieldMultiplier} Yield)`;
   }
 
+  // --- THE ADRENALINE SLOT MACHINE ---
+  const d1 = Math.floor(Math.random() * 6) + 1;
+  const d2 = Math.floor(Math.random() * 6) + 1;
+  const d3 = Math.floor(Math.random() * 6) + 1;
+  let slotMultiplier = d1 + d2 + d3;
+  let isSlotJackpot = false;
+
+  if (d1 === d2 && d2 === d3) {
+    isSlotJackpot = true;
+    slotMultiplier = slotMultiplier * slotMultiplier; // Square the multiplier on three of a kind!
+  }
+
   // 3. Mathematical Drops
   const baseIron = Math.floor(Math.random() * 3) + 1; // 1 to 3 iron
   let baseCoal = 0;
@@ -52,11 +64,11 @@ export async function executeMine(message: Message) {
     if (roll > 95) baseMythril = 1; // 5% chance for massive payout
   }
 
-  const finalIron = Math.floor(baseIron * yieldMultiplier);
-  const finalCoal = Math.floor(baseCoal * yieldMultiplier);
-  const finalMythril = Math.floor(baseMythril * yieldMultiplier);
+  const finalIron = Math.floor(baseIron * yieldMultiplier * slotMultiplier);
+  const finalCoal = Math.floor(baseCoal * yieldMultiplier * slotMultiplier);
+  const finalMythril = Math.floor(baseMythril * yieldMultiplier * slotMultiplier);
   
-  const xpReward = 5;
+  const xpReward = 5 * slotMultiplier;
   const exhaustionDamage = 2; // Flat HP drain for grinding
 
   // 4. Database Transactions
@@ -125,10 +137,15 @@ export async function executeMine(message: Message) {
   if (finalMythril > 0) dropLog += `\n${getEmoji('mythril')} **+${finalMythril} Mythril!** ✨`;
   dropLog += blueprintDropStr;
 
+  let slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **${slotMultiplier}x Multiplier!**`;
+  if (isSlotJackpot) {
+    slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **!!! ${slotMultiplier}x JACKPOT MULTIPLIER !!!** 🔥`;
+  }
+
   const embed = new EmbedBuilder()
     .setTitle(`⛏️ The Mines`)
-    .setColor(0x7F8C8D)
-    .setDescription(`You slammed your **${toolName}** into the cavern walls. The exertion dealt 🩸 **${exhaustionDamage} DMG** to your health.\n\n**Loot Dropped:**\n${dropLog}\n\n**XP Gained:** ✨ ${xpReward}`)
+    .setColor(isSlotJackpot ? 0xFFD700 : 0x7F8C8D)
+    .setDescription(`You slammed your **${toolName}** into the cavern walls. The exertion dealt 🩸 **${exhaustionDamage} DMG** to your health.\n\n${slotMachineString}\n\n**Loot Dropped:**\n${dropLog}\n\n**XP Gained:** ✨ ${xpReward}`)
     .setFooter({ text: '60s Cooldown started.' });
 
   if (levelsGained > 0) {

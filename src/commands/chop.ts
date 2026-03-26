@@ -41,6 +41,18 @@ export async function executeChop(message: Message) {
     toolName = `${tool.rarity} AXE (x${yieldMultiplier} Yield)`;
   }
 
+  // --- THE ADRENALINE SLOT MACHINE ---
+  const d1 = Math.floor(Math.random() * 6) + 1;
+  const d2 = Math.floor(Math.random() * 6) + 1;
+  const d3 = Math.floor(Math.random() * 6) + 1;
+  let slotMultiplier = d1 + d2 + d3;
+  let isSlotJackpot = false;
+
+  if (d1 === d2 && d2 === d3) {
+    isSlotJackpot = true;
+    slotMultiplier = slotMultiplier * slotMultiplier; // Square the multiplier on three of a kind!
+  }
+
   // 3. Mathematical Drops
   const baseWood = Math.floor(Math.random() * 3) + 1; // 1 to 3 wood
   let baseElderwood = 0;
@@ -52,11 +64,11 @@ export async function executeChop(message: Message) {
     if (roll > 90) baseMoonHerb = 1; // 10% chance for Moon Herb (Alchemy ingredient)
   }
 
-  const finalWood = Math.floor(baseWood * yieldMultiplier);
-  const finalElderwood = Math.floor(baseElderwood * yieldMultiplier);
-  const finalMoonHerb = Math.floor(baseMoonHerb * yieldMultiplier);
+  const finalWood = Math.floor(baseWood * yieldMultiplier * slotMultiplier);
+  const finalElderwood = Math.floor(baseElderwood * yieldMultiplier * slotMultiplier);
+  const finalMoonHerb = Math.floor(baseMoonHerb * yieldMultiplier * slotMultiplier);
   
-  const xpReward = 5;
+  const xpReward = 5 * slotMultiplier;
   const exhaustionDamage = 2;
 
   // 4. Database Transactions
@@ -125,10 +137,15 @@ export async function executeChop(message: Message) {
   if (finalMoonHerb > 0) dropLog += `\n${getEmoji('moon_herb')} **+${finalMoonHerb} Moon Herb!** 🌿`;
   dropLog += blueprintDropStr;
 
+  let slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **${slotMultiplier}x Multiplier!**`;
+  if (isSlotJackpot) {
+    slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **!!! ${slotMultiplier}x JACKPOT MULTIPLIER !!!** 🔥`;
+  }
+
   const embed = new EmbedBuilder()
     .setTitle(`🪓 The Great Forest`)
-    .setColor(0x27AE60)
-    .setDescription(`You slammed your **${toolName}** into the towering pines. The exertion dealt 🩸 **${exhaustionDamage} DMG** to your health.\n\n**Loot Dropped:**\n${dropLog}\n\n**XP Gained:** ✨ ${xpReward}`)
+    .setColor(isSlotJackpot ? 0xFFD700 : 0x27AE60)
+    .setDescription(`You slammed your **${toolName}** into the towering pines. The exertion dealt 🩸 **${exhaustionDamage} DMG** to your health.\n\n${slotMachineString}\n\n**Loot Dropped:**\n${dropLog}\n\n**XP Gained:** ✨ ${xpReward}`)
     .setFooter({ text: '60s Cooldown started.' });
 
   if (levelsGained > 0) {
