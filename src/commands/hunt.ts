@@ -241,11 +241,11 @@ export async function execute(message: Message) {
 
   for (const item of mob.loot) {
     if (Math.random() <= item.chance) {
-      monsterDropStrings.push(`🦴 \`[1x ${item.name}]\``);
+      monsterDropStrings.push(`🦴 \`[${slotMultiplier}x ${item.name}]\``);
       dbOperations.push(prisma.inventoryItem.upsert({
         where: { playerId_itemKey: { playerId: player.id, itemKey: item.key } },
-        update: { quantity: { increment: 1 } },
-        create: { playerId: player.id, itemKey: item.key, quantity: 1 }
+        update: { quantity: { increment: slotMultiplier } },
+        create: { playerId: player.id, itemKey: item.key, quantity: slotMultiplier }
       }));
     }
   }
