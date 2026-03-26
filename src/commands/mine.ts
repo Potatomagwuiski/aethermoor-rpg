@@ -24,7 +24,9 @@ export async function executeMine(message: Message) {
   if (player.hp <= 0) return message.reply('💀 You are dead! Drink a Life Potion before breaking rocks.');
 
   // Lock the user for 60 seconds
-  await redisClient.setEx(cdKey, 60, '1');
+  if (redisClient.isReady) {
+      await redisClient.setEx(cdKey, 60, '1');
+  }
 
   // 2. Progression Logic
   let yieldMultiplier = 1;
