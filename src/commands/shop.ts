@@ -6,6 +6,9 @@ const SHOP_ITEMS: Record<string, { id: string, name: string, price: number, icon
   'egg': { id: 'egg', name: 'Gacha Pet Egg', price: 1000, icon: '🥚', description: 'Roll for a random pet. The ultimate Casino sink.' },
   'dungeon_key': { id: 'dungeon_key', name: 'Dungeon Key', price: 5000, icon: '🗝️', description: 'Grants access to a 5-stage Dungeon featuring a massive Boss.' },
   'life_potion': { id: 'life_potion', name: 'Life Potion', price: 15, icon: '🧪', description: 'Restores you to Max HP. Required if you die during a Hunt or in a Dungeon.' },
+  'guild_charter': { id: 'guild_charter', name: 'Guild Charter', price: 10000, icon: '📜', description: 'Massive Gold Sink. A prestigious charter allowing you to found a Guild.' },
+  'hero_title': { id: 'hero_title', name: 'Heroic Title', price: 50000, icon: '👑', description: 'The Ultimate Gold Sink. Buy your way into nobility.' },
+  'castle_deed': { id: 'castle_deed', name: 'Castle Deed', price: 100000, icon: '🏰', description: 'Real Estate. Claim a permanent stronghold.' },
   'wheat_seed': { id: 'wheat_seed', name: 'Wheat Seed', price: 10, icon: '🌾', description: 'A basic seed used for farming.' },
   'potato_seed': { id: 'potato_seed', name: 'Potato Seed', price: 20, icon: '🥔', description: 'A sturdy seed used for farming.' },
   'moon_seed': { id: 'moon_seed', name: 'Moon Herb Seed', price: 150, icon: '🌙', description: 'A highly rare magical seed used for premium farming.' }

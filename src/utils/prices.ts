@@ -77,6 +77,11 @@ export const ITEM_SELL_PRICES: Record<string, number> = {
     
     'blueprint_wolf_slayer': 10000,
     'blueprint_void_blade': 50000,
+
+    // Gold Sinks (Non-refundable)
+    'guild_charter': 0,
+    'hero_title': 0,
+    'castle_deed': 0,
 };
 
 export function getSellPrice(itemKey: string): number {

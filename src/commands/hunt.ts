@@ -22,7 +22,7 @@ export async function execute(message: Message) {
   let linesOfExecution = 1;
   // --- ECONOMY REWARDS ---
   let goldReward = 5;
-  let xpReward = 10;
+  let xpReward = Math.floor(Math.random() * 21) + 15; // 15 to 35
   let craftingItemDrop: string | null = null;
   let jackpotTriggered = false;
   let jackpotMessage = '';
@@ -155,7 +155,7 @@ export async function execute(message: Message) {
   const EPIC_BPS = [{key: 'blueprint_mythril_cleaver', name:'Mythril Cleaver'}, {key:'blueprint_shadow_blade', name:'Shadow Blade'}, {key:'blueprint_meteor_staff', name:'Meteor Staff'}, {key:'blueprint_lich_tome', name:'Lich Tome'}, {key:'blueprint_wolf_slayer', name:'Wolf Slayer Sword'}];
   
   let gachaLootString = '';
-  if (Math.random() <= 0.15) { // 15% chance to trigger an item drop
+  if (Math.random() <= 0.25) { // 25% chance to trigger an item drop
     const rarityRoll = Math.random();
     let dropKey = '';
 

@@ -75,6 +75,11 @@ export const ITEM_EMOJIS: Record<string, string> = {
     'blueprint_wolf_slayer': '📜',
     'blueprint_void_blade': '📜',
     
+    // Sinks
+    'guild_charter': '📜',
+    'hero_title': '👑',
+    'castle_deed': '🏰',
+    
     // Consumables
     'health_potion_1': '🧪',
     'health_potion_2': '🧪',
