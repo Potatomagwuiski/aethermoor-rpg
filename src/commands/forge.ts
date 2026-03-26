@@ -6,7 +6,7 @@ import { getEmoji } from '../utils/emojis.js';
 export const BLUEPRINTS: Record<string, any> = {
   // --- WARRIOR ---
   'bronze_sword': {
-    name: 'Bronze Sword', requiredBlueprint: 'blueprint_bronze_sword', materials: { copper: 10, tin: 5, wood: 5, goblin_ear: 2 },
+    name: 'Bronze Sword', materials: { copper: 10, tin: 5, wood: 5, goblin_ear: 2 },
     outputs: {
       common: { key: 'common_bronze_sword', name: '⬜ [Common Bronze Sword]', dps: 15 },
       uncommon: { key: 'uncommon_bronze_sword', name: '🟩 [Uncommon Bronze Sword]', dps: 25 },
@@ -38,7 +38,7 @@ export const BLUEPRINTS: Record<string, any> = {
 
   // --- ROGUE ---
   'bronze_dagger': {
-    name: 'Bronze Dagger', requiredBlueprint: 'blueprint_bronze_dagger', materials: { copper: 5, tin: 5, bat_wing: 2 },
+    name: 'Bronze Dagger', materials: { copper: 5, tin: 5, bat_wing: 2 },
     outputs: {
       common: { key: 'common_bronze_dagger', name: '⬜ [Common Bronze Dagger]', dps: 12 },
       uncommon: { key: 'uncommon_bronze_dagger', name: '🟩 [Uncommon Bronze Dagger]', dps: 20 },
@@ -57,7 +57,7 @@ export const BLUEPRINTS: Record<string, any> = {
 
   // --- MAGE ---
   'wood_staff': {
-    name: 'Wood Staff', requiredBlueprint: 'blueprint_wood_staff', materials: { wood: 10, basic_herb: 5, slime_core: 2 },
+    name: 'Wood Staff', materials: { wood: 10, basic_herb: 5, slime_core: 2 },
     outputs: {
       common: { key: 'common_wood_staff', name: '⬜ [Common Wood Staff]', dps: 15 },
       uncommon: { key: 'uncommon_wood_staff', name: '🟩 [Uncommon Wood Staff]', dps: 25 },
@@ -76,7 +76,7 @@ export const BLUEPRINTS: Record<string, any> = {
 
   // --- NECROMANCER ---
   'bone_scythe': {
-    name: 'Bone Scythe', requiredBlueprint: 'blueprint_bone_scythe', materials: { copper: 5, wood: 5, goblin_ear: 5 },
+    name: 'Bone Scythe', materials: { copper: 5, wood: 5, goblin_ear: 5 },
     outputs: {
       common: { key: 'common_bone_scythe', name: '⬜ [Common Bone Scythe]', dps: 20 },
       uncommon: { key: 'uncommon_bone_scythe', name: '🟩 [Uncommon Bone Scythe]', dps: 35 },
@@ -95,15 +95,15 @@ export const BLUEPRINTS: Record<string, any> = {
 
   // --- ARMOR ---
   'bronze_helmet': {
-    name: 'Bronze Helmet', requiredBlueprint: 'blueprint_bronze_helmet', materials: { copper: 15, tin: 5 },
+    name: 'Bronze Helmet', materials: { copper: 15, tin: 5 },
     outputs: { common: { key: 'common_bronze_helmet', name: '⬜ [Common Bronze Helmet]', defense: 5 }, uncommon: { key: 'uncommon_bronze_helmet', name: '🟩 [Uncommon Bronze Helmet]', defense: 10 }, rare: { key: 'rare_bronze_helmet', name: '🟦 [Rare Bronze Helmet]', defense: 20 }, epic: { key: 'epic_bronze_helmet', name: '🟪 [Epic Bronze Helmet]', defense: 40 } }
   },
   'bronze_chestplate': {
-    name: 'Bronze Chestplate', requiredBlueprint: 'blueprint_bronze_chestplate', materials: { copper: 20, tin: 10 },
+    name: 'Bronze Chestplate', materials: { copper: 20, tin: 10 },
     outputs: { common: { key: 'common_bronze_chestplate', name: '⬜ [Common Bronze Chestplate]', defense: 10 }, uncommon: { key: 'uncommon_bronze_chestplate', name: '🟩 [Uncommon Bronze Chestplate]', defense: 20 }, rare: { key: 'rare_bronze_chestplate', name: '🟦 [Rare Bronze Chestplate]', defense: 40 }, epic: { key: 'epic_bronze_chestplate', name: '🟪 [Epic Bronze Chestplate]', defense: 80 } }
   },
   'bronze_boots': {
-    name: 'Bronze Boots', requiredBlueprint: 'blueprint_bronze_boots', materials: { copper: 10, tin: 5 },
+    name: 'Bronze Boots', materials: { copper: 10, tin: 5 },
     outputs: { common: { key: 'common_bronze_boots', name: '⬜ [Common Bronze Boots]', defense: 4 }, uncommon: { key: 'uncommon_bronze_boots', name: '🟩 [Uncommon Bronze Boots]', defense: 8 }, rare: { key: 'rare_bronze_boots', name: '🟦 [Rare Bronze Boots]', defense: 16 }, epic: { key: 'epic_bronze_boots', name: '🟪 [Epic Bronze Boots]', defense: 32 } }
   },
 
