@@ -327,7 +327,12 @@ export async function executeForge(message: Message, args: string[]) {
               bonusEvasion: bEvasion
           }
       }));
-      statLog = `Base ${bAtk} ATK | ${bCrit}% Crit | ${bLifesteal}% Vampirism | ${bEvasion}% Evasion`;
+      let statArray: string[] = [];
+      statArray.push(`⚔️ **${bAtk}** ATK`);
+      if (bCrit > 0) statArray.push(`🎯 **${bCrit}%** Crit`);
+      if (bLifesteal > 0) statArray.push(`🦇 **${bLifesteal}%** Vampirism`);
+      if (bEvasion > 0) statArray.push(`💨 **${bEvasion}%** Evasion`);
+      statLog = statArray.join(' | ');
   } 
   else if (resultOutput.defense) { // ARMOR
       const prefixes = [
@@ -383,7 +388,13 @@ export async function executeForge(message: Message, args: string[]) {
               bonusEvasion: bEvasion
           }
       }));
-      statLog = `Base ${bDef} DEF | Thorns: ${bAtk} DMG | ${bEvasion}% Evasion`;
+      let statArray: string[] = [];
+      statArray.push(`🛡️ **${bDef}** DEF`);
+      if (bAtk > 0) statArray.push(`🦔 **${bAtk}** Thorns DMG`);
+      if (bEvasion > 0) statArray.push(`💨 **${bEvasion}%** Evasion`);
+      if (bCrit > 0) statArray.push(`🎯 **${bCrit}%** Crit`);
+      if (bLifesteal > 0) statArray.push(`🦇 **${bLifesteal}%** Vampirism`);
+      statLog = statArray.join(' | ');
   }
   else if (resultOutput.isTool) { // TOOLS
       let r: any = 'COMMON';
@@ -401,7 +412,7 @@ export async function executeForge(message: Message, args: string[]) {
               yieldMultiplier: resultOutput.yieldMultiplier
           }
       }));
-      statLog = `${resultOutput.yieldMultiplier}x Gathering Yield`;
+      statLog = `⛏️ **${resultOutput.yieldMultiplier}x** Gathering Yield`;
   }
 
   await prisma.$transaction(dbOperations);
@@ -409,7 +420,8 @@ export async function executeForge(message: Message, args: string[]) {
   const resultEmbed = new EmbedBuilder()
     .setTitle(`🔨 Forged Completed: ${blueprint.name}`)
     .setColor(0xE67E22)
-    .setDescription(`You approach the glowing anvil and hammer the materials together. The heat solidifies the ore into a cohesive form.\n\n**Roll:** ${roll}\n${logAddition}\n\n**Result:** You forged a **${finalName}**\n*Attributes:* \`${statLog}\``);
+    .setDescription(`You approach the glowing anvil and hammer the materials together. The heat solidifies the ore into a cohesive form.\n\n**Roll:** ${roll}\n${logAddition}`)
+    .addFields({ name: '✨ Forged Output', value: `**${finalName}**\n${statLog}` });
 
   return message.reply({ embeds: [resultEmbed] });
 }
