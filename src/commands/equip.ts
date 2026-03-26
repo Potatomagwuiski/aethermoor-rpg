@@ -12,42 +12,35 @@ export async function executeEquip(message: Message, args: string[]) {
     return message.reply('❌ You belong to the void. Type `rpg start` to manifest a physical form.');
   }
 
-  const equipmentId = args[0];
-  if (!equipmentId) {
-    return message.reply('❌ Please provide an Equipment ID to equip. Use `rpg inv equipment` to see your gear IDs.');
+  const searchStr = args.join(' ').toLowerCase();
+  if (!searchStr) {
+    return message.reply('❌ Please provide an Equipment Name or ID to equip. Use `rpg inv equipment` to see your gear.');
   }
 
   let isTool = false;
 
-  // Fetch from Equipment
-  let item: any = await prisma.equipment.findFirst({
-    where: { id: equipmentId, playerId: player.id }
-  });
+  // Search through all equipment for this player
+  const eqItems = await prisma.equipment.findMany({ where: { playerId: player.id }});
+  let item: any = eqItems.find((i: any) => 
+    i.id.startsWith(searchStr) || 
+    i.name.toLowerCase() === searchStr || 
+    i.name.toLowerCase().includes(searchStr) ||
+    i.baseItemKey.toLowerCase() === searchStr
+  );
 
   if (!item) {
-    // Check exact Tool match
-    item = await prisma.tool.findFirst({
-      where: { id: equipmentId, playerId: player.id }
-    });
+    const tItems = await prisma.tool.findMany({ where: { playerId: player.id } });
+    item = tItems.find((i: any) => 
+      i.id.startsWith(searchStr) || 
+      (i.name && i.name.toLowerCase() === searchStr) || 
+      (i.name && i.name.toLowerCase().includes(searchStr)) ||
+      i.type.toLowerCase() === searchStr
+    );
     if (item) isTool = true;
   }
 
   if (!item) {
-      // Partial ID matching (Equipment)
-      const eqItems = await prisma.equipment.findMany({ where: { playerId: player.id }});
-      let partialMatch: any = eqItems.find((i: any) => i.id.startsWith(equipmentId));
-      
-      // Partial ID matching (Tool)
-      if (!partialMatch) {
-          const tItems = await prisma.tool.findMany({ where: { playerId: player.id }});
-          partialMatch = tItems.find((i: any) => i.id.startsWith(equipmentId));
-          if (partialMatch) isTool = true;
-      }
-
-      if (!partialMatch) {
-        return message.reply(`❌ Could not find equipment or tool with ID starting with \`${equipmentId}\`.`);
-      }
-      return await equipItem(message, player, partialMatch, isTool);
+    return message.reply(`❌ Could not find equipment or tool matching \`${searchStr}\`. Use \`rpg inv equipment\` or \`rpg inv tools\` to see what you own.`);
   }
 
   return await equipItem(message, player, item, isTool);
