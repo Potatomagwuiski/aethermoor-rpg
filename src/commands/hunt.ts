@@ -195,7 +195,6 @@ export async function execute(message: Message) {
   // Format the Dopamine Delivery
   let extraLoot = '';
   if (monsterDropString) extraLoot += `\n${monsterDropString}`;
-  if (gachaLootString) extraLoot += `\n${gachaLootString}`;
 
   const embed = new EmbedBuilder()
     .setTitle(`⚔️ Hunt Resolved: ${mob.name}`)
