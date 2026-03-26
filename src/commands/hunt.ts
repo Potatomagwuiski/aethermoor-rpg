@@ -17,12 +17,28 @@ export async function execute(message: Message) {
     return message.reply('💀 **YOU ARE DEAD.**\nYou cannot hunt until your body is restored. Buy a 🧪 **[Life Potion]** from the `rpg shop` and type `rpg heal`.');
   }
 
+  // --- THE ADRENALINE SLOT MACHINE ---
+  const d1 = Math.floor(Math.random() * 6) + 1;
+  const d2 = Math.floor(Math.random() * 6) + 1;
+  const d3 = Math.floor(Math.random() * 6) + 1;
+  let slotMultiplier = d1 + d2 + d3;
+  let isSlotJackpot = false;
+
+  if (d1 === d2 && d2 === d3) {
+    isSlotJackpot = true;
+    slotMultiplier = slotMultiplier * slotMultiplier; // Square the multiplier on three of a kind!
+  }
+
   // Baseline Engine Stats
   let baseDamage = 10;
   let linesOfExecution = 1;
   // --- ECONOMY REWARDS ---
-  let goldReward = 5;
-  let xpReward = Math.floor(Math.random() * 21) + 15; // 15 to 35
+  let baseGold = 5;
+  let baseXP = Math.floor(Math.random() * 21) + 15; // 15 to 35
+  
+  let goldReward = baseGold * slotMultiplier;
+  let xpReward = baseXP * slotMultiplier;
+  
   let craftingItemDrop: string | null = null;
   let jackpotTriggered = false;
   let jackpotMessage = '';
@@ -40,7 +56,7 @@ export async function execute(message: Message) {
       if (Math.random() > 0.8) {
         jackpotTriggered = true;
         baseDamage = Math.floor(baseDamage * 2.5); // The satisfying crit
-        goldReward = 500; // The Loot Hoarder economy injector
+        goldReward = 50 * slotMultiplier; // The Loot Hoarder economy injector
         jackpotMessage = '🗡️ **ASSASSIN\'S CRIT!** You found a massive stash of pure gold!';
       }
       break;
@@ -64,7 +80,7 @@ export async function execute(message: Message) {
       // MAGE: Combat Style = Magic | Special Thing = EXP Booster
       if (Math.random() > 0.8) {
         jackpotTriggered = true;
-        xpReward = 500; // The EXP Booster progression multiplier
+        xpReward = 50 * slotMultiplier; // The EXP Booster progression multiplier
         jackpotMessage = '🎇 **WILD MAGIC!** You absorbed the chaotic leylines for a massive EXP Surge!';
       }
       break;
@@ -205,10 +221,15 @@ export async function execute(message: Message) {
   let extraLoot = '';
   if (monsterDropString) extraLoot += `\n${monsterDropString}`;
 
+  let slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **${slotMultiplier}x Multiplier!**`;
+  if (isSlotJackpot) {
+    slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **!!! ${slotMultiplier}x JACKPOT MULTIPLIER !!!** 🔥`;
+  }
+
   const embed = new EmbedBuilder()
     .setTitle(`⚔️ Hunt Resolved: ${mob.name}`)
-    .setColor(jackpotTriggered ? (player.activeClass === PlayerClass.ROGUE ? 0xFF0000 : 0xFFD700) : 0x2B2D31)
-    .setDescription(`You swung your 🗡️ weapon resulting in a rapid clash. The ${mob.emoji} ${mob.name} retaliated.\n\n**Combat Log:**\nDamage Dealt: 💥 ${baseDamage}\nDamage Taken: 🩸 ${damageTaken}\n\n🏆 **Reward:** 🪙 ${goldReward} Gold | ✨ ${xpReward} XP${extraLoot}\n\n`)
+    .setColor(jackpotTriggered || isSlotJackpot ? (player.activeClass === PlayerClass.ROGUE ? 0xFF0000 : 0xFFD700) : 0x2B2D31)
+    .setDescription(`You swung your 🗡️ weapon resulting in a rapid clash. The ${mob.emoji} ${mob.name} retaliated.\n\n**Combat Log:**\nDamage Dealt: 💥 ${baseDamage}\nDamage Taken: 🩸 ${damageTaken}\n\n${slotMachineString}\n\n🛍️ **Final Payout:** 🪙 ${goldReward} Gold | ✨ ${xpReward} XP${extraLoot}\n\n`)
     .addFields(
       { name: 'Your Class', value: player.activeClass, inline: true },
       { name: 'Raw Damage Output', value: jackpotTriggered && player.activeClass === PlayerClass.ROGUE ? `**💥 ${baseDamage} CRIT! 💥**` : (player.activeClass === PlayerClass.NECROMANCER ? `[${Math.floor(baseDamage/10)} DMG x 10 Minions]` : `${baseDamage} DMG`), inline: true }

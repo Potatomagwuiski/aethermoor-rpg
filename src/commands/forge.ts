@@ -247,21 +247,146 @@ export async function executeForge(message: Message, args: string[]) {
     return message.reply('The forge erupted in a magical anomaly. The craft failed!');
   }
 
-  // 6. Inject the generated Item into the player's inventory
-  dbOperations.push(prisma.inventoryItem.upsert({
-    where: { playerId_itemKey: { playerId: player.id, itemKey: resultOutput.key } },
-    update: { quantity: { increment: 1 } },
-    create: { playerId: player.id, itemKey: resultOutput.key, quantity: 1 }
-  }));
+  // 6. ADRENALINE AFFIX GENERATION
+  let finalName = resultOutput.name; 
+  let bAtk = 0;
+  let bDef = 0;
+  let bCrit = 0;
+  let bLifesteal = 0;
+  let bEvasion = 0;
+
+  let statLog = '';
+
+  if (resultOutput.dps) { // WEAPONS
+      const prefixes = [
+        { name: 'Savage', stat: 'Atk', val: Math.floor(resultOutput.dps * 0.15) || 1 },
+        { name: 'Vampiric', stat: 'Lifesteal', val: 5 },
+        { name: 'Toxic', stat: 'Crit', val: 10 },
+        { name: 'Swift', stat: 'Evasion', val: 5 }
+      ];
+      const suffixes = [
+        { name: 'of the Blood God', stat: 'Lifesteal', val: 10 },
+        { name: 'of the Void', stat: 'Crit', val: 15 },
+        { name: 'of the Titan', stat: 'Atk', val: Math.floor(resultOutput.dps * 0.25) || 2 },
+        { name: 'of the Wind', stat: 'Evasion', val: 10 }
+      ];
+
+      // 50% chance for a prefix
+      if (Math.random() > 0.5) {
+        const p = prefixes[Math.floor(Math.random() * prefixes.length)];
+        finalName = finalName.replace('[', `[${p.name} `);
+        if (p.stat === 'Atk') bAtk += p.val;
+        if (p.stat === 'Lifesteal') bLifesteal += p.val;
+        if (p.stat === 'Crit') bCrit += p.val;
+        if (p.stat === 'Evasion') bEvasion += p.val;
+      }
+      
+      // 30% chance for a suffix
+      if (Math.random() > 0.7) {
+        const s = suffixes[Math.floor(Math.random() * suffixes.length)];
+        finalName = finalName.replace(']', ` ${s.name}]`);
+        if (s.stat === 'Atk') bAtk += s.val;
+        if (s.stat === 'Lifesteal') bLifesteal += s.val;
+        if (s.stat === 'Crit') bCrit += s.val;
+        if (s.stat === 'Evasion') bEvasion += s.val;
+      }
+      
+      bAtk += resultOutput.dps;
+      
+      let r: any = 'COMMON';
+      if (resultOutput.key.includes('legendary')) r = 'LEGENDARY';
+      else if (resultOutput.key.includes('epic')) r = 'EPIC';
+      else if (resultOutput.key.includes('rare')) r = 'RARE';
+      else if (resultOutput.key.includes('uncommon')) r = 'UNCOMMON';
+
+      dbOperations.push(prisma.equipment.create({
+          data: {
+              playerId: player.id,
+              baseItemKey: resultOutput.key,
+              name: finalName,
+              rarity: r,
+              bonusAtk: bAtk,
+              bonusDef: bDef,
+              bonusCrit: bCrit,
+              bonusLifesteal: bLifesteal,
+              bonusEvasion: bEvasion
+          }
+      }));
+      statLog = `Base ${bAtk} ATK | ${bCrit}% Crit | ${bLifesteal}% Vampirism | ${bEvasion}% Evasion`;
+  } 
+  else if (resultOutput.defense) { // ARMOR
+      const prefixes = [
+        { name: 'Impenetrable', stat: 'Def', val: Math.floor(resultOutput.defense * 0.2) || 1 },
+        { name: 'Spiked', stat: 'Atk', val: Math.floor(resultOutput.defense * 0.1) || 1 },
+        { name: 'Nimble', stat: 'Evasion', val: 5 }
+      ];
+      const suffixes = [
+        { name: 'of the Bastion', stat: 'Def', val: Math.floor(resultOutput.defense * 0.3) || 2 },
+        { name: 'of Thorns', stat: 'Atk', val: Math.floor(resultOutput.defense * 0.15) || 1 }
+      ];
+
+      if (Math.random() > 0.5) {
+        const p = prefixes[Math.floor(Math.random() * prefixes.length)];
+        finalName = finalName.replace('[', `[${p.name} `);
+        if (p.stat === 'Def') bDef += p.val;
+        if (p.stat === 'Atk') bAtk += p.val;
+        if (p.stat === 'Evasion') bEvasion += p.val;
+      }
+      if (Math.random() > 0.7) {
+        const s = suffixes[Math.floor(Math.random() * suffixes.length)];
+        finalName = finalName.replace(']', ` ${s.name}]`);
+        if (s.stat === 'Def') bDef += s.val;
+        if (s.stat === 'Atk') bAtk += s.val;
+      }
+
+      bDef += resultOutput.defense;
+      
+      let r: any = 'COMMON';
+      if (resultOutput.key.includes('legendary')) r = 'LEGENDARY';
+      else if (resultOutput.key.includes('epic')) r = 'EPIC';
+      else if (resultOutput.key.includes('rare')) r = 'RARE';
+      else if (resultOutput.key.includes('uncommon')) r = 'UNCOMMON';
+
+      dbOperations.push(prisma.equipment.create({
+          data: {
+              playerId: player.id,
+              baseItemKey: resultOutput.key,
+              name: finalName,
+              rarity: r,
+              bonusAtk: bAtk,
+              bonusDef: bDef,
+              bonusCrit: bCrit,
+              bonusLifesteal: bLifesteal,
+              bonusEvasion: bEvasion
+          }
+      }));
+      statLog = `Base ${bDef} DEF | Thorns: ${bAtk} DMG | ${bEvasion}% Evasion`;
+  }
+  else if (resultOutput.isTool) { // TOOLS
+      let r: any = 'COMMON';
+      if (resultOutput.key.includes('legendary')) r = 'LEGENDARY';
+      else if (resultOutput.key.includes('epic')) r = 'EPIC';
+      else if (resultOutput.key.includes('rare')) r = 'RARE';
+      else if (resultOutput.key.includes('uncommon')) r = 'UNCOMMON';
+
+      dbOperations.push(prisma.tool.create({
+          data: {
+              playerId: player.id,
+              type: resultOutput.type,
+              name: finalName,
+              rarity: r,
+              yieldMultiplier: resultOutput.yieldMultiplier
+          }
+      }));
+      statLog = `${resultOutput.yieldMultiplier}x Gathering Yield`;
+  }
 
   await prisma.$transaction(dbOperations);
-
-  const statLog = resultOutput.dps ? `+${resultOutput.dps} DPS` : resultOutput.defense ? `+${resultOutput.defense} DEF` : `x${resultOutput.yieldMultiplier} Gathering Yield`;
 
   const resultEmbed = new EmbedBuilder()
     .setTitle(`🔨 Forged Completed: ${blueprint.name}`)
     .setColor(0xE67E22)
-    .setDescription(`You approach the glowing anvil and hammer the materials together. The heat solidifies the ore into a cohesive form.\n\n**Roll:** ${roll}\n${logAddition}\n\n**Result:** You forged a ${resultOutput.name} (${statLog})!`);
+    .setDescription(`You approach the glowing anvil and hammer the materials together. The heat solidifies the ore into a cohesive form.\n\n**Roll:** ${roll}\n${logAddition}\n\n**Result:** You forged a **${finalName}**\n*Attributes:* \`${statLog}\``);
 
   return message.reply({ embeds: [resultEmbed] });
 }

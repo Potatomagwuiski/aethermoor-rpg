@@ -83,6 +83,7 @@ model Equipment {
   playerId      String
   equipped      Boolean @default(false)
   baseItemKey   String
+  name          String?
   rarity        Rarity  @default(COMMON)
   upgradeLevel  Int     @default(0)
   
@@ -101,6 +102,7 @@ model Tool {
   playerId      String
   type          ToolType
   equipped      Boolean @default(false)
+  name          String?
   rarity        Rarity  @default(COMMON)
   upgradeLevel  Int     @default(0)
   
