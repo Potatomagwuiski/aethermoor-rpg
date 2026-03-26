@@ -106,8 +106,8 @@ export async function execute(message: Message) {
   let baseEnemyThreat = Math.floor(tier * (5 + (player.level * 1.5))); 
   let damageTaken = Math.floor(Math.random() * baseEnemyThreat) + Math.floor(baseEnemyThreat / 2);
   
-  // Apply Flat Damage Reduction from Armor + Class Armor Passives
-  let mitigated = Math.floor(gearDef * 0.75); // 1 DEF = 0.75 Damage Absorbed
+  // Apply Flat Damage Reduction from Armor + Class Armor Passives + Player Endurance
+  let mitigated = Math.floor(gearDef * 0.75) + Math.floor(player.end * 2);
   if (armorClass === 'HEAVY_ARMOR') {
     damageTaken = Math.floor(damageTaken * 0.9); // 10% Flat mitigation
   } else if (armorClass === 'LIGHT_ARMOR') {
@@ -128,8 +128,7 @@ export async function execute(message: Message) {
   // Gear-Specific Instant Mathematics & Rewards (The "You Are What You Wear" systemic injection)
   switch (weaponClass) {
     case 'FINESSE_WEAPON': {
-      const dmgMultiplier = player.agi / Math.max(1, player.end);
-      baseDamage = Math.floor(15 * dmgMultiplier);
+      baseDamage = player.agi * 4;
 
       // FINESSE: Combat Style = Fast Crits | Special = Pickpocket
       if (Math.random() > 0.95) {
@@ -153,8 +152,7 @@ export async function execute(message: Message) {
       break;
     }
     case 'MAGIC_WEAPON': {
-      const dmgMultiplier = player.int / Math.max(1, player.str);
-      baseDamage = Math.floor(20 * dmgMultiplier);
+      baseDamage = player.int * 6;
 
       // MAGIC: Combat Style = Magic | Special = EXP Surge
       if (Math.random() > 0.95) {
