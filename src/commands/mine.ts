@@ -123,28 +123,12 @@ export async function executeMine(message: Message) {
 
   ops.push(prisma.player.update({ where: { id: player.id }, data: updateData }));
 
-  // 5. Blueprint Drops
-  let blueprintDropStr = '';
-  if (Math.random() <= 0.05) {
-    const bps = ['blueprint_iron_pickaxe', 'blueprint_steel_pickaxe', 'blueprint_mythril_pickaxe'];
-    const droppedBp = bps[Math.floor(Math.random() * bps.length)];
-    const bpName = droppedBp.replace('blueprint_', '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-    blueprintDropStr = `\n📜 **BLUEPRINT FOUND:** You unearthed a 🟪 \`[${bpName}]\`!`;
-    
-    ops.push(prisma.inventoryItem.upsert({
-      where: { playerId_itemKey: { playerId: player.id, itemKey: droppedBp } },
-      update: { quantity: { increment: 1 } },
-      create: { playerId: player.id, itemKey: droppedBp, quantity: 1 }
-    }));
-  }
-
   await prisma.$transaction(ops);
 
   // 6. Visual Output
   let dropLog = `${getEmoji('iron')} **+${finalIron} Iron**`;
   if (finalCoal > 0) dropLog += `\n${getEmoji('coal')} **+${finalCoal} Coal**`;
   if (finalMythril > 0) dropLog += `\n${getEmoji('mythril')} **+${finalMythril} Mythril!** ✨`;
-  dropLog += blueprintDropStr;
 
   let slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **${slotMultiplier}x Multiplier!**`;
   if (isSlotJackpot) {

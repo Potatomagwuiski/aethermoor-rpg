@@ -252,9 +252,9 @@ export async function execute(message: Message) {
   let monsterDropString = monsterDropStrings.join('\n');
 
   // --- THE GACHA LOOT SYSTEM ---
-  const COMMON_BPS = [{key: 'blueprint_iron_sword', name:'Iron Sword'}, {key:'blueprint_iron_dagger', name:'Iron Dagger'}, {key:'blueprint_wood_staff', name:'Wood Staff'}, {key:'blueprint_bone_scythe', name:'Bone Scythe'}, {key:'blueprint_iron_helmet', name:'Iron Helmet'}, {key:'blueprint_iron_chestplate', name:'Iron Chestplate'}, {key:'blueprint_iron_boots', name:'Iron Boots'}];
-  const UNCOMMON_BPS = [{key: 'blueprint_steel_greatsword', name:'Steel Greatsword'}, {key:'blueprint_venom_shiv', name:'Venom Shiv'}, {key:'blueprint_moonlight_staff', name:'Moonlight Staff'}, {key:'blueprint_soul_reaper', name:'Soul Reaper'}];
-  const EPIC_BPS = [{key: 'blueprint_mythril_cleaver', name:'Mythril Cleaver'}, {key:'blueprint_shadow_blade', name:'Shadow Blade'}, {key:'blueprint_meteor_staff', name:'Meteor Staff'}, {key:'blueprint_lich_tome', name:'Lich Tome'}, {key:'blueprint_wolf_slayer', name:'Wolf Slayer Sword'}];
+  const COMMON_BPS = [{key: 'blueprint_iron_sword', name:'Iron Sword'}, {key:'blueprint_iron_dagger', name:'Iron Dagger'}, {key:'blueprint_wood_staff', name:'Wood Staff'}, {key:'blueprint_bone_scythe', name:'Bone Scythe'}, {key:'blueprint_iron_helmet', name:'Iron Helmet'}, {key:'blueprint_iron_chestplate', name:'Iron Chestplate'}, {key:'blueprint_iron_boots', name:'Iron Boots'}, {key:'blueprint_iron_pickaxe', name:'Iron Pickaxe'}, {key:'blueprint_iron_axe', name:'Iron Axe'}];
+  const UNCOMMON_BPS = [{key: 'blueprint_steel_greatsword', name:'Steel Greatsword'}, {key:'blueprint_venom_shiv', name:'Venom Shiv'}, {key:'blueprint_moonlight_staff', name:'Moonlight Staff'}, {key:'blueprint_soul_reaper', name:'Soul Reaper'}, {key:'blueprint_steel_pickaxe', name:'Steel Pickaxe'}, {key:'blueprint_steel_axe', name:'Steel Axe'}];
+  const EPIC_BPS = [{key: 'blueprint_mythril_cleaver', name:'Mythril Cleaver'}, {key:'blueprint_shadow_blade', name:'Shadow Blade'}, {key:'blueprint_meteor_staff', name:'Meteor Staff'}, {key:'blueprint_lich_tome', name:'Lich Tome'}, {key:'blueprint_wolf_slayer', name:'Wolf Slayer Sword'}, {key:'blueprint_mythril_pickaxe', name:'Mythril Pickaxe'}, {key:'blueprint_mythril_axe', name:'Mythril Axe'}];
   
   let gachaLootString = '';
   if (Math.random() <= 0.25) { // 25% chance to trigger an item drop
