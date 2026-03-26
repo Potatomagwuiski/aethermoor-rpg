@@ -4,6 +4,10 @@ import prisma from './db.js';
 import redisClient from './redis.js';
 import * as huntCommand from './commands/hunt.js';
 import * as startCommand from './commands/start.js';
+import { executeMine } from './commands/mine.js';
+import { executeChop } from './commands/chop.js';
+import { executeFish } from './commands/fish.js';
+import { executeFarm } from './commands/farm.js';
 
 const client = new Client({
     intents: [
@@ -50,6 +54,36 @@ client.on(Events.MessageCreate, async (message) => {
             console.error(error);
             await message.reply(`Error executing hunt command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
+    } else if (command === 'mine') {
+        try {
+            await executeMine(message, args);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing mine command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
+    } else if (command === 'chop') {
+        try {
+            await executeChop(message, args);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing chop command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
+    } else if (command === 'fish') {
+        try {
+            await executeFish(message, args);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing fish command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
+    } else if (command === 'farm') {
+        try {
+            await executeFarm(message, args);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing farm command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
+    } else {
+        await message.reply('Unknown command. Try: `rpg start <class>`, `rpg hunt`, `rpg mine`, `rpg chop`, `rpg fish`, or `rpg farm`.');
     }
 });
 
