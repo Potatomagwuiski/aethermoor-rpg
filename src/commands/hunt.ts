@@ -317,9 +317,27 @@ export async function execute(message: Message) {
   }
 
   // THE GACHA SYSTEM
-  const COMMON_BPS = [{key: 'blueprint_bronze_sword', name:'Bronze Sword'}, {key:'blueprint_bronze_dagger', name:'Bronze Dagger'}, {key:'blueprint_wood_staff', name:'Wood Staff'}, {key:'blueprint_bone_scythe', name:'Bone Scythe'}, {key:'blueprint_bronze_helmet', name:'Bronze Helmet'}, {key:'blueprint_bronze_chestplate', name:'Bronze Chestplate'}, {key:'blueprint_bronze_boots', name:'Bronze Boots'}];
-  const UNCOMMON_BPS = [{key: 'blueprint_iron_greatsword', name:'Iron Greatsword'}, {key:'blueprint_venom_shiv', name:'Venom Shiv'}, {key:'blueprint_moonlight_staff', name:'Moonlight Staff'}, {key:'blueprint_soul_reaper', name:'Soul Reaper'}, {key: 'blueprint_iron_pickaxe', name: 'Iron Pickaxe' }, { key: 'blueprint_iron_axe', name: 'Iron Axe' }];
-  const EPIC_BPS = [{key: 'blueprint_mythril_cleaver', name:'Mythril Cleaver'}, {key:'blueprint_shadow_blade', name:'Shadow Blade'}, {key:'blueprint_meteor_staff', name:'Meteor Staff'}, {key:'blueprint_lich_tome', name:'Lich Tome'}, {key:'blueprint_wolf_slayer', name:'Wolf Slayer Sword'}, { key: 'blueprint_mythril_pickaxe', name: 'Mythril Pickaxe' }, { key: 'blueprint_mythril_axe', name: 'Mythril Axe' }];
+  const COMMON_BPS = [
+    { key: 'blueprint_iron_pickaxe', name: 'Iron Pickaxe' },
+    { key: 'blueprint_iron_axe', name: 'Iron Axe' }
+  ];
+  const UNCOMMON_BPS = [
+    { key: 'blueprint_iron_greatsword', name: 'Iron Greatsword' },
+    { key: 'blueprint_venom_shiv', name: 'Venom Shiv' },
+    { key: 'blueprint_moonlight_staff', name: 'Moonlight Staff' },
+    { key: 'blueprint_soul_reaper', name: 'Soul Reaper' },
+    { key: 'blueprint_steel_pickaxe', name: 'Steel Pickaxe' },
+    { key: 'blueprint_steel_axe', name: 'Steel Axe' }
+  ];
+  const EPIC_BPS = [
+    { key: 'blueprint_mythril_cleaver', name: 'Mythril Cleaver' },
+    { key: 'blueprint_shadow_blade', name: 'Shadow Blade' },
+    { key: 'blueprint_meteor_staff', name: 'Meteor Staff' },
+    { key: 'blueprint_lich_tome', name: 'Lich Tome' },
+    { key: 'blueprint_wolf_slayer', name: 'Wolf Slayer Sword' },
+    { key: 'blueprint_mythril_pickaxe', name: 'Mythril Pickaxe' },
+    { key: 'blueprint_mythril_axe', name: 'Mythril Axe' }
+  ];
   
   let gachaLootString = '';
   if (Math.random() <= 0.25) { 
