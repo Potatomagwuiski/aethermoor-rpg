@@ -111,6 +111,14 @@ export async function execute(message: Message) {
     const rarityRoll = Math.random();
     if (rarityRoll > 0.999) gachaLootString = '🟧 `[✨ LEGENDARY VOID CORE ✨]`';
     else if (rarityRoll > 0.98) gachaLootString = '🟪 `[Epic Mage Staff]`';
+    else if (rarityRoll > 0.95) {
+      gachaLootString = '🗝️ `[Dungeon Key]`';
+      dbOperations.push(prisma.inventoryItem.upsert({
+        where: { playerId_itemKey: { playerId: player.id, itemKey: 'dungeon_key' } },
+        update: { quantity: { increment: 1 } },
+        create: { playerId: player.id, itemKey: 'dungeon_key', quantity: 1 }
+      }));
+    }
     else if (rarityRoll > 0.90) gachaLootString = '🟦 `[Rare Cobalt Shard]`';
     else if (rarityRoll > 0.70) gachaLootString = '🟩 `[Uncommon Iron Helmet]`';
     else gachaLootString = '⬜ `[Common Wooden Sword]`';

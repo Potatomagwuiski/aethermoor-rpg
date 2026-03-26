@@ -4,6 +4,7 @@ import { prisma } from '../db.js';
 const SHOP_ITEMS: Record<string, { id: string, name: string, price: number, icon: string, description: string }> = {
   'lootbox': { id: 'lootbox', name: 'Mystery Loot Box', price: 200, icon: '📦', description: 'Roll for random gear, ores, or wood. Bypasses gathering.' },
   'egg': { id: 'egg', name: 'Gacha Pet Egg', price: 1000, icon: '🥚', description: 'Roll for a random pet. The ultimate Casino sink.' },
+  'dungeon_key': { id: 'dungeon_key', name: 'Dungeon Key', price: 5000, icon: '🗝️', description: 'Grants access to a 5-stage Dungeon featuring a massive Boss.' },
   'wheat_seed': { id: 'wheat_seed', name: 'Wheat Seed', price: 10, icon: '🌾', description: 'A basic seed used for farming.' },
   'potato_seed': { id: 'potato_seed', name: 'Potato Seed', price: 20, icon: '🥔', description: 'A sturdy seed used for farming.' },
   'moon_seed': { id: 'moon_seed', name: 'Moon Herb Seed', price: 150, icon: '🌙', description: 'A highly rare magical seed used for premium farming.' }

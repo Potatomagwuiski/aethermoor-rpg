@@ -9,6 +9,7 @@ import { executeChop } from './commands/chop.js';
 import { executeFish } from './commands/fish.js';
 import { executeFarm } from './commands/farm.js';
 import { executeShop, executeBuy } from './commands/shop.js';
+import { executeDungeon } from './commands/dungeon.js';
 
 const client = new Client({
     intents: [
@@ -97,8 +98,15 @@ client.on(Events.MessageCreate, async (message) => {
             console.error(error);
             await message.reply(`Error executing buy command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
+    } else if (command === 'dungeon') {
+        try {
+            await executeDungeon(message, args);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing dungeon command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
     } else {
-        await message.reply('Unknown command. Try: `rpg start <class>`, `rpg hunt`, `rpg mine`, `rpg chop`, `rpg shop`, `rpg buy`, or `rpg farm`.');
+        await message.reply('Unknown command. Try: `rpg start <class>`, `rpg hunt`, `rpg dungeon`, `rpg shop`, `rpg mine`, etc.');
     }
 });
 
