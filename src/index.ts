@@ -122,7 +122,7 @@ client.on(Events.MessageCreate, async (message) => {
             await message.reply(`Error executing help command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
     } else {
-        await message.reply('Unknown command. Try: `rpg help` to see all commands.');
+        await message.reply('❓ **Unknown command.** Try:\n⚔️ `rpg hunt` | 🏰 `rpg dungeon`\n⛏️ `rpg mine` | 🪓 `rpg chop` | 🎣 `rpg fish` | 🌾 `rpg farm`\n🛒 `rpg shop` | 💰 `rpg buy`\n🔨 `rpg forge` | 📖 `rpg help`');
     }
 });
 

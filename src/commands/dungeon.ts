@@ -39,7 +39,7 @@ export async function executeDungeon(message: Message, args: string[]) {
     totalGold += goldFound;
     totalXp += xpFound;
 
-    logText += `**Stage ${i}:** Defeated a dungeon guardian dealing ${baseDamage} DMG! (+${goldFound} Gold)\n`;
+    logText += `**🛡️ Stage ${i}:** Defeated a dungeon guardian dealing 💥 ${baseDamage} DMG! (+${goldFound} 🪙 Gold, +${xpFound} ✨ XP)\n`;
   }
 
   // --- STAGE 6: The Boss Fight ---
@@ -52,8 +52,8 @@ export async function executeDungeon(message: Message, args: string[]) {
   totalGold += bossGold;
   totalXp += bossXp;
 
-  logText += `\n🐲 **BOSS ROOM: ${currentBoss}**\n`;
-  logText += `You unleashed your ultimate attack and conquered the boss! (+${bossGold} Gold, +${bossXp} XP)\n`;
+  logText += `\n🐲 **BOSS ROOM: ${currentBoss}** 🐲\n`;
+  logText += `You unleashed your ultimate attack and 🩸 conquered the boss! (+${bossGold} 🪙 Gold, +${bossXp} ✨ XP)\n`;
 
   // Provide a massive, rare Drop
   const bossDrops = ['mythic_dragon_scale', 'lich_soul', 'behemoth_bone'];

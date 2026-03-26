@@ -46,9 +46,9 @@ export async function execute(message: Message, args: string[]) {
     .setColor(0xF1C40F)
     .setDescription(`Welcome to the realm, **${name}**. This world does not wait. Every action you take resolves instantly in this high-speed text ARPG.`)
     .addFields(
-      { name: 'Step 1: The Grind', value: 'Type **`rpg hunt`** immediately. You will instantly fight a monster, gain XP, and earn Gold. Keep doing this to trigger massive random Jackpots or 15% Gacha Drops!' },
-      { name: 'Step 2: The Resources', value: 'Take a break from blood. Type **`rpg mine`**, **`rpg chop`**, **`rpg fish`**, or **`rpg farm`** to gather raw crafting materials.' },
-      { name: 'Step 3: The Knowledge', value: 'Once you gather enough wealth and materials, type **`rpg help`** to view all Advanced mechanics like Dungeons, the Shop, and Weapon Forging.' }
+      { name: '⚔️ Step 1: The Grind', value: 'Type **`rpg hunt`** immediately. You will instantly fight a monster, gain ✨ XP, and earn 🪙 Gold. Keep doing this to trigger massive random 🎰 Jackpots or 15% 🎁 Gacha Drops!' },
+      { name: '⚒️ Step 2: The Resources', value: 'Take a break from blood. Type **`rpg mine`**, **`rpg chop`**, **`rpg fish`**, or **`rpg farm`** to gather raw crafting materials like 🪨 Iron and 🪵 Wood.' },
+      { name: '📜 Step 3: The Knowledge', value: 'Once you gather enough wealth and materials, type **`rpg help`** to view all Advanced mechanics like 🏰 Dungeons, the 🛒 Shop, and 🔨 Weapon Forging.' }
     )
     .setFooter({ text: 'The void constantly shifts. What will you become? (Type rpg hunt)' });
 
