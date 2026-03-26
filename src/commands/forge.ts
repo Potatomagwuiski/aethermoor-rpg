@@ -312,6 +312,10 @@ export async function executeForge(message: Message, args: string[]) {
       else if (keyStr.includes('dagger') || keyStr.includes('bow') || keyStr.includes('shiv') || keyStr.includes('rapier')) eClass = 'FINESSE_WEAPON';
       else if (keyStr.includes('staff') || keyStr.includes('wand') || keyStr.includes('tome') || keyStr.includes('grimoire')) eClass = 'MAGIC_WEAPON';
 
+      dbOperations.push(prisma.equipment.updateMany({
+          where: { playerId: player.id, slot: 'WEAPON', equipped: true },
+          data: { equipped: false }
+      }));
       dbOperations.push(prisma.equipment.create({
           data: {
               playerId: player.id,
@@ -320,6 +324,7 @@ export async function executeForge(message: Message, args: string[]) {
               rarity: r,
               slot: 'WEAPON',
               equipmentClass: eClass,
+              equipped: true,
               bonusAtk: bAtk,
               bonusDef: bDef,
               bonusCrit: bCrit,
@@ -373,6 +378,10 @@ export async function executeForge(message: Message, args: string[]) {
       else if (keyStr.includes('leather') || keyStr.includes('cloak') || keyStr.includes('tunic') || keyStr.includes('boots')) eClass = 'LIGHT_ARMOR';
       else if (keyStr.includes('robe') || keyStr.includes('mantle') || keyStr.includes('hood') || keyStr.includes('hat')) eClass = 'CLOTH';
 
+      dbOperations.push(prisma.equipment.updateMany({
+          where: { playerId: player.id, slot: 'ARMOR', equipped: true },
+          data: { equipped: false }
+      }));
       dbOperations.push(prisma.equipment.create({
           data: {
               playerId: player.id,
@@ -381,6 +390,7 @@ export async function executeForge(message: Message, args: string[]) {
               rarity: r,
               slot: 'ARMOR',
               equipmentClass: eClass,
+              equipped: true,
               bonusAtk: bAtk,
               bonusDef: bDef,
               bonusCrit: bCrit,
@@ -403,12 +413,17 @@ export async function executeForge(message: Message, args: string[]) {
       else if (resultOutput.key.includes('rare')) r = 'RARE';
       else if (resultOutput.key.includes('uncommon')) r = 'UNCOMMON';
 
+      dbOperations.push(prisma.tool.updateMany({
+          where: { playerId: player.id, type: resultOutput.type, equipped: true },
+          data: { equipped: false }
+      }));
       dbOperations.push(prisma.tool.create({
           data: {
               playerId: player.id,
               type: resultOutput.type,
               name: finalName,
               rarity: r,
+              equipped: true,
               yieldMultiplier: resultOutput.yieldMultiplier
           }
       }));
