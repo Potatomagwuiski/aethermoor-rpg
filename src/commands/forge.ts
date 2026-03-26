@@ -433,10 +433,10 @@ export async function executeForge(message: Message, args: string[]) {
   await prisma.$transaction(dbOperations);
 
   const resultEmbed = new EmbedBuilder()
-    .setTitle(`🔨 Forged Completed: ${blueprint.name}`)
+    .setTitle(`🔨 Forge Completed: ${blueprint.name}`)
     .setColor(0xE67E22)
     .setDescription(`You approach the glowing anvil and hammer the materials together. The heat solidifies the ore into a cohesive form.\n\n**Roll:** ${roll}\n${logAddition}`)
-    .addFields({ name: '✨ Forged Output', value: `**${finalName}**\n${statLog}` });
+    .addFields({ name: '✨ Forged Output', value: `${getEmoji(recipeId)} **${finalName}**\n${statLog}` });
 
   return message.reply({ embeds: [resultEmbed] });
 }
