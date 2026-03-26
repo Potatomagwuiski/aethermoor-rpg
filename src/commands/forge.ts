@@ -48,26 +48,50 @@ const BLUEPRINTS: Record<string, any> = {
 };
 
 export async function executeForge(message: Message, args: string[]) {
+  const discordId = message.author.id;
+  const player = await prisma.player.findUnique({ 
+    where: { discordId }
+  });
+
+  if (!player) {
+    return message.reply('You have not registered yet! Type `rpg start <class>`.');
+  }
+
+  // Load inventory separately to bypass stale Prisma generated types
+  const inventory = await prisma.inventoryItem.findMany({
+    where: { playerId: player.id }
+  });
+
   if (args.length === 0) {
-    const embed = new EmbedBuilder()
+    const menuEmbed = new EmbedBuilder()
       .setTitle('🔨 The Forge')
       .setColor(0xE67E22)
       .setDescription('Welcome to the Blacksmith. Type `rpg forge <item>` to craft an item. **Warriors receive a flat +20 bonus to their RNG quality roll.**');
       
     let catalog = '';
     for (const [key, blueprint] of Object.entries(BLUEPRINTS)) {
+      const hasBlueprint = inventory.find((i: any) => i.itemKey === blueprint.requiredBlueprint);
+      if (!hasBlueprint || hasBlueprint.quantity < 1) {
+          continue; // Permanently shield undiscovered recipes
+      }
+
       let matString = '';
       for (const [matKey, qty] of Object.entries(blueprint.materials)) {
-        matString += `\`${qty}x ${matKey.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}\`, `;
+        matString += `\`${qty}x ${matKey.replace(/_/g, ' ').replace(/\\b\\w/g, (c: string) => c.toUpperCase())}\`, `;
       }
       matString = matString.slice(0, -2); 
       
-      const reqBp = blueprint.requiredBlueprint.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
+      const reqBp = blueprint.requiredBlueprint.replace(/_/g, ' ').replace(/\\b\\w/g, (c: string) => c.toUpperCase());
       catalog += `**${blueprint.name}** (\`${key}\`)\n📜 **Requires:** 1x \`${reqBp}\` \n🧱 **Materials:** ${matString}\n\n`;
     }
     
-    embed.addFields({ name: 'Available Blueprints', value: catalog });
-    return message.reply({ embeds: [embed] });
+    if (catalog.length === 0) {
+        menuEmbed.addFields({ name: 'Available Blueprints', value: "*You haven't discovered any forging schematics yet. Battle monsters in the wild or explore dungeons to find Blueprints.*" });
+    } else {
+        menuEmbed.addFields({ name: 'Available Blueprints', value: catalog });
+    }
+    
+    return message.reply({ embeds: [menuEmbed] });
   }
 
   const recipeId = args[0].toLowerCase();
@@ -77,18 +101,8 @@ export async function executeForge(message: Message, args: string[]) {
     return message.reply(`That is not a valid Forge recipe. Known blueprints: \`iron_sword\`, \`void_blade\`.`);
   }
 
-  const discordId = message.author.id;
-  const player = await prisma.player.findUnique({ 
-    where: { discordId },
-    include: { inventory: true }
-  });
-
-  if (!player) {
-    return message.reply('You have not registered yet! Type `rpg start <class>`.');
-  }
-
   // 1. Check if they have the Blueprint unlocked
-  const hasBlueprint = player.inventory.find(i => i.itemKey === blueprint.requiredBlueprint);
+  const hasBlueprint = inventory.find((i: any) => i.itemKey === blueprint.requiredBlueprint);
   // Optional: For testing purposes, maybe we don't strictly require it so the user can test, 
   // but strictly following the rules: they must have it.
   if (!hasBlueprint || hasBlueprint.quantity < 1) {
@@ -97,7 +111,7 @@ export async function executeForge(message: Message, args: string[]) {
 
   // 2. Check Materials
   for (const [matKey, requiredQty] of Object.entries(blueprint.materials)) {
-    const invItem = player.inventory.find(i => i.itemKey === matKey);
+    const invItem = inventory.find((i: any) => i.itemKey === matKey);
     // TypeScript safe-cast to number
     const qty = requiredQty as number;
     if (!invItem || invItem.quantity < qty) {
@@ -178,10 +192,10 @@ export async function executeForge(message: Message, args: string[]) {
 
   const statLog = resultOutput.dps ? `+${resultOutput.dps} DPS` : `x${resultOutput.yieldMultiplier} Gathering Yield`;
 
-  const embed = new EmbedBuilder()
+  const resultEmbed = new EmbedBuilder()
     .setTitle(`🔨 Forged Completed: ${blueprint.name}`)
     .setColor(0xE67E22)
     .setDescription(`You approach the glowing anvil and hammer the materials together. The heat solidifies the ore into a cohesive form.\n\n**Roll:** ${roll}\n${logAddition}\n\n**Result:** You forged a ${resultOutput.name} (${statLog})!`);
 
-  return message.reply({ embeds: [embed] });
+  return message.reply({ embeds: [resultEmbed] });
 }
