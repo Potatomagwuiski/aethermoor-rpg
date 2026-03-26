@@ -51,6 +51,12 @@ export async function executeStat(message: Message, commandName: string, args: s
       pointsAvailable: { decrement: amount }
     };
     updateData[attribute] = { increment: amount };
+    
+    // Explicitly scale Max HP when Endurance is allocated
+    if (attribute === 'end') {
+        updateData['maxHp'] = { increment: amount * 15 };
+        updateData['hp'] = { increment: amount * 15 }; // Heal them for the newly extended pool
+    }
 
     await prisma.player.update({
       where: { id: player.id },

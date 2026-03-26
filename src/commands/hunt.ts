@@ -212,6 +212,8 @@ export async function execute(message: Message) {
 
   if (levelsGained > 0) {
     updateData.pointsAvailable = { increment: pointsGained };
+    updateData.maxHp = { increment: levelsGained * 5 };
+    updateData.hp = { increment: levelsGained * 5 };
   }
 
   const dbOperations = [];
