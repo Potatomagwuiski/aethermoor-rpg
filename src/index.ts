@@ -7,7 +7,7 @@ import * as startCommand from './commands/start.js';
 import { executeMine } from './commands/mine.js';
 import { executeChop } from './commands/chop.js';
 import { executeFish } from './commands/fish.js';
-import { executeFarm } from './commands/farm.js';
+import { executeHarvest } from './commands/harvest.js';
 import { executeShop, executeBuy } from './commands/shop.js';
 import { executeDungeon } from './commands/dungeon.js';
 import { executeForge } from './commands/forge.js';
@@ -94,12 +94,12 @@ client.on(Events.MessageCreate, async (message) => {
             console.error(error);
             await message.reply(`Error executing fish command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
-    } else if (command === 'farm') {
+    } else if (command === 'harvest') {
         try {
-            await executeFarm(message, args);
+            await executeHarvest(message, args);
         } catch (error: any) {
             console.error(error);
-            await message.reply(`Error executing farm command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+            await message.reply(`Error executing harvest command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
     } else if (command === 'hatch') {
         try {
@@ -221,7 +221,7 @@ client.on(Events.MessageCreate, async (message) => {
             await message.reply(`Error executing equip command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
     } else {
-        await message.reply('❓ **Unknown command.** Try:\n⚔️ `rpg hunt` | 🏰 `rpg dungeon`\n⛏️ `rpg mine` | 🪓 `rpg chop` | 🎣 `rpg fish` | 🌾 `rpg farm`\n🛒 `rpg shop` | 💰 `rpg buy` | 🔄 `rpg trade`\n🔨 `rpg forge` | 🛡️ `rpg equip`\n🗺️ `rpg travel` | 🧪 `rpg heal`\n📖 `rpg profile` | 🎒 `rpg inv`\n📊 `rpg stat` | ❓ `rpg help`');
+        await message.reply('❓ **Unknown command.** Try:\n⚔️ `rpg hunt` | 🏰 `rpg dungeon`\n⛏️ `rpg mine` | 🪓 `rpg chop` | 🎣 `rpg fish` | 🌾 `rpg harvest`\n🛒 `rpg shop` | 💰 `rpg buy` | 🔄 `rpg trade`\n🔨 `rpg forge` | 🛡️ `rpg equip`\n🗺️ `rpg travel` | 🧪 `rpg heal`\n📖 `rpg profile` | 🎒 `rpg inv`\n📊 `rpg stat` | ❓ `rpg help`');
     }
 });
 

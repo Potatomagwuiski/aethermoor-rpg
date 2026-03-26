@@ -2,15 +2,15 @@ import { Message, EmbedBuilder } from 'discord.js';
 import { prisma } from '../db.js';
 import redisClient from '../redis.js';
 
-export async function executeFarm(message: Message, args: string[]) {
+export async function executeHarvest(message: Message, args: string[]) {
   const discordId = message.author.id;
   // 1. Redis Strict Cooldown Matrix (60 seconds)
-  const cdKey = `cd:farm:${discordId}`;
+  const cdKey = `cd:harvest:${discordId}`;
   
   if (redisClient.isReady) {
       const isCooldown = await redisClient.get(cdKey);
       if (isCooldown) {
-          return message.reply('🌾 *The soil needs time to recover. You must wait a minute before farming again.*');
+          return message.reply('🌾 *The soil needs time to recover. You must wait a minute before harvesting again.*');
       }
   }
 
@@ -120,7 +120,7 @@ export async function executeFarm(message: Message, args: string[]) {
   if (finalEpic > 0) dropOutput += `+${finalEpic} ${epicDropKey.replace(/_/g, ' ').toUpperCase()}\n`;
 
   const embed = new EmbedBuilder()
-    .setTitle('🌾 Farming Resolved')
+    .setTitle('🌾 Harvesting Resolved')
     .setColor(isSlotJackpot ? 0xFFD700 : 0x32CD32) // LimeGreen
     .setDescription(`You tended to the soil and harvested the region's flora.\n\n${slotMachineString}\n\n**Loot Dropped:**\n${dropOutput}\n**XP Gained:**\n✨ +${xpReward} EXP`);
 
