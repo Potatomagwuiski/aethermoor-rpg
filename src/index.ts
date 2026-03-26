@@ -147,9 +147,9 @@ client.on(Events.MessageCreate, async (message) => {
             console.error(error);
             await message.reply(`Error executing reset command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
-    } else if (command === 'stat' || command === 'stats') {
+    } else if (command === 'stat' || command === 'stats' || command === 'str' || command === 'agi' || command === 'int' || command === 'end') {
         try {
-            await executeStat(message, args);
+            await executeStat(message, command as string, args);
         } catch (error: any) {
             console.error(error);
             await message.reply(`Error executing stat command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
