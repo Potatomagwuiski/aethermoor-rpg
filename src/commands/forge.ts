@@ -159,9 +159,11 @@ export async function executeForge(message: Message, args: string[]) {
     let missingCatalog = '';
 
     for (const [key, blueprint] of Object.entries(BLUEPRINTS)) {
-      const hasBlueprint = inventory.find((i: any) => i.itemKey === blueprint.requiredBlueprint);
-      if (!hasBlueprint || hasBlueprint.quantity < 1) {
-          continue; // Permanently shield undiscovered recipes
+      if (blueprint.requiredBlueprint) {
+        const hasBlueprint = inventory.find((i: any) => i.itemKey === blueprint.requiredBlueprint);
+        if (!hasBlueprint || hasBlueprint.quantity < 1) {
+            continue; // Permanently shield undiscovered recipes
+        }
       }
 
       let isCraftable = true;
@@ -177,9 +179,13 @@ export async function executeForge(message: Message, args: string[]) {
       }
       matString = matString.slice(0, -2); 
       
-      const reqBp = blueprint.requiredBlueprint.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
-      const reqEmoji = getEmoji(blueprint.requiredBlueprint);
-      const outputStr = `**${blueprint.name}** (\`${key}\`)\n📜 **Requires:** 1x ${reqEmoji} \`${reqBp}\` \n🧱 **Materials:** ${matString}\n\n`;
+      let reqHeader = '🌟 **Innate Recipe:** Discovered at Birth';
+      if (blueprint.requiredBlueprint) {
+        const reqBp = blueprint.requiredBlueprint.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
+        const reqEmoji = getEmoji(blueprint.requiredBlueprint);
+        reqHeader = `📜 **Requires:** 1x ${reqEmoji} \`${reqBp}\``;
+      }
+      const outputStr = `**${blueprint.name}** (\`${key}\`)\n${reqHeader} \n🧱 **Materials:** ${matString}\n\n`;
       
       if (isCraftable) {
           craftableCatalog += outputStr;
@@ -224,12 +230,12 @@ export async function executeForge(message: Message, args: string[]) {
     return message.reply(`That is not a valid Forge recipe. Known blueprints: \`bronze_sword\`, \`void_blade\`.`);
   }
 
-  // 1. Check if they have the Blueprint unlocked
-  const hasBlueprint = inventory.find((i: any) => i.itemKey === blueprint.requiredBlueprint);
-  // Optional: For testing purposes, maybe we don't strictly require it so the user can test, 
-  // but strictly following the rules: they must have it.
-  if (!hasBlueprint || hasBlueprint.quantity < 1) {
-    return message.reply(`📜 You don't know how to forge a ${blueprint.name}! You need the \`${blueprint.requiredBlueprint}\` to craft this.`);
+  // 1. Check if they have the Blueprint unlocked (if required)
+  if (blueprint.requiredBlueprint) {
+    const hasBlueprint = inventory.find((i: any) => i.itemKey === blueprint.requiredBlueprint);
+    if (!hasBlueprint || hasBlueprint.quantity < 1) {
+      return message.reply(`📜 You don't know how to forge a ${blueprint.name}! You need the \`${blueprint.requiredBlueprint}\` to craft this.`);
+    }
   }
 
   // 2. Check Materials
