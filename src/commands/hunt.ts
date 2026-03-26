@@ -16,46 +16,49 @@ export async function execute(message: Message) {
   // Baseline Engine Stats
   let baseDamage = 10;
   let linesOfExecution = 1;
+  // --- ECONOMY REWARDS ---
+  let goldReward = 5;
+  let xpReward = 10;
+  let craftingItemDrop: string | null = null;
   let jackpotTriggered = false;
   let jackpotMessage = '';
 
-  // Class-Specific Instant Mathematics
+  // Class-Specific Instant Mathematics & Rewards
   switch (player.activeClass) {
     case PlayerClass.ROGUE: {
-      // The Dex Ratio (Agility vs Endurance)
       const dmgMultiplier = player.agi / Math.max(1, player.end);
       baseDamage = Math.floor(15 * dmgMultiplier);
 
-      // 3% Shadow Clone Jackpot
-      if (Math.random() <= 0.03) {
+      // ROGUE: Combat Style = Fast Crits | Special Thing = Loot Hoarder
+      if (Math.random() > 0.8) {
         jackpotTriggered = true;
-        linesOfExecution = 5;
-        jackpotMessage = '🌩️ **SHADOW CLONE ACTIVATED!** You hit the 3% Jackpot and resolved 5 hunts instantly!';
+        baseDamage = Math.floor(baseDamage * 2.5); // The satisfying crit
+        goldReward = 500; // The Loot Hoarder economy injector
+        jackpotMessage = '🗡️ **ASSASSIN\'S CRIT!** You found a massive stash of pure gold!';
       }
       break;
     }
     case PlayerClass.WARRIOR: {
-      // The Raw Strength Hitter
-      baseDamage = player.str * 5; // Simulates holding a heavy weapon
+      baseDamage = player.str * 5; 
 
-      // 2% Decapitation Execute
-      if (Math.random() <= 0.02) {
+      // WARRIOR: Combat Style = Heavy Hits | Special Thing = Crafting Master
+      if (Math.random() > 0.8) {
         jackpotTriggered = true;
-        jackpotMessage = '🪓 **DECAPITATION!** You hit the 2% Jackpot and instantly executed the enemy!';
-        baseDamage = 999999; 
+        baseDamage = 9999;
+        craftingItemDrop = "rare_meteorite_ingot"; // The Crafting Master unique drop
+        jackpotMessage = '🪓 **DECAPITATION!** You shattered their armor and salvaged a Rare Meteorite Ingot!';
       }
       break;
     }
     case PlayerClass.MAGE: {
-      // The Glass Cannon Ratio
       const dmgMultiplier = player.int / Math.max(1, player.str);
       baseDamage = Math.floor(20 * dmgMultiplier);
 
-      // 3% Wild Magic
-      if (Math.random() <= 0.03) {
+      // MAGE: Combat Style = Magic | Special Thing = EXP Booster
+      if (Math.random() > 0.8) {
         jackpotTriggered = true;
-        linesOfExecution = 3;
-        jackpotMessage = '🎇 **WILD MAGIC!** You hit the 3% Jackpot and cast your spell 3 times instantly!';
+        xpReward = 500; // The EXP Booster progression multiplier
+        jackpotMessage = '🎇 **WILD MAGIC!** You absorbed the chaotic leylines for a massive EXP Surge!';
       }
       break;
     }
@@ -65,32 +68,45 @@ export async function execute(message: Message) {
       break;
   }
 
-  // Format the Dopamine Delivery (Discord Embed)
-  const embed = new EmbedBuilder()
-    .setTitle(`⚔️ Hunt Resolved: Goblin`)
-    .setColor(jackpotTriggered ? 0xFFD700 : 0x2B2D31)
-    .setDescription(`The engine calculated your stats in an instant.`);
+  // Handle Database Transactions for Real Rewards
+  const updateData: any = {
+    gold: { increment: goldReward },
+    xp: { increment: xpReward }
+  };
 
-  const rogueJackpot = Math.random();
-  if (rogueJackpot > 0.8 && player.activeClass === PlayerClass.ROGUE) { // Added check for Rogue class
-    const critDamage = Math.floor(baseDamage * 2.5);
-    embed.setDescription('!!! JACKPOT !!!\n🗡️ **CRITICAL STRIKE!**');
-    embed.addFields({ name: 'Raw Damage Output', value: `**💥 ${critDamage} CRIT! 💥**` });
-    embed.addFields({ name: 'Result', value: `A perfect strike to a vital organ. The enemy was instantly deleted.` });
-    embed.setColor(0xFF0000); // Visceral Red
-    return message.reply({ embeds: [embed] });
+  const dbOperations = [];
+  dbOperations.push(prisma.player.update({
+    where: { discordId },
+    data: updateData
+  }));
+
+  if (craftingItemDrop) {
+    dbOperations.push(prisma.inventoryItem.upsert({
+      where: { playerId_itemKey: { playerId: player.id, itemKey: craftingItemDrop } },
+      update: { quantity: { increment: 1 } },
+      create: { playerId: player.id, itemKey: craftingItemDrop, quantity: 1 }
+    }));
   }
 
-  embed.addFields(
-    { name: 'Your Class', value: player.activeClass, inline: true },
-    { name: 'Raw Damage Output', value: `${baseDamage} DMG`, inline: true }
-  );
+  await prisma.$transaction(dbOperations);
+
+  // Format the Dopamine Delivery
+  const embed = new EmbedBuilder()
+    .setTitle(`⚔️ Hunt Resolved: Goblin`)
+    .setColor(jackpotTriggered ? (player.activeClass === PlayerClass.ROGUE ? 0xFF0000 : 0xFFD700) : 0x2B2D31)
+    .setDescription(`The engine calculated your stats in an instant.`)
+    .addFields(
+      { name: 'Your Class', value: player.activeClass, inline: true },
+      { name: 'Raw Damage Output', value: jackpotTriggered && player.activeClass === PlayerClass.ROGUE ? `**💥 ${baseDamage} CRIT! 💥**` : `${baseDamage} DMG`, inline: true }
+    );
 
   if (jackpotTriggered) {
     embed.addFields({ name: '!!! JACKPOT !!!', value: jackpotMessage });
-    embed.addFields({ name: 'Loot Multiplier', value: `x${linesOfExecution} Rewards!` });
+    if (player.activeClass === PlayerClass.ROGUE) embed.addFields({ name: 'Loot Stolen', value: `💰 +${goldReward} Gold`});
+    if (player.activeClass === PlayerClass.MAGE) embed.addFields({ name: 'Knowledge Gained', value: `✨ +${xpReward} EXP`});
+    if (player.activeClass === PlayerClass.WARRIOR) embed.addFields({ name: 'Salvaged Material', value: `🔨 1x Rare Meteorite Ingot`});
   } else {
-    embed.addFields({ name: 'Result', value: `Standard victory. Try again to hit your Jackpot.` });
+    embed.addFields({ name: 'Rewards', value: `+${goldReward} Gold, +${xpReward} EXP` });
   }
 
   return message.reply({ embeds: [embed] });
