@@ -193,7 +193,7 @@ export async function execute(message: Message) {
     if (weaponClass === 'FINESSE_WEAPON' && Math.random() > 0.95 && rounds === 1) {
       jackpotTriggered = true;
       roundDps = Math.floor(roundDps * 2.5);
-      jackpotMessage = '🗡️ **ASSASSIN\'S STRIKE!** You found a hidden coin purse on the monster!';
+      jackpotMessage = '🗡️ **ASSASSIN\'S STRIKE!** You found a hidden coin purse! (+15 Bonus Gold multiplier)';
     } else if (weaponClass === 'HEAVY_WEAPON' && Math.random() > 0.95 && rounds === 1) {
       jackpotTriggered = true;
       roundDps = Math.floor(roundDps * 3);
@@ -415,7 +415,7 @@ export async function execute(message: Message) {
 
   const embed = new EmbedBuilder()
     .setTitle(`⚔️ Hunt Resolved: ${mob.name}`)
-    .setColor(jackpotTriggered || isSlotJackpot ? (weaponClass === 'FINESSE_WEAPON' ? 0xFF0000 : 0xFFD700) : 0x2B2D31)
+    .setColor(jackpotTriggered || isSlotJackpot ? (weaponClass === 'FINESSE_WEAPON' ? 0x8A2BE2 : 0xFFD700) : 0x2B2D31)
     .setDescription(responseBody)
     .addFields(
       { name: 'Your Style', value: styleDisplay, inline: true },
