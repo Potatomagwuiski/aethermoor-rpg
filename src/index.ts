@@ -10,6 +10,7 @@ import { executeFish } from './commands/fish.js';
 import { executeFarm } from './commands/farm.js';
 import { executeShop, executeBuy } from './commands/shop.js';
 import { executeDungeon } from './commands/dungeon.js';
+import { executeForge } from './commands/forge.js';
 
 const client = new Client({
     intents: [
@@ -105,8 +106,15 @@ client.on(Events.MessageCreate, async (message) => {
             console.error(error);
             await message.reply(`Error executing dungeon command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
+    } else if (command === 'forge') {
+        try {
+            await executeForge(message, args);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing forge command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
     } else {
-        await message.reply('Unknown command. Try: `rpg start <class>`, `rpg hunt`, `rpg dungeon`, `rpg shop`, `rpg mine`, etc.');
+        await message.reply('Unknown command. Try: `rpg start <class>`, `rpg hunt`, `rpg dungeon`, `rpg shop`, `rpg mine`, `rpg forge`, etc.');
     }
 });
 
