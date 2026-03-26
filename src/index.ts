@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import prisma from './db.js';
 import redisClient from './redis.js';
 import * as huntCommand from './commands/hunt.js';
+import * as startCommand from './commands/start.js';
 
 dotenv.config();
 
@@ -18,13 +19,6 @@ client.once(Events.ClientReady, async (readyClient) => {
     console.log(`Ready! Logged in as ${readyClient.user.tag}`);
     
     try {
-        await readyClient.application.commands.set([huntCommand.data.toJSON()]);
-        console.log('Successfully registered /hunt global command.');
-    } catch (err) {
-        console.error('Failed to register commands:', err);
-    }
-    
-    try {
         const playerCount = await prisma.player.count();
         console.log(`Connected to PostgreSQL Database. Current players registered: ${playerCount}`);
     } catch (e) {
@@ -32,17 +26,31 @@ client.once(Events.ClientReady, async (readyClient) => {
     }
 });
 
-client.on(Events.InteractionCreate, async (interaction) => {
-    if (!interaction.isChatInputCommand()) return;
+client.on(Events.MessageCreate, async (message) => {
+    if (message.author.bot) return;
 
-    if (interaction.commandName === 'hunt') {
+    const content = message.content.toLowerCase().trim();
+
+    if (!content.startsWith('rpg ')) return;
+
+    const args = content.slice(4).trim().split(/ +/);
+    const command = args.shift();
+
+    if (command === 'ping') {
+        await message.reply('Pong! The Aethermoor RPG bot foundation is live.');
+    } else if (command === 'start') {
         try {
-            await huntCommand.execute(interaction);
+            await startCommand.execute(message, args);
         } catch (error) {
             console.error(error);
-            if (!interaction.replied && !interaction.deferred) {
-                await interaction.reply({ content: 'Error executing command.', ephemeral: true });
-            }
+            await message.reply('Error executing start command.');
+        }
+    } else if (command === 'hunt') {
+        try {
+            await huntCommand.execute(message);
+        } catch (error) {
+            console.error(error);
+            await message.reply('Error executing hunt command.');
         }
     }
 });

@@ -1,20 +1,16 @@
-import { CommandInteraction, SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { Message, EmbedBuilder } from 'discord.js';
 import prisma from '../db.js';
 import { PlayerClass } from '@prisma/client';
 
-export const data = new SlashCommandBuilder()
-  .setName('hunt')
-  .setDescription('Go out and resolve an instant combat scenario based on your class');
-
-export async function execute(interaction: CommandInteraction) {
-  const discordId = interaction.user.id;
+export async function execute(message: Message) {
+  const discordId = message.author.id;
 
   const player = await prisma.player.findUnique({
     where: { discordId }
   });
 
   if (!player) {
-    return interaction.reply({ content: 'You have not created a character yet!', ephemeral: true });
+    return message.reply('You have not created a character yet!');
   }
 
   // Baseline Engine Stats
@@ -86,5 +82,5 @@ export async function execute(interaction: CommandInteraction) {
     embed.addFields({ name: 'Result', value: `Standard victory. Try again to hit your Jackpot.` });
   }
 
-  return interaction.reply({ embeds: [embed] });
+  return message.reply({ embeds: [embed] });
 }
