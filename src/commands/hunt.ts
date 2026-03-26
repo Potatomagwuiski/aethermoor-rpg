@@ -150,9 +150,12 @@ export async function execute(message: Message) {
   }
 
   // --- THE AUTO-BATTLER PHYSICS LOOP ---
-  let monsterMaxHp = Math.floor(tier * 150) + Math.floor(player.level * 20);
+  // Phase 27 Early-Game Rebalance: Removed massive baseline bloating.
+  // Original HP (Tier*150) caused Level 1 soft-locks. New Baseline: (Tier*40 + 10x Level)
+  let monsterMaxHp = Math.floor(tier * 40) + Math.floor(player.level * 10);
   let monsterHp = monsterMaxHp;
-  let monsterAttackPower = Math.floor(tier * 20) + Math.floor(player.level * 6) + 15;
+  // Original ATK (Tier*20 + 6x Level + 15) one-shot players. New Baseline: (Tier*8 + 3x Level)
+  let monsterAttackPower = Math.floor(tier * 8) + Math.floor(player.level * 3);
 
   let playerHp = player.hp;
   if (playerHp <= 0) playerHp = 1;
