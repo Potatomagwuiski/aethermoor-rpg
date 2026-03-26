@@ -129,7 +129,6 @@ export async function execute(message: Message) {
     }));
   }
 
-  await prisma.$transaction(dbOperations);
 
   // --- MONSTER GENERATION & LOOT ---
   const monsters = [
@@ -232,6 +231,8 @@ export async function execute(message: Message) {
   if (gachaLootString) {
     embed.addFields({ name: '🎁 MYSTERY LOOT DROP!', value: `You found a rare blueprint schematic:\n${gachaLootString}`});
   }
+
+  await prisma.$transaction(dbOperations);
 
   return message.reply({ embeds: [embed] });
 }
