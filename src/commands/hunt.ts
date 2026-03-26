@@ -83,11 +83,29 @@ export async function execute(message: Message) {
       break;
   }
 
+  // Provide Leveling Engine Logic
+  let currentLevel = player.level;
+  let currentXp = player.xp + xpReward;
+  let pointsGained = 0;
+
+  while (currentXp >= currentLevel * 100) {
+    currentXp -= currentLevel * 100;
+    currentLevel++;
+    pointsGained += 3;
+  }
+
+  const levelsGained = currentLevel - player.level;
+
   // Handle Database Transactions for Real Rewards
   const updateData: any = {
     gold: { increment: goldReward },
-    xp: { increment: xpReward }
+    level: currentLevel,
+    xp: currentXp
   };
+
+  if (levelsGained > 0) {
+    updateData.pointsAvailable = { increment: pointsGained };
+  }
 
   const dbOperations = [];
   dbOperations.push(prisma.player.update({
@@ -153,6 +171,10 @@ export async function execute(message: Message) {
     if (player.activeClass === PlayerClass.WARRIOR) embed.addFields({ name: 'Salvaged Material', value: `🔨 1x Rare Meteorite Ingot`});
   } else {
     embed.addFields({ name: 'Rewards', value: `+${goldReward} Gold, +${xpReward} EXP` });
+  }
+
+  if (levelsGained > 0) {
+    embed.addFields({ name: '🌟 LEVEL UP!', value: `You reached Level **${currentLevel}**! (+${pointsGained} Stat Points). Type \`rpg stat\` to spend them!`});
   }
 
   // Inject Gacha visual pulling addiction

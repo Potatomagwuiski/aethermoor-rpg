@@ -13,6 +13,7 @@ import { executeDungeon } from './commands/dungeon.js';
 import { executeForge } from './commands/forge.js';
 import { executeHelp } from './commands/help.js';
 import { executeReset } from './commands/reset.js';
+import { executeStat } from './commands/stat.js';
 
 const client = new Client({
     intents: [
@@ -129,8 +130,15 @@ client.on(Events.MessageCreate, async (message) => {
             console.error(error);
             await message.reply(`Error executing reset command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
+    } else if (command === 'stat' || command === 'stats') {
+        try {
+            await executeStat(message, args);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing stat command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
     } else {
-        await message.reply('❓ **Unknown command.** Try:\n⚔️ `rpg hunt` | 🏰 `rpg dungeon`\n⛏️ `rpg mine` | 🪓 `rpg chop` | 🎣 `rpg fish` | 🌾 `rpg farm`\n🛒 `rpg shop` | 💰 `rpg buy`\n🔨 `rpg forge` | 📖 `rpg help`');
+        await message.reply('❓ **Unknown command.** Try:\n⚔️ `rpg hunt` | 🏰 `rpg dungeon`\n⛏️ `rpg mine` | 🪓 `rpg chop` | 🎣 `rpg fish` | 🌾 `rpg farm`\n🛒 `rpg shop` | 💰 `rpg buy`\n🔨 `rpg forge` | 📖 `rpg help`\n📊 `rpg stat`');
     }
 });
 

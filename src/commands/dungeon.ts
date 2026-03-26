@@ -67,13 +67,34 @@ export async function executeDungeon(message: Message, args: string[]) {
     create: { playerId: player.id, itemKey: bossDrop, quantity: 1 }
   }));
 
+  // Provide Leveling Engine Logic
+  let currentLevel = player.level;
+  let currentXp = player.xp + totalXp;
+  let pointsGained = 0;
+
+  while (currentXp >= currentLevel * 100) {
+    currentXp -= currentLevel * 100;
+    currentLevel++;
+    pointsGained += 3;
+  }
+
+  const levelsGained = currentLevel - player.level;
+
+  const updateData: any = {
+    gold: { increment: totalGold },
+    level: currentLevel,
+    xp: currentXp
+  };
+
+  if (levelsGained > 0) {
+    updateData.pointsAvailable = { increment: pointsGained };
+    logText += `\n🌟 **LEVEL UP!** You jumped to Level **${currentLevel}**! (+${pointsGained} Stat Points)\nType \`rpg stat\` to allocate your power.\n`;
+  }
+
   // Consolidate Economy
   dbOperations.push(prisma.player.update({
     where: { id: player.id },
-    data: { 
-      gold: { increment: totalGold },
-      xp: { increment: totalXp }
-    }
+    data: updateData
   }));
 
   await prisma.$transaction(dbOperations);
