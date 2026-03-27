@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder } from 'discord.js';
+import { Message, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } from 'discord.js';
 import { prisma } from '../db.js';
 import { getEmoji } from '../utils/emojis.js';
 
@@ -411,93 +411,129 @@ export async function executeForge(message: Message, args: string[]) {
       .setColor(0xE67E22)
       .setDescription('Welcome to the Blacksmith. Type `rpg forge <item>` to craft an item. **Warriors receive a flat +20 bonus to their RNG quality roll.**');
       
-    let craftableCatalog = '';
-    let missingCatalog = '';
+    const row = new ActionRowBuilder<ButtonBuilder>()
+        .addComponents(
+             new ButtonBuilder().setCustomId('forge_weapons').setLabel('Weapons').setStyle(ButtonStyle.Primary).setEmoji('🗡️'),
+             new ButtonBuilder().setCustomId('forge_armor').setLabel('Armor').setStyle(ButtonStyle.Success).setEmoji('🛡️'),
+             new ButtonBuilder().setCustomId('forge_tools').setLabel('Tools').setStyle(ButtonStyle.Secondary).setEmoji('⛏️')
+        );
 
-    for (const [key, blueprint] of Object.entries(BLUEPRINTS)) {
-      if (!blueprint.materials) continue; // Shield the iterator from legacy dummy blueprints
-      
-      if (blueprint.requiredBlueprint) {
-        const hasBlueprint = inventory.find((i: any) => i.itemKey === blueprint.requiredBlueprint);
-        if (!hasBlueprint || hasBlueprint.quantity < 1) {
-            continue; // Permanently shield undiscovered recipes
+    const initialMsg = await message.reply({ embeds: [menuEmbed], components: [row] }).catch(() => null);
+    if (!initialMsg) return;
+
+    const collector = initialMsg.createMessageComponentCollector({ 
+        filter: i => i.user.id === discordId, 
+        componentType: ComponentType.Button, 
+        time: 120000 
+    });
+
+    collector.on('collect', async (interaction) => {
+        let catUrl = 'weapons';
+        if (interaction.customId === 'forge_armor') catUrl = 'armor';
+        if (interaction.customId === 'forge_tools') catUrl = 'tools';
+
+        const newEmbed = new EmbedBuilder()
+          .setTitle(`🔨 The Forge: ${catUrl.charAt(0).toUpperCase() + catUrl.slice(1)}`)
+          .setColor(0xE67E22);
+
+        let craftableCatalog = '';
+        let missingCatalog = '';
+
+        for (const [key, blueprint] of Object.entries(BLUEPRINTS)) {
+          if (!blueprint.materials) continue; 
+
+          let validCategory = false;
+          if (catUrl === 'weapons' && (key.includes('sword') || key.includes('dagger') || key.includes('staff') || key.includes('scythe') || key.includes('shiv') || key.includes('blade') || key.includes('cleaver') || key.includes('slayer') || key.includes('bow'))) validCategory = true;
+          if (catUrl === 'armor' && (key.includes('armor') || key.includes('tunic') || key.includes('robe') || key.includes('mantle') || key.includes('boots') || key.includes('cloak') || key.includes('plate'))) validCategory = true;
+          if (catUrl === 'tools' && (key.includes('pickaxe') || key.includes('axe') || key.includes('rod'))) validCategory = true;
+          
+          if (!validCategory) continue;
+          
+          if (blueprint.requiredBlueprint) {
+            const hasBlueprint = inventory.find((i: any) => i.itemKey === blueprint.requiredBlueprint);
+            if (!hasBlueprint || hasBlueprint.quantity < 1) {
+                continue; 
+            }
+          }
+
+          let isCraftable = true;
+          let matString = '';
+          for (const [matKey, qty] of Object.entries(blueprint.materials as Record<string, number>)) {
+            const emoji = getEmoji(matKey);
+            matString += `\`${qty}x\` ${emoji} **${matKey.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}**, `;
+            
+            const invItem = inventory.find((i: any) => i.itemKey === matKey);
+            if (!invItem || invItem.quantity < qty) {
+               isCraftable = false;
+            }
+          }
+          matString = matString.slice(0, -2); 
+          
+          let reqHeader = '🌟 **Innate Recipe:** Discovered at Birth';
+          if (blueprint.requiredBlueprint) {
+            const reqBp = blueprint.requiredBlueprint.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
+            const reqEmoji = getEmoji(blueprint.requiredBlueprint);
+            reqHeader = `📜 **Requires:** 1x ${reqEmoji} \`${reqBp}\``;
+          }
+          
+          let statString = '';
+          if (blueprint.outputs && blueprint.outputs.common) {
+              const common = blueprint.outputs.common;
+              if (common.dps) statString += `⚔️ **Base DPS:** ${common.dps}   `;
+              if (common.defense) statString += `🛡️ **Base DEF:** ${common.defense}   `;
+              if (common.yieldMultiplier) statString += `⛏️ **Yield:** x${common.yieldMultiplier}   `;
+          }
+          
+          let abilityString = '';
+          if (blueprint.abilities && blueprint.abilities.length > 0) {
+              abilityString = `\n🎁 **Rarity Unlocks:**\n`;
+              if (blueprint.abilities[0]) abilityString += `⬜ \`${blueprint.abilities[0]}\`\n`;
+              if (blueprint.abilities[1]) abilityString += `🟩 \`${blueprint.abilities[1]}\`\n`;
+              if (blueprint.abilities[2]) abilityString += `🟦 \`${blueprint.abilities[2]}\`\n`;
+              if (blueprint.abilities[3]) abilityString += `🟪 \`${blueprint.abilities[3]}\`\n`;
+              if (blueprint.abilities[4]) abilityString += `🟧 \`${blueprint.abilities[4]}\`\n`;
+          }
+
+          const outputStr = `**${blueprint.name}** (\`${key}\`)\n${statString}${abilityString}\n${reqHeader} \n🧱 **Materials:** ${matString}\n\n`;
+          
+          if (isCraftable) {
+              craftableCatalog += outputStr;
+          } else {
+              missingCatalog += outputStr;
+          }
         }
-      }
-
-      let isCraftable = true;
-      let matString = '';
-      for (const [matKey, qty] of Object.entries(blueprint.materials as Record<string, number>)) {
-        const emoji = getEmoji(matKey);
-        matString += `\`${qty}x\` ${emoji} **${matKey.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}**, `;
         
-        const invItem = inventory.find((i: any) => i.itemKey === matKey);
-        if (!invItem || invItem.quantity < qty) {
-           isCraftable = false;
-        }
-      }
-      matString = matString.slice(0, -2); 
-      
-      let reqHeader = '🌟 **Innate Recipe:** Discovered at Birth';
-      if (blueprint.requiredBlueprint) {
-        const reqBp = blueprint.requiredBlueprint.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
-        const reqEmoji = getEmoji(blueprint.requiredBlueprint);
-        reqHeader = `📜 **Requires:** 1x ${reqEmoji} \`${reqBp}\``;
-      }
-      
-      let statString = '';
-      if (blueprint.outputs && blueprint.outputs.common) {
-          const common = blueprint.outputs.common;
-          if (common.dps) statString += `⚔️ **Base DPS:** ${common.dps}   `;
-          if (common.defense) statString += `🛡️ **Base DEF:** ${common.defense}   `;
-          if (common.yieldMultiplier) statString += `⛏️ **Yield:** x${common.yieldMultiplier}   `;
-      }
-      
-      let abilityString = '';
-      if (blueprint.abilities && blueprint.abilities.length > 0) {
-          abilityString = `\n🎁 **Rarity Unlocks:**\n`;
-          if (blueprint.abilities[0]) abilityString += `⬜ \`${blueprint.abilities[0]}\`\n`;
-          if (blueprint.abilities[1]) abilityString += `🟩 \`${blueprint.abilities[1]}\`\n`;
-          if (blueprint.abilities[2]) abilityString += `🟦 \`${blueprint.abilities[2]}\`\n`;
-          if (blueprint.abilities[3]) abilityString += `🟪 \`${blueprint.abilities[3]}\`\n`;
-          if (blueprint.abilities[4]) abilityString += `🟧 \`${blueprint.abilities[4]}\`\n`;
-      }
-
-      const outputStr = `**${blueprint.name}** (\`${key}\`)\n${statString}${abilityString}\n${reqHeader} \n🧱 **Materials:** ${matString}\n\n`;
-      
-      if (isCraftable) {
-          craftableCatalog += outputStr;
-      } else {
-          missingCatalog += outputStr;
-      }
-    }
-    
-    if (craftableCatalog.length === 0 && missingCatalog.length === 0) {
-        menuEmbed.addFields({ name: 'Available Blueprints', value: "*You haven't discovered any forging schematics yet. Battle monsters in the wild or explore dungeons to find Blueprints.*" });
-    } else {
-        const addCatalogToEmbed = (catalog: string, title: string) => {
-            if (catalog.length === 0) return;
-            const recipes = catalog.split('\n\n');
-            let currentField = '';
-            let firstField = true;
-            for (let recipe of recipes) {
-                if (!recipe.trim()) continue;
-                if (currentField.length + recipe.length > 1000) {
-                    menuEmbed.addFields({ name: firstField ? title : '\u200B', value: currentField });
-                    currentField = recipe + '\n\n';
-                    firstField = false;
-                } else {
-                    currentField += recipe + '\n\n';
+        if (craftableCatalog.length === 0 && missingCatalog.length === 0) {
+            newEmbed.addFields({ name: 'Available Blueprints', value: "*You haven't discovered any forging schematics for this category.*" });
+        } else {
+            const addCatalogToEmbed = (catalog: string, title: string) => {
+                if (catalog.length === 0) return;
+                const recipes = catalog.split('\n\n');
+                let currentField = '';
+                let firstField = true;
+                for (let recipe of recipes) {
+                    if (!recipe.trim()) continue;
+                    if (currentField.length + recipe.length > 1000) {
+                        newEmbed.addFields({ name: firstField ? title : '\u200B', value: currentField });
+                        currentField = recipe + '\n\n';
+                        firstField = false;
+                    } else {
+                        currentField += recipe + '\n\n';
+                    }
                 }
-            }
-            if (currentField.trim()) {
-                menuEmbed.addFields({ name: firstField ? title : '\u200B', value: currentField });
-            }
-        };
+                if (currentField.trim()) {
+                    newEmbed.addFields({ name: firstField ? title : '\u200B', value: currentField });
+                }
+            };
 
-        if (craftableCatalog.length > 0) addCatalogToEmbed(craftableCatalog, '🟢 Ready to Craft');
-        if (missingCatalog.length > 0) addCatalogToEmbed(missingCatalog, '🔴 Missing Materials');
-    }
-    return message.reply({ embeds: [menuEmbed] });
+            if (craftableCatalog.length > 0) addCatalogToEmbed(craftableCatalog, '🟢 Ready to Craft');
+            if (missingCatalog.length > 0) addCatalogToEmbed(missingCatalog, '🔴 Missing Materials');
+        }
+
+        await interaction.update({ embeds: [newEmbed], components: [row] }).catch(() => {});
+    });
+
+    return;
   }
 
   const recipeId = args[0].toLowerCase();
