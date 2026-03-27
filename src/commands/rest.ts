@@ -1,6 +1,7 @@
 import { Message, EmbedBuilder } from 'discord.js';
 import prisma from '../db.js';
 import redisClient from '../redis.js';
+import { enforceCooldown } from '../utils/cooldown.js';
 
 export const aliases = ['rest', 'campfire'];
 

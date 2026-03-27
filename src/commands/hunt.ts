@@ -1,6 +1,7 @@
 import { Message, EmbedBuilder } from 'discord.js';
 import prisma from '../db.js';
 import redisClient from '../redis.js';
+import { enforceCooldown } from '../utils/cooldown.js';
 import { getEmoji } from '../utils/emojis.js';
 import { BLUEPRINTS } from './forge.js';
 
@@ -25,15 +26,8 @@ export async function execute(message: Message) {
   }
 
   const cdKey = `cooldown:hunt:${discordId}`;
-  try {
-    const isCooldown = await redisClient.get(cdKey);
-    if (isCooldown) {
-      return message.reply('⏳ **Exhausted!** You are still recovering from your last hunt. Wait a few seconds!');
-    }
-    await redisClient.setEx(cdKey, 120, '1'); // 120 second combat cooldown
-  } catch (e) {
-    console.error('Redis error', e);
-    return message.reply('⚠️ **Network Instability:** The realm connection flickered. Please try again.');
+  if (await enforceCooldown(cdKey, 120)) {
+    return message.reply('⏳ **Exhausted!** You are still recovering from your last hunt. Wait a few seconds!');
   }
 
   // Fetch Equipped Gear
