@@ -323,6 +323,8 @@ export async function executeForge(message: Message, args: string[]) {
     let missingCatalog = '';
 
     for (const [key, blueprint] of Object.entries(BLUEPRINTS)) {
+      if (!blueprint.materials) continue; // Shield the iterator from legacy dummy blueprints
+      
       if (blueprint.requiredBlueprint) {
         const hasBlueprint = inventory.find((i: any) => i.itemKey === blueprint.requiredBlueprint);
         if (!hasBlueprint || hasBlueprint.quantity < 1) {
