@@ -5,7 +5,7 @@ const SHOP_ITEMS: Record<string, { id: string, name: string, price: number, icon
   'lootbox': { id: 'lootbox', name: 'Mystery Loot Box', price: 200, icon: '📦', description: 'Roll for random gear, ores, or wood. Bypasses gathering.' },
   'egg': { id: 'egg', name: 'Gacha Pet Egg', price: 1000, icon: '🥚', description: 'Roll for a random pet. The ultimate Casino sink.' },
   'dungeon_key': { id: 'dungeon_key', name: 'Dungeon Key', price: 5000, icon: '🗝️', description: 'Grants access to a 5-stage Dungeon featuring a massive Boss.' },
-  'life_potion': { id: 'life_potion', name: 'Life Potion', price: 15, icon: '🧪', description: 'Restores you to Max HP. Required if you die during a Hunt or in a Dungeon.' },
+  'life_potion': { id: 'life_potion', name: 'Life Potion', price: 50, icon: '🧪', description: 'Restores you to Max HP. Required if you die during a Hunt or in a Dungeon.' },
   'guild_charter': { id: 'guild_charter', name: 'Guild Charter', price: 10000, icon: '📜', description: 'Massive Gold Sink. A prestigious charter allowing you to found a Guild.' },
   'hero_title': { id: 'hero_title', name: 'Heroic Title', price: 50000, icon: '👑', description: 'The Ultimate Gold Sink. Buy your way into nobility.' },
   'castle_deed': { id: 'castle_deed', name: 'Castle Deed', price: 100000, icon: '🏰', description: 'Real Estate. Claim a permanent stronghold.' },
