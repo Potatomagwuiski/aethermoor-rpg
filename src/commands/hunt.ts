@@ -561,6 +561,7 @@ export async function execute(message: Message) {
   const TIER2_BPS = [
     { key: 'blueprint_iron_pickaxe', name: 'Iron Pickaxe' },
     { key: 'blueprint_iron_axe', name: 'Iron Axe' },
+    { key: 'blueprint_iron_sickle', name: 'Iron Sickle' },
     { key: 'blueprint_iron_greatsword', name: 'Iron Greatsword' },
     { key: 'blueprint_wolf_slayer', name: 'Wolf Slayer Sword' },
     { key: 'blueprint_venom_shiv', name: 'Venom Shiv' },
@@ -571,6 +572,7 @@ export async function execute(message: Message) {
   const TIER3_BPS = [
     { key: 'blueprint_mythril_pickaxe', name: 'Mythril Pickaxe' },
     { key: 'blueprint_mythril_axe', name: 'Mythril Axe' },
+    { key: 'blueprint_mythril_sickle', name: 'Mythril Sickle' },
     { key: 'blueprint_mythril_cleaver', name: 'Mythril Cleaver' },
     { key: 'blueprint_shadow_blade', name: 'Shadow Blade' },
     { key: 'blueprint_moonlight_staff', name: 'Moonlight Staff' },
