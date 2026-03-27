@@ -10,15 +10,8 @@ export async function executeChop(message: Message) {
   // 1. Redis Strict Cooldown Matrix (60 seconds)
   const cdKey = `cd:chop:${discordId}`;
   
-  try {
-      const isCooldown = await redisClient.get(cdKey);
-      if (isCooldown) {
-          return message.reply(`⛏️ *Your arms are numb. You must wait a minute before swinging your axe again.*`);
-      }
-      await redisClient.setEx(cdKey, 60, '1'); // 60 second cooldown
-  } catch (e) {
-      console.error('Redis Chop Error', e);
-      return message.reply('⚠️ **Network Instability:** The realm connection flickered. Please try again.');
+  if (await enforceCooldown(cdKey, 60)) {
+       return message.reply(`⛏️ *Your arms are numb. You must wait 2 minutes before swinging your axe again.*`);
   }
 
   const player = await prisma.player.findUnique({

@@ -10,15 +10,8 @@ export async function executeMine(message: Message) {
   // 1. Redis Strict Cooldown Matrix (60 seconds)
   const cdKey = `cd:mine:${discordId}`;
   
-  try {
-      const isCooldown = await redisClient.get(cdKey);
-      if (isCooldown) {
-          return message.reply(`⛏️ *Your arms are numb. You must wait 2 minutes before swinging your pickaxe again.*`);
-      }
-      await redisClient.setEx(cdKey, 120, '1'); // 120 second cooldown for mining
-  } catch (e) {
-      console.error('Redis Mine Error', e);
-      return message.reply('⚠️ **Network Instability:** The realm connection flickered. Please try again.');
+  if (await enforceCooldown(cdKey, 60)) {
+       return message.reply(`⛏️ *Your arms are numb. You must wait 2 minutes before swinging your pickaxe again.*`);
   }
 
   const player = await prisma.player.findUnique({
