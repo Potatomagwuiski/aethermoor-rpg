@@ -29,19 +29,21 @@ export async function executeFish(message: Message, args: string[]) {
   }
 
   // --- THE ADRENALINE SLOT MACHINE (RARITY LOADED) ---
-  let diceFaces = 2; // Bare Hands / Common Tool
-  if (player.tools && player.tools.length > 0) {
+  const diceFaces = 10;
+  let slotBonus = 0;
+  let hasFishingRod = player.tools && player.tools.length > 0;
+  if (hasFishingRod) {
     const r = player.tools[0].rarity;
-    if (r === 'UNCOMMON') diceFaces = 4;
-    else if (r === 'RARE') diceFaces = 5;
-    else if (r === 'EPIC') diceFaces = 6;
-    else if (r === 'LEGENDARY') diceFaces = 8;
+    if (r === 'UNCOMMON') slotBonus = 5;
+    else if (r === 'RARE') slotBonus = 10;
+    else if (r === 'EPIC') slotBonus = 20;
+    else if (r === 'LEGENDARY') slotBonus = 50;
   }
 
   const d1 = Math.floor(Math.random() * diceFaces) + 1;
   const d2 = Math.floor(Math.random() * diceFaces) + 1;
   const d3 = Math.floor(Math.random() * diceFaces) + 1;
-  let slotMultiplier = d1 + d2 + d3;
+  let slotMultiplier = d1 + d2 + d3 + slotBonus;
   let isSlotJackpot = false;
 
   if (d1 === d2 && d2 === d3) {

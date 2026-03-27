@@ -47,6 +47,8 @@ export async function execute(message: Message) {
   let armorName = 'Casual Clothes';
   let weaponClass = 'NONE';
   let armorClass = 'NONE';
+  let hasWeapon = false;
+  let weaponRarity = 'COMMON';
   let activeAbilities: string[] = [];
 
   for (const eq of player.equipment || []) {
@@ -87,6 +89,8 @@ export async function execute(message: Message) {
     if (eq.slot === 'WEAPON') {
       weaponName = eq.name || weaponName;
       weaponClass = eq.equipmentClass;
+      hasWeapon = true;
+      weaponRarity = rarityLabel.toUpperCase();
     }
     if (eq.slot === 'ARMOR') {
       armorName = eq.name || armorName;
@@ -94,19 +98,21 @@ export async function execute(message: Message) {
     }
   }
 
-  // --- THE ADRENALINE SLOT MACHINE (RARITY LOADED) ---
-  let diceFaces = 2; // Basic/Wood (Humble Beginnings)
-  const lowerName = weaponName.toLowerCase();
+  // --- THE ADRENALINE SLOT MACHINE (1% JACKPOT CAP) ---
+  const diceFaces = 10;
+  let slotBonus = 0;
   
-  if (lowerName.includes('iron') || lowerName.includes('bone') || lowerName.includes('rusty')) diceFaces = 4;
-  else if (lowerName.includes('steel') || lowerName.includes('venom') || lowerName.includes('soul')) diceFaces = 5;
-  else if (lowerName.includes('mythril') || lowerName.includes('shadow') || lowerName.includes('lich')) diceFaces = 6;
-  else if (lowerName.includes('moonlight') || lowerName.includes('meteor') || lowerName.includes('void')) diceFaces = 8;
+  if (hasWeapon) {
+      if (weaponRarity === 'UNCOMMON') slotBonus = 5;
+      else if (weaponRarity === 'RARE') slotBonus = 10;
+      else if (weaponRarity === 'EPIC') slotBonus = 20;
+      else if (weaponRarity === 'LEGENDARY') slotBonus = 50;
+  }
 
   const d1 = Math.floor(Math.random() * diceFaces) + 1;
   const d2 = Math.floor(Math.random() * diceFaces) + 1;
   const d3 = Math.floor(Math.random() * diceFaces) + 1;
-  let slotMultiplier = d1 + d2 + d3;
+  let slotMultiplier = d1 + d2 + d3 + slotBonus;
   let isSlotJackpot = false;
 
   if (d1 === d2 && d2 === d3) {
