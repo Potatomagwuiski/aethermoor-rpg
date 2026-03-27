@@ -25,16 +25,15 @@ export async function execute(message: Message) {
   }
 
   const cdKey = `cooldown:hunt:${discordId}`;
-  if (redisClient.isReady) {
-    try {
-      const isCooldown = await redisClient.get(cdKey);
-      if (isCooldown) {
-        return message.reply('⏳ **Exhausted!** You are still recovering from your last hunt. Wait a few seconds!');
-      }
-      await redisClient.setEx(cdKey, 120, '1'); // 120 second combat cooldown
-    } catch (e) {
-      console.error('Redis error', e);
+  try {
+    const isCooldown = await redisClient.get(cdKey);
+    if (isCooldown) {
+      return message.reply('⏳ **Exhausted!** You are still recovering from your last hunt. Wait a few seconds!');
     }
+    await redisClient.setEx(cdKey, 120, '1'); // 120 second combat cooldown
+  } catch (e) {
+    console.error('Redis error', e);
+    return message.reply('⚠️ **Network Instability:** The realm connection flickered. Please try again.');
   }
 
   // Fetch Equipped Gear
@@ -119,11 +118,11 @@ export async function execute(message: Message) {
   if (d1 === d2 && d2 === d3) {
     isSlotJackpot = true;
     // Keep it massive for the 1%
-    slotMultiplier = Math.pow(d1 + d2 + d3 + slotBonus, 2); 
+    slotMultiplier = 20; 
   } else if (d1 === d2) {
     isSlotMatch = true;
     // Exactly a 9% chance for this block!
-    slotMultiplier = d1 + d2 + d3 + slotBonus; 
+    slotMultiplier = 3; 
   }
 
 
@@ -522,7 +521,7 @@ export async function execute(message: Message) {
     playerHp = Math.min(player.maxHp, playerHp + Math.floor(player.maxHp * 0.05));
   }
 
-  let baseGold = 5 * tier;
+  let baseGold = 25 * tier;
   let baseXP = Math.floor(Math.random() * 21 * tier) + (15 * tier); 
   let goldReward = baseGold * slotMultiplier;
   let xpReward = baseXP * slotMultiplier;

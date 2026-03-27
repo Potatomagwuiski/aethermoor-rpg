@@ -24,6 +24,7 @@ import { executePay } from './commands/pay.js';
 import { executeHatch } from './commands/hatch.js';
 import { executeEquip } from './commands/equip.js';
 import { executeTravel } from './commands/travel.js';
+import { executeRest } from './commands/rest.js';
 
 const client = new Client({
     intents: [
@@ -37,8 +38,10 @@ client.once(Events.ClientReady, async (readyClient) => {
     console.log(`Ready! Logged in as ${readyClient.user.tag}`);
     
     try {
-        await redisClient.connect();
-        console.log('Connected to Redis Cache Engine.');
+        if (!redisClient.isOpen) {
+            await redisClient.connect();
+        }
+        console.log('Redis connected successfully.');
         
         const playerCount = await prisma.player.count();
         console.log(`Connected to PostgreSQL Database. Current players registered: ${playerCount}`);
@@ -212,6 +215,13 @@ client.on(Events.MessageCreate, async (message) => {
         } catch (error: any) {
             console.error(error);
             await message.reply(`Error executing travel command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
+    } else if (command === 'rest' || command === 'campfire') {
+        try {
+            await executeRest(message);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing rest command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
     } else if (command === 'equip' || command === 'e') {
         try {

@@ -541,23 +541,29 @@ export async function executeForge(message: Message, args: string[]) {
 
             if (craftableCatalog.length > 0) addCatalogToEmbed(craftableCatalog, '🟢 Ready to Craft');
             if (missingCatalog.length > 0) addCatalogToEmbed(missingCatalog, '🔴 Missing Materials');
-            
-            if (selectOptions.length > 0) {
-                if (selectOptions.length > 25) selectOptions = selectOptions.slice(0, 25);
-                const selectMenu = new StringSelectMenuBuilder()
-                    .setCustomId(`forge_craft_${catUrl}`)
-                    .setPlaceholder('Select a Blueprint to Forge')
-                    .addOptions(selectOptions.map(opt => ({
-                         label: opt.label,
-                         value: opt.value,
-                         description: opt.description
-                    })));
-                const selectRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
-                componentsArray.push(selectRow);
+
+            if (selectOptions.length === 0) {
+                selectOptions.push({
+                    label: 'No Craftable Blueprints',
+                    value: 'none',
+                    description: 'Gather more materials first!'
+                });
             }
+
+            if (selectOptions.length > 25) selectOptions = selectOptions.slice(0, 25);
+            const selectMenu = new StringSelectMenuBuilder()
+                .setCustomId(`forge_craft_${catUrl}`)
+                .setPlaceholder('Select a Blueprint to Forge')
+                .addOptions(selectOptions.map(opt => ({
+                     label: opt.label,
+                     value: opt.value,
+                     description: opt.description
+                })));
+            const selectRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
+            componentsArray.push(selectRow);
         }
 
-        await interaction.update({ embeds: [newEmbed], components: componentsArray }).catch(() => {});
+        await interaction.update({ embeds: [newEmbed], components: componentsArray }).catch(console.error);
     });
 
     return;

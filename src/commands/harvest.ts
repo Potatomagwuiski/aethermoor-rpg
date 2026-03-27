@@ -7,11 +7,15 @@ export async function executeHarvest(message: Message, args: string[]) {
   // 1. Redis Strict Cooldown Matrix (60 seconds)
   const cdKey = `cd:harvest:${discordId}`;
   
-  if (redisClient.isReady) {
+  try {
       const isCooldown = await redisClient.get(cdKey);
       if (isCooldown) {
-          return message.reply('🌾 *The soil needs time to recover. You must wait a minute before harvesting again.*');
+          return message.reply(`⛏️ *Your arms are numb. You must wait a minute before gathering again.*`);
       }
+      await redisClient.setEx(cdKey, 60, '1'); // 60 second cooldown
+  } catch (e) {
+      console.error('Redis Harvest Error', e);
+      return message.reply('⚠️ **Network Instability:** The realm connection flickered. Please try again.');
   }
 
   const player = await prisma.player.findUnique({
@@ -23,10 +27,7 @@ export async function executeHarvest(message: Message, args: string[]) {
     return message.reply('You have not registered yet! Type `rpg start` to begin.');
   }
 
-  // Lock the user for 60 seconds
-  if (redisClient.isReady) {
-      await redisClient.setEx(cdKey, 60, '1');
-  }
+  // Lock handled at top
 
   // --- THE ADRENALINE SLOT MACHINE (RARITY LOADED) ---
   const diceFaces = 10;
@@ -50,11 +51,11 @@ export async function executeHarvest(message: Message, args: string[]) {
   if (d1 === d2 && d2 === d3) {
     isSlotJackpot = true;
     // Keep it massive for the 1%
-    slotMultiplier = Math.pow(d1 + d2 + d3 + slotBonus, 2); 
+    slotMultiplier = 20; 
   } else if (d1 === d2) {
     isSlotMatch = true;
     // Exactly a 9% chance for this block!
-    slotMultiplier = d1 + d2 + d3 + slotBonus; 
+    slotMultiplier = 3; 
   }
 
   // Geographical node table

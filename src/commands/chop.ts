@@ -9,11 +9,15 @@ export async function executeChop(message: Message) {
   // 1. Redis Strict Cooldown Matrix (60 seconds)
   const cdKey = `cd:chop:${discordId}`;
   
-  if (redisClient.isReady) {
+  try {
       const isCooldown = await redisClient.get(cdKey);
       if (isCooldown) {
-          return message.reply('🪓 *Your hands are splintered. You must wait a minute before swinging your axe again.*');
+          return message.reply(`⛏️ *Your arms are numb. You must wait a minute before swinging your axe again.*`);
       }
+      await redisClient.setEx(cdKey, 60, '1'); // 60 second cooldown
+  } catch (e) {
+      console.error('Redis Chop Error', e);
+      return message.reply('⚠️ **Network Instability:** The realm connection flickered. Please try again.');
   }
 
   const player = await prisma.player.findUnique({
@@ -24,10 +28,7 @@ export async function executeChop(message: Message) {
   if (!player) return message.reply('You are not of this world. Type `rpg start`.');
   if (player.hp <= 0) return message.reply('💀 You are dead! Drink a Life Potion before chopping wood.');
 
-  // Lock the user for 60 seconds
-  if (redisClient.isReady) {
-      await redisClient.setEx(cdKey, 60, '1');
-  }
+  // Lock handled at top
 
   // 2. Progression Logic
   let yieldMultiplier = 1;
@@ -62,11 +63,11 @@ export async function executeChop(message: Message) {
   if (d1 === d2 && d2 === d3) {
     isSlotJackpot = true;
     // Keep it massive for the 1%
-    slotMultiplier = Math.pow(d1 + d2 + d3 + slotBonus, 2); 
+    slotMultiplier = 20; 
   } else if (d1 === d2) {
     isSlotMatch = true;
     // Exactly a 9% chance for this block!
-    slotMultiplier = d1 + d2 + d3 + slotBonus; 
+    slotMultiplier = 3; 
   }
 
   const zone = player.location || 'lumina_plains';
