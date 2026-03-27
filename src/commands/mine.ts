@@ -154,13 +154,13 @@ export async function executeMine(message: Message) {
     if (roll > 95 || autoEpic) baseEpic = 1; 
   }
 
-  const finalPrimary = Math.floor(basePrimary * yieldMultiplier * slotMultiplier * multiBonus);
-  const finalSecondary = Math.floor(baseSecondary * yieldMultiplier * slotMultiplier * multiBonus);
-  const finalEpic = Math.floor(baseEpic * yieldMultiplier * slotMultiplier * multiBonus);
-  
   if (hiddenGem) {
       baseEpic += 1;
   }
+
+  const finalPrimary = Math.floor(basePrimary * yieldMultiplier * slotMultiplier * multiBonus);
+  const finalSecondary = Math.floor(baseSecondary * yieldMultiplier * slotMultiplier * multiBonus);
+  const finalEpic = Math.floor(baseEpic * yieldMultiplier * slotMultiplier * multiBonus);
   
   const xpReward = 5 * toolTierRequired * slotMultiplier;
   const exhaustionDamage = noDamage ? 0 : 2 * toolTierRequired; 

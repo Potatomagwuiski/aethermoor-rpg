@@ -728,7 +728,7 @@ export async function executeForge(message: Message, args: string[]) {
               rarity: r,
               equipped: true,
               yieldMultiplier: resultOutput.yieldMultiplier,
-              activeAbilities: blueprint.abilities || []
+              ...( { activeAbilities: blueprint.abilities || [] } as any )
           }
       }));
       statLog = `⛏️ **${resultOutput.yieldMultiplier}x** Gathering Yield`;
@@ -759,10 +759,29 @@ export async function executeForge(message: Message, args: string[]) {
     flavorDesc = "*The craftsman flexes the timber, perfectly balancing the weapon's weight and tension before sealing it with enchanted sap.*";
   }
 
+  let abilitySliceCount = 1;
+  if (resultOutput.key.includes('uncommon')) abilitySliceCount = 2;
+  if (resultOutput.key.includes('rare')) abilitySliceCount = 3;
+  if (resultOutput.key.includes('epic')) abilitySliceCount = 4;
+  if (resultOutput.key.includes('legendary')) abilitySliceCount = 5;
+
+  let abilityLog = '';
+  if (blueprint.abilities && blueprint.abilities.length > 0) {
+      const activeAbils = blueprint.abilities.slice(0, abilitySliceCount);
+      abilityLog = '\n\n**✧ Awakened Abilities:**\n' + activeAbils.map((a: string, i: number) => {
+          let rarityPrefix = '⬜';
+          if (i === 1) rarityPrefix = '🟩';
+          if (i === 2) rarityPrefix = '🟦';
+          if (i === 3) rarityPrefix = '🟪';
+          if (i === 4) rarityPrefix = '🟧';
+          return `${rarityPrefix} \`${a}\``;
+      }).join('\n');
+  }
+
   const resultEmbed = new EmbedBuilder()
     .setTitle(`${flavorTitle} ${blueprint.name}`)
     .setColor(embedColor)
-    .setDescription(`${flavorDesc}\n\n🎲 **Forging Roll:** \`${roll} / 100\`\n${logAddition}`)
+    .setDescription(`${flavorDesc}\n\n🎲 **Forging Roll:** \`${roll} / 100\`\n${logAddition}${abilityLog}`)
     .addFields({ name: '✨ Forged Output', value: `> ${getEmoji(recipeId)} **${finalName}**\n> ${statLog}` });
 
   return message.reply({ embeds: [resultEmbed] });
