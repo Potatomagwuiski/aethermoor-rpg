@@ -246,6 +246,12 @@ export async function execute(message: Message) {
         if (ab.includes('Heavy Strike') && rounds === 1) roundDps += Math.floor(roundDps * 0.10);
         if (ab.includes('Backstab') && rounds === 1) roundDps += Math.floor(roundDps * 0.25);
         
+        if (ab.includes('Assassin') && weaponClass === 'FINESSE_WEAPON') {
+            const pctMatch = ab.match(/(\d+)%/);
+            const amt = pctMatch ? parseInt(pctMatch[1]) / 100 : 0.10;
+            roundDps += Math.floor(roundDps * amt);
+        }
+        
         if (ab.includes('Poison') || ab.includes('Venom')) {
             const p = ab.includes('Lethal Dose') && monsterHp < (monsterMaxHp * 0.5) ? 100 : 50;
             roundDps += p; totalPoisonDamage += p;

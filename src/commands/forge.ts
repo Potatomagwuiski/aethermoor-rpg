@@ -248,8 +248,8 @@ export const BLUEPRINTS: Record<string, any> = {
     name: 'Leather Tunic', materials: { copper: 10, wood: 10, bat_wing: 2 },
     abilities: [
       '✨ **Evasion**: +5% Dodge Chance',
-      '🦇 **Night Sight**: Nullifies darkness penalties in caves',
-      '🏹 **Marksman**: +10% DMG when using Bows'
+      '💨 **Swiftness**: +5% Dodge Chance',
+      '🗡️ **Assassin**: +10% DMG when using Daggers or Shivs'
     ],
     outputs: { common: { key: 'common_leather_tunic', name: '⬜ [Common Leather Tunic]', defense: 8 }, uncommon: { key: 'uncommon_leather_tunic', name: '🟩 [Uncommon Leather Tunic]', defense: 16 }, rare: { key: 'rare_leather_tunic', name: '🟦 [Rare Leather Tunic]', defense: 32 }, epic: { key: 'epic_leather_tunic', name: '🟪 [Epic Leather Tunic]', defense: 60 } }
   },
