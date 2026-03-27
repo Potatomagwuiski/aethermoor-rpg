@@ -6,7 +6,7 @@ import { getEmoji } from '../utils/emojis.js';
 export const BLUEPRINTS: Record<string, any> = {
   // --- WARRIOR ---
   'bronze_sword': {
-    name: 'Bronze Sword', materials: { copper: 15, wood: 5, seaweed: 2 },
+    name: 'Bronze Sword', materials: { copper: 30, wood: 8, beast_core: 1 },
     abilities: [
       '✨ **Balanced**: +5% Critical Hit Chance',
       '✨ **Sharpened**: +5% Base Damage',
@@ -22,7 +22,7 @@ export const BLUEPRINTS: Record<string, any> = {
     }
   },
   'iron_greatsword': {
-    name: 'Iron Greatsword', requiredBlueprint: 'blueprint_iron_greatsword', materials: { iron: 20, ashwood: 10, mooncap_mushroom: 5 },
+    name: 'Iron Greatsword', requiredBlueprint: 'blueprint_iron_greatsword', materials: { iron: 45, ashwood: 12, mooncap_mushroom: 3 },
     abilities: [
       '✨ **Hefty**: +2% Base Damage',
       '✨ **Heavy Strike**: +10% Damage on first turn',
@@ -38,7 +38,7 @@ export const BLUEPRINTS: Record<string, any> = {
     }
   },
   'wolf_slayer': {
-    name: 'Wolf Slayer Sword', requiredBlueprint: 'blueprint_wolf_slayer', materials: { iron: 20, ashwood: 10, mooncap_mushroom: 5 },
+    name: 'Wolf Slayer Sword', requiredBlueprint: 'blueprint_wolf_slayer', materials: { iron: 45, ashwood: 12, mooncap_mushroom: 3 },
     abilities: [
       '🐺 **Tracker**: +5% XP from Beasts',
       '✨ **Beastbane**: Deals +50% Damage to Beasts & Wolves',
@@ -49,7 +49,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { rare: { key: 'rare_wolf_slayer', name: '🟦 [Rare Wolf Slayer]', dps: 85 }, epic: { key: 'epic_wolf_slayer', name: '🟪 [Epic Wolf Slayer]', dps: 150 } }
   },
   'mythril_cleaver': {
-    name: 'Mythril Cleaver', requiredBlueprint: 'blueprint_mythril_cleaver', materials: { mythril: 30, gold_ore: 15, hellfire_essence: 5 },
+    name: 'Mythril Cleaver', requiredBlueprint: 'blueprint_mythril_cleaver', materials: { mythril: 80, gold_ore: 20, hellfire_essence: 5 },
     abilities: [
       '✨ **Light Edge**: +5% Evasion',
       '✨ **Mythril Edge**: Ignores 10% of enemy DEF',
@@ -60,7 +60,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { rare: { key: 'rare_mythril_cleaver', name: '🟦 [Rare Mythril Cleaver]', dps: 250 }, epic: { key: 'epic_mythril_cleaver', name: '🟪 [Epic Mythril Cleaver]', dps: 400 } }
   },
   'void_blade': {
-    name: 'Void Blade', requiredBlueprint: 'blueprint_void_blade', materials: { voidstone: 50, rare_meteorite_ingot: 20, lich_soul: 10 },
+    name: 'Void Blade', requiredBlueprint: 'blueprint_void_blade', materials: { voidstone: 90, rare_meteorite_ingot: 30, lich_soul: 8 },
     abilities: [
       '🌌 **Void Touched**: +5% Lifesteal',
       '✨ **Void Strike**: 15% chance to ignore 50% of monster DEF',
@@ -73,7 +73,7 @@ export const BLUEPRINTS: Record<string, any> = {
 
   // --- ROGUE ---
   'bronze_dagger': {
-    name: 'Bronze Dagger', materials: { copper: 15, wood: 5, seaweed: 2 },
+    name: 'Bronze Dagger', materials: { copper: 20, wood: 5, seaweed: 2 },
     abilities: [
       '✨ **Concealed**: +2% Evasion',
       '✨ **Lightweight**: +5% Evasion',
@@ -89,7 +89,7 @@ export const BLUEPRINTS: Record<string, any> = {
     }
   },
   'venom_shiv': {
-    name: 'Venom Shiv', requiredBlueprint: 'blueprint_venom_shiv', materials: { iron: 20, ashwood: 10, mooncap_mushroom: 5 },
+    name: 'Venom Shiv', requiredBlueprint: 'blueprint_venom_shiv', materials: { iron: 30, ashwood: 8, moon_herb: 5 },
     abilities: [
       '✨ **Toxin**: +5 Poison DMG per round',
       '✨ **Poison**: Deals 50 DMG every combat round',
@@ -100,7 +100,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { rare: { key: 'rare_venom_shiv', name: '🟦 [Rare Venom Shiv]', dps: 90 }, epic: { key: 'epic_venom_shiv', name: '🟪 [Epic Venom Shiv]', dps: 160 } }
   },
   'shadow_blade': {
-    name: 'Shadow Blade', requiredBlueprint: 'blueprint_shadow_blade', materials: { mythril: 30, gold_ore: 15, hellfire_essence: 5 },
+    name: 'Shadow Blade', requiredBlueprint: 'blueprint_shadow_blade', materials: { mythril: 65, gold_ore: 25, hellfire_essence: 3 },
     abilities: [
       '🌑 **Dim**: +5% Evasion in low light',
       '✨ **Assassinate**: 15% chance to execute non-bosses',
@@ -113,7 +113,7 @@ export const BLUEPRINTS: Record<string, any> = {
 
   // --- MAGE ---
   'wood_staff': {
-    name: 'Wood Staff', materials: { copper: 15, wood: 5, seaweed: 2 },
+    name: 'Wood Staff', materials: { copper: 10, wood: 35, basic_herb: 3 },
     abilities: [
       '✨ **Attuned**: +5 Max Mana',
       '✨ **Focus**: +5% Critical Hit Chance',
@@ -129,7 +129,7 @@ export const BLUEPRINTS: Record<string, any> = {
     }
   },
   'moonlight_staff': {
-    name: 'Moonlight Staff', requiredBlueprint: 'blueprint_moonlight_staff', materials: { mythril: 30, gold_ore: 15, hellfire_essence: 5 },
+    name: 'Moonlight Staff', requiredBlueprint: 'blueprint_moonlight_staff', materials: { mythril: 30, elderwood: 90, cinderbloom: 6 },
     abilities: [
       '🌙 **Glimmer**: +5 Max HP',
       '✨ **Nightshade**: +10% Dodge Chance',
@@ -140,7 +140,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { rare: { key: 'rare_moonlight_staff', name: '🟦 [Rare Moonlight Staff]', dps: 120 }, epic: { key: 'epic_moonlight_staff', name: '🟪 [Epic Moonlight Staff]', dps: 210 } }
   },
   'meteor_staff': {
-    name: 'Meteor Staff', requiredBlueprint: 'blueprint_meteor_staff', materials: { mythril: 30, gold_ore: 15, hellfire_essence: 5 },
+    name: 'Meteor Staff', requiredBlueprint: 'blueprint_meteor_staff', materials: { mythril: 50, elderwood: 60, hellfire_essence: 8 },
     abilities: [
       '🔥 **Molten Core**: 10% chance to cast a 25 DMG fireball on attack',
       '✨ **Meteor**: 10% chance to cast a massive 1500 DMG AoE',
@@ -153,7 +153,7 @@ export const BLUEPRINTS: Record<string, any> = {
 
   // --- NECROMANCER ---
   'bronze_scythe': {
-    name: 'Bronze Scythe', materials: { copper: 15, wood: 5, seaweed: 2 },
+    name: 'Bronze Scythe', materials: { copper: 25, wood: 20, basic_herb: 1 },
     abilities: [
       '🌾 **Reaper**: +2% Base Damage',
       '✨ **Harvest**: +5% bonus Gold on kills',
@@ -197,7 +197,7 @@ export const BLUEPRINTS: Record<string, any> = {
 
   // --- HEAVY ARMOR (WARRIORS) ---
   'bronze_helmet': {
-    name: 'Bronze Helmet', materials: { copper: 15, wood: 5, seaweed: 2 },
+    name: 'Bronze Helmet', materials: { copper: 30, wood: 8, beast_core: 1 },
     abilities: [
       '✨ **Fitted**: +5 Max HP',
       '✨ **Sturdy**: Reduces physical damage taken by 1%',
@@ -208,7 +208,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { common: { key: 'common_bronze_helmet', name: '⬜ [Common Bronze Helmet]', defense: 5 }, uncommon: { key: 'uncommon_bronze_helmet', name: '🟩 [Uncommon Bronze Helmet]', defense: 10 }, rare: { key: 'rare_bronze_helmet', name: '🟦 [Rare Bronze Helmet]', defense: 20 }, epic: { key: 'epic_bronze_helmet', name: '🟪 [Epic Bronze Helmet]', defense: 40 } }
   },
   'bronze_chestplate': {
-    name: 'Bronze Chestplate', materials: { copper: 15, wood: 5, seaweed: 2 },
+    name: 'Bronze Chestplate', materials: { copper: 30, wood: 8, beast_core: 1 },
     abilities: [
       '✨ **Reinforced**: +1 DEF',
       '✨ **Plated**: Reduces physical damage taken by 2%',
@@ -241,7 +241,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { common: { key: 'common_steel_chestplate', name: '⬜ [Common Steel Chestplate]', defense: 65 }, uncommon: { key: 'uncommon_steel_chestplate', name: '🟩 [Uncommon Steel Chestplate]', defense: 120 }, rare: { key: 'rare_steel_chestplate', name: '🟦 [Rare Steel Chestplate]', defense: 240 }, epic: { key: 'epic_steel_chestplate', name: '🟪 [Epic Steel Chestplate]', defense: 450 } }
   },
   'bronze_boots': {
-    name: 'Bronze Boots', materials: { copper: 15, wood: 5, seaweed: 2 },
+    name: 'Bronze Boots', materials: { copper: 30, wood: 8, beast_core: 1 },
     abilities: [
       '✨ **Comfortable**: +1% Evasion',
       '✨ **March**: +2% Evasion',
@@ -254,7 +254,7 @@ export const BLUEPRINTS: Record<string, any> = {
 
   // --- CLOTH ARMOR (MAGES) ---
   'apprentice_robe': {
-    name: 'Apprentice Robe', materials: { copper: 15, wood: 5, seaweed: 2 },
+    name: 'Apprentice Robe', materials: { copper: 30, wood: 8, beast_core: 1 },
     abilities: [
       '✨ **Light Fabric**: +1 Max Energy',
       '✨ **Mana Shield**: Reduces incoming damage by 10%',
@@ -289,7 +289,7 @@ export const BLUEPRINTS: Record<string, any> = {
 
   // --- LIGHT ARMOR (ROGUES) ---
   'leather_tunic': {
-    name: 'Leather Tunic', materials: { copper: 15, wood: 5, seaweed: 2 },
+    name: 'Leather Tunic', materials: { copper: 30, wood: 8, beast_core: 1 },
     abilities: [
       '✨ **Snug**: +1% Dodge Chance',
       '✨ **Evasion**: +5% Dodge Chance',
@@ -300,7 +300,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { common: { key: 'common_leather_tunic', name: '⬜ [Common Leather Tunic]', defense: 8 }, uncommon: { key: 'uncommon_leather_tunic', name: '🟩 [Uncommon Leather Tunic]', defense: 16 }, rare: { key: 'rare_leather_tunic', name: '🟦 [Rare Leather Tunic]', defense: 32 }, epic: { key: 'epic_leather_tunic', name: '🟪 [Epic Leather Tunic]', defense: 60 } }
   },
   'scout_cloak': {
-    name: 'Scout Cloak', requiredBlueprint: 'blueprint_scout_cloak', materials: { copper: 15, wood: 5, seaweed: 2 },
+    name: 'Scout Cloak', requiredBlueprint: 'blueprint_scout_cloak', materials: { copper: 30, wood: 8, beast_core: 1 },
     abilities: [
       '✨ **Camouflage**: +2% Dodge Chance',
       '✨ **Shadow Step**: 100% Dodge First Attack',
@@ -323,7 +323,7 @@ export const BLUEPRINTS: Record<string, any> = {
   },
   // --- TOOLS ---
   'bronze_pickaxe': {
-    name: 'Bronze Pickaxe', materials: { copper: 15, wood: 5, seaweed: 2 },
+    name: 'Bronze Pickaxe', materials: { copper: 30, wood: 8, beast_core: 1 },
     abilities: [
       '⛏️ **Prospect**: 5% chance for double ore',
       '⛏️ **Miner**: +1 Base Yield',
@@ -356,7 +356,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { common: { key: 'common_mythril_pickaxe', name: '⬜ [Common Mythril Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'COMMON', yieldMultiplier: 3.5 }, uncommon: { key: 'uncommon_mythril_pickaxe', name: '🟩 [Uncommon Mythril Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'UNCOMMON', yieldMultiplier: 5.0 }, rare: { key: 'rare_mythril_pickaxe', name: '🟦 [Rare Mythril Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'RARE', yieldMultiplier: 8.0 } }
   },
   'bronze_axe': {
-    name: 'Bronze Axe', materials: { copper: 15, wood: 5, seaweed: 2 },
+    name: 'Bronze Axe', materials: { copper: 30, wood: 8, beast_core: 1 },
     abilities: [
       '🪓 **Chop**: 5% chance for double wood',
       '🪓 **Lumberjack**: +1 Base Yield',
