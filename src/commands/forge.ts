@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } from 'discord.js';
+import { Message, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, StringSelectMenuBuilder } from 'discord.js';
 import { prisma } from '../db.js';
 import { getEmoji } from '../utils/emojis.js';
 
@@ -423,11 +423,16 @@ export async function executeForge(message: Message, args: string[]) {
 
     const collector = initialMsg.createMessageComponentCollector({ 
         filter: i => i.user.id === discordId, 
-        componentType: ComponentType.Button, 
         time: 120000 
     });
 
-    collector.on('collect', async (interaction) => {
+    collector.on('collect', async (interaction: any) => {
+        if (interaction.isStringSelectMenu() && interaction.customId.startsWith('forge_craft_')) {
+            const selectedRecipeId = interaction.values[0];
+            await processForge(selectedRecipeId, player, inventory, interaction, true);
+            return;
+        }
+
         let catUrl = 'weapons';
         if (interaction.customId === 'forge_armor') catUrl = 'armor';
         if (interaction.customId === 'forge_tools') catUrl = 'tools';
@@ -438,6 +443,7 @@ export async function executeForge(message: Message, args: string[]) {
 
         let craftableCatalog = '';
         let missingCatalog = '';
+        let selectOptions: any[] = [];
 
         for (const [key, blueprint] of Object.entries(BLUEPRINTS)) {
           if (!blueprint.materials) continue; 
@@ -498,11 +504,18 @@ export async function executeForge(message: Message, args: string[]) {
           
           if (isCraftable) {
               craftableCatalog += outputStr;
+              selectOptions.push({
+                  label: blueprint.name.substring(0, 50),
+                  value: key,
+                  description: `Cost: ${Object.keys(blueprint.materials).map(k => `${blueprint.materials[k as keyof typeof blueprint.materials]}x ${k.replace(/_/g, ' ')}`).join(', ').substring(0, 40)}`
+              });
           } else {
               missingCatalog += outputStr;
           }
         }
         
+        let componentsArray: any[] = [row];
+
         if (craftableCatalog.length === 0 && missingCatalog.length === 0) {
             newEmbed.addFields({ name: 'Available Blueprints', value: "*You haven't discovered any forging schematics for this category.*" });
         } else {
@@ -528,26 +541,51 @@ export async function executeForge(message: Message, args: string[]) {
 
             if (craftableCatalog.length > 0) addCatalogToEmbed(craftableCatalog, '🟢 Ready to Craft');
             if (missingCatalog.length > 0) addCatalogToEmbed(missingCatalog, '🔴 Missing Materials');
+            
+            if (selectOptions.length > 0) {
+                if (selectOptions.length > 25) selectOptions = selectOptions.slice(0, 25);
+                const selectMenu = new StringSelectMenuBuilder()
+                    .setCustomId(`forge_craft_${catUrl}`)
+                    .setPlaceholder('Select a Blueprint to Forge')
+                    .addOptions(selectOptions.map(opt => ({
+                         label: opt.label,
+                         value: opt.value,
+                         description: opt.description
+                    })));
+                const selectRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
+                componentsArray.push(selectRow);
+            }
         }
 
-        await interaction.update({ embeds: [newEmbed], components: [row] }).catch(() => {});
+        await interaction.update({ embeds: [newEmbed], components: componentsArray }).catch(() => {});
     });
 
     return;
   }
 
-  const recipeId = args[0].toLowerCase();
+  return await processForge(args[0].toLowerCase(), player, inventory, message, false);
+}
+
+export async function processForge(recipeId: string, player: any, inventory: any, context: any, isInteraction: boolean = false) {
+  const reply = async (content: any) => {
+      if (isInteraction) {
+          return await context.update({ ...content, components: [] }).catch(() => {});
+      } else {
+          return await context.reply(content).catch(() => {});
+      }
+  };
+
   const blueprint = BLUEPRINTS[recipeId];
 
   if (!blueprint) {
-    return message.reply(`That is not a valid Forge recipe. Known blueprints: \`bronze_sword\`, \`void_blade\`.`);
+    return reply({ content: `That is not a valid Forge recipe. Known blueprints: \`bronze_sword\`, \`void_blade\`.`, embeds: [] });
   }
 
   // 1. Check if they have the Blueprint unlocked (if required)
   if (blueprint.requiredBlueprint) {
     const hasBlueprint = inventory.find((i: any) => i.itemKey === blueprint.requiredBlueprint);
     if (!hasBlueprint || hasBlueprint.quantity < 1) {
-      return message.reply(`📜 You don't know how to forge a ${blueprint.name}! You need the \`${blueprint.requiredBlueprint}\` to craft this.`);
+      return reply({ content: `📜 You don't know how to forge a ${blueprint.name}! You need the \`${blueprint.requiredBlueprint}\` to craft this.`, embeds: [] });
     }
   }
 
@@ -557,7 +595,7 @@ export async function executeForge(message: Message, args: string[]) {
     // TypeScript safe-cast to number
     const qty = requiredQty as number;
     if (!invItem || invItem.quantity < qty) {
-      return message.reply(`❌ **Missing Materials!** You need **${qty}x ${matKey}**. You only have ${invItem ? invItem.quantity : 0}.`);
+      return reply({ content: `❌ **Missing Materials!** You need **${qty}x ${matKey}**. You only have ${invItem ? invItem.quantity : 0}.`, embeds: [] });
     }
   }
 
@@ -584,13 +622,11 @@ export async function executeForge(message: Message, args: string[]) {
   else if (blueprint.outputs.uncommon && roll >= 40) resultOutput = blueprint.outputs.uncommon;
   else if (blueprint.outputs.common) resultOutput = blueprint.outputs.common;
   else {
-      // Fallback for recipes that only have rare+ (e.g. wolf slayer, moonlight staff)
       resultOutput = blueprint.outputs.rare || blueprint.outputs.epic || Object.values(blueprint.outputs)[0];
   }
 
-  // Fallback safety
   if (!resultOutput) {
-    return message.reply('The forge erupted in a magical anomaly. The craft failed!');
+    return reply({ content: 'The forge erupted in a magical anomaly. The craft failed!', embeds: [] });
   }
 
   // 6. ADRENALINE AFFIX GENERATION
@@ -820,5 +856,5 @@ export async function executeForge(message: Message, args: string[]) {
     .setDescription(`${flavorDesc}\n\n🎲 **Forging Roll:** \`${roll} / 100\`\n${logAddition}${abilityLog}`)
     .addFields({ name: '✨ Forged Output', value: `> ${getEmoji(recipeId)} **${finalName}**\n> ${statLog}` });
 
-  return message.reply({ embeds: [resultEmbed] });
+  return reply({ embeds: [resultEmbed] });
 }
