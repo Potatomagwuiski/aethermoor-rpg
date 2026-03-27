@@ -10,8 +10,9 @@ export async function executeMine(message: Message) {
   // 1. Redis Strict Cooldown Matrix (60 seconds)
   const cdKey = `cd:work:${discordId}`;
   
-  if (await enforceCooldown(cdKey, 30)) {
-       return message.reply(`⛏️ *Your arms are numb. You must wait 30 seconds before swinging your pickaxe again.*`);
+  const cd = await enforceCooldown(cdKey, 30);
+  if (cd.onCooldown) {
+       return message.reply(`⛏️ *Your arms are numb. You must wait ${Math.ceil(cd.remainingMs / 1000)} seconds before swinging your pickaxe again.*`);
   }
 
   const player = await prisma.player.findUnique({

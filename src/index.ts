@@ -25,6 +25,7 @@ import { executeHatch } from './commands/hatch.js';
 import { executeEquip } from './commands/equip.js';
 import { executeTravel } from './commands/travel.js';
 import { executeRest } from './commands/rest.js';
+import { executeCd } from './commands/cd.js';
 
 const client = new Client({
     intents: [
@@ -222,6 +223,13 @@ client.on(Events.MessageCreate, async (message) => {
         } catch (error: any) {
             console.error(error);
             await message.reply(`Error executing rest command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
+    } else if (command === 'cd' || command === 'time' || command === 'cooldowns') {
+        try {
+            await executeCd(message);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing cooldowns command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
     } else if (command === 'equip' || command === 'e') {
         try {

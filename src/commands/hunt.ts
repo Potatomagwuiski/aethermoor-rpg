@@ -26,8 +26,9 @@ export async function execute(message: Message) {
   }
 
   const cdKey = `cooldown:hunt:${discordId}`;
-  if (await enforceCooldown(cdKey, 30)) {
-    return message.reply('⏳ **Exhausted!** You are still recovering from your last hunt. Wait a few seconds!');
+  const cd = await enforceCooldown(cdKey, 30);
+  if (cd.onCooldown) {
+    return message.reply(`⏳ **Exhausted!** You are still recovering from your last hunt. Wait ${Math.ceil(cd.remainingMs / 1000)} seconds!`);
   }
 
   // Fetch Equipped Gear
