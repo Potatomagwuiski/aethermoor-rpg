@@ -196,17 +196,7 @@ export const BLUEPRINTS: Record<string, any> = {
   },
 
   // --- HEAVY ARMOR (WARRIORS) ---
-  'bronze_helmet': {
-    name: 'Bronze Helmet', materials: { copper: 60, potato: 5 },
-    abilities: [
-      '✨ **Fitted**: +5 Max HP',
-      '✨ **Sturdy**: Reduces physical damage taken by 1%',
-      '🛡️ **Deflection**: 2% chance to block 50% damage',
-      '🤕 **Hardheaded**: Immune to stun effects',
-      '🌟 **Juggernaut**: 10% chance to reflect all damage back to the attacker'
-    ],
-    outputs: { common: { key: 'common_bronze_helmet', name: '⬜ [Common Bronze Helmet]', defense: 5 }, uncommon: { key: 'uncommon_bronze_helmet', name: '🟩 [Uncommon Bronze Helmet]', defense: 10 }, rare: { key: 'rare_bronze_helmet', name: '🟦 [Rare Bronze Helmet]', defense: 20 }, epic: { key: 'epic_bronze_helmet', name: '🟪 [Epic Bronze Helmet]', defense: 40 } }
-  },
+
   'bronze_chestplate': {
     name: 'Bronze Chestplate', materials: { copper: 120, potato: 10, seaweed: 5 },
     abilities: [
@@ -240,17 +230,7 @@ export const BLUEPRINTS: Record<string, any> = {
     ],
     outputs: { common: { key: 'common_steel_chestplate', name: '⬜ [Common Steel Chestplate]', defense: 65 }, uncommon: { key: 'uncommon_steel_chestplate', name: '🟩 [Uncommon Steel Chestplate]', defense: 120 }, rare: { key: 'rare_steel_chestplate', name: '🟦 [Rare Steel Chestplate]', defense: 240 }, epic: { key: 'epic_steel_chestplate', name: '🟪 [Epic Steel Chestplate]', defense: 450 } }
   },
-  'bronze_boots': {
-    name: 'Bronze Boots', materials: { copper: 40, seaweed: 5 },
-    abilities: [
-      '✨ **Comfortable**: +1% Evasion',
-      '✨ **March**: +2% Evasion',
-      '🏃 **Agility**: +1 Base ATK due to faster speed',
-      '💨 **Fleetfoot**: Pre-emptively strikes the enemy for 5 DMG at combat start',
-      '🌟 **Windrunner**: 15% chance to strike a second time'
-    ],
-    outputs: { common: { key: 'common_bronze_boots', name: '⬜ [Common Bronze Boots]', defense: 4 }, uncommon: { key: 'uncommon_bronze_boots', name: '🟩 [Uncommon Bronze Boots]', defense: 8 }, rare: { key: 'rare_bronze_boots', name: '🟦 [Rare Bronze Boots]', defense: 16 }, epic: { key: 'epic_bronze_boots', name: '🟪 [Epic Bronze Boots]', defense: 32 } }
-  },
+
 
   // --- CLOTH ARMOR (MAGES) ---
   'apprentice_robe': {
