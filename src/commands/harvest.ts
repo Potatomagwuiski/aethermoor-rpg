@@ -7,16 +7,9 @@ export async function executeHarvest(message: Message, args: string[]) {
   const discordId = message.author.id;
   // 1. Redis Strict Cooldown Matrix (60 seconds)
   const cdKey = `cd:work:${discordId}`;
-  
-  try {
-      const isCooldown = await redisClient.get(cdKey);
-      if (isCooldown) {
-          return message.reply(`⛏️ *Your arms are numb. You must wait 30 seconds before gathering again.*`);
-      }
-      await redisClient.setEx(cdKey, 60, '1'); // 60 second cooldown
-  } catch (e) {
-      console.error('Redis Harvest Error', e);
-      return message.reply('⚠️ **Network Instability:** The realm connection flickered. Please try again.');
+  const cd = await enforceCooldown(cdKey, 30);
+  if (cd.onCooldown) {
+       return message.reply(`⛏️ *Your arms are numb. You must wait ${Math.ceil(cd.remainingMs / 1000)} seconds before harvesting again.*`);
   }
 
   const player = await prisma.player.findUnique({
