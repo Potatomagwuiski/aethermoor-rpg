@@ -466,7 +466,7 @@ export async function executeForge(message: Message, args: string[]) {
           let validCategory = false;
           if (catUrl === 'weapons' && (key.includes('sword') || key.includes('dagger') || key.includes('staff') || key.includes('scythe') || key.includes('shiv') || key.includes('blade') || key.includes('cleaver') || key.includes('slayer') || key.includes('bow'))) validCategory = true;
           if (catUrl === 'armor' && (key.includes('armor') || key.includes('tunic') || key.includes('robe') || key.includes('mantle') || key.includes('boots') || key.includes('cloak') || key.includes('plate'))) validCategory = true;
-          if (catUrl === 'tools' && (key.includes('pickaxe') || key.includes('axe') || key.includes('rod'))) validCategory = true;
+          if (catUrl === 'tools' && (key.includes('pickaxe') || key.includes('axe') || key.includes('rod') || key.includes('sickle'))) validCategory = true;
           
           if (!validCategory) continue;
           
