@@ -31,7 +31,7 @@ export async function execute(message: Message) {
       if (isCooldown) {
         return message.reply('⏳ **Exhausted!** You are still recovering from your last hunt. Wait a few seconds!');
       }
-      await redisClient.setEx(cdKey, 10, '1'); // 10 second combat cooldown
+      await redisClient.setEx(cdKey, 120, '1'); // 120 second combat cooldown
     } catch (e) {
       console.error('Redis error', e);
     }
