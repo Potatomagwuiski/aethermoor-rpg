@@ -164,10 +164,10 @@ export async function execute(message: Message) {
   // --- THE AUTO-BATTLER PHYSICS LOOP ---
   // Phase 27 Early-Game Rebalance: Removed massive baseline bloating.
   // Phase 35 Late-Game Rebalance: Monsters now scale exponentially with their Tier.
-  let monsterMaxHp = Math.floor((tier * 40) + (player.level * 15 * tier));
+  let monsterMaxHp = Math.floor((tier * 25) + (player.level * 10 * tier));
   let monsterHp = monsterMaxHp;
   // Attack Power also scales logarithmically by geographic region.
-  let monsterAttackPower = Math.floor((tier * 10) + (player.level * 4 * tier));
+  let monsterAttackPower = Math.floor((tier * 5) + (player.level * 2 * tier));
 
   let playerHp = player.hp;
   if (playerHp <= 0) playerHp = 1;
