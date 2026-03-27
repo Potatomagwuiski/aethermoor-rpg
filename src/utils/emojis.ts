@@ -153,6 +153,12 @@ export const ITEM_EMOJIS: Record<string, string> = {
     'lich_soul': '👻',
     'behemoth_bone': '🦖',
     
+    // Universal Monster Cores
+    'beast_core': '🐾',
+    'monster_core': '👿',
+    'abyssal_core': '👁️',
+    'void_core': '🌌',
+    
     // Default fallback
     'default': '📦'
 };

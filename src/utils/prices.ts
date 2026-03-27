@@ -55,6 +55,12 @@ export const ITEM_SELL_PRICES: Record<string, number> = {
     'lich_soul': 1000,
     'behemoth_bone': 3000,
     
+    // Universal Monster Cores
+    'beast_core': 10,
+    'monster_core': 25,
+    'abyssal_core': 100,
+    'void_core': 500,
+    
     // Forged Weapons
     'common_bronze_sword': 100, 'uncommon_bronze_sword': 300, 'rare_bronze_sword': 800, 'epic_bronze_sword': 2000,
     'rare_wolf_slayer': 1200, 'epic_wolf_slayer': 3500,
