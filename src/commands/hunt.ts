@@ -187,14 +187,21 @@ export async function execute(message: Message) {
   let lifestealGained = 0;
   let abilityHighlights = '';
 
+  let hasUndying = false;
+  let undyingTriggered = false;
+  let totalBurnDamage = 0;
+  let totalPoisonDamage = 0;
+  let totalBleedDamage = 0;
+  let hasLichKing = false;
+
   for (const ab of activeAbilities) {
       if (!ab) continue;
       
-      const pctMatch = ab.match(/\+(\d+)%/);
+      const pctMatch = ab.match(/[+\s]?(\d+)%/);
       if (pctMatch) {
           const val = parseInt(pctMatch[1]);
-          if (ab.includes('Evasion') || ab.includes('Dodge')) bonusEvasion += val;
-          if (ab.includes('Critical') || ab.includes('Crit')) bonusCrit += val;
+          if (ab.includes('Evasion') || ab.includes('Dodge') || ab.includes('Swiftness')) bonusEvasion += val;
+          if (ab.includes('Critical') || ab.includes('Crit') || ab.includes('Focus')) bonusCrit += val;
       }
       
       const flatDefMatch = ab.match(/grants (\d+) bonus DEF/i) || ab.match(/blocks (\d+) incoming/i);
@@ -203,10 +210,11 @@ export async function execute(message: Message) {
       const flatHpMatch = ab.match(/\+(\d+) Max HP/i);
       if (flatHpMatch) playerHp += parseInt(flatHpMatch[1]);
       
-      const reducedDmgMatch = ab.match(/Reduces physical damage taken by (\d+)%/i);
+      const reducedDmgMatch = ab.match(/physical damage by (\d+)%/i) || ab.match(/physical damage taken by (\d+)%/i);
       if (reducedDmgMatch) bonusDefPerc += parseInt(reducedDmgMatch[1]);
 
-      abilityHighlights += `🔹 \`${ab.split(':')[0].replace(/[*]/g, '').trim()}\` active.\n`;
+      if (ab.includes('Undying')) hasUndying = true;
+      if (ab.includes('Lich King')) hasLichKing = true;
   }
 
   // Class Passives prep
@@ -237,11 +245,22 @@ export async function execute(message: Message) {
         if (ab.includes('Sharpened') || ab.includes('Base Damage')) roundDps += Math.floor(roundDps * 0.05);
         if (ab.includes('Heavy Strike') && rounds === 1) roundDps += Math.floor(roundDps * 0.10);
         if (ab.includes('Backstab') && rounds === 1) roundDps += Math.floor(roundDps * 0.25);
-        if (ab.includes('Poison') || ab.includes('Venom')) roundDps += 50;
-        if (ab.includes('Ignite') || ab.includes('Burn')) roundDps += 100;
-        if (ab.includes('Serrated Edge') || ab.includes('Rend') || ab.includes('Bleed')) roundDps += 25;
         
-        if (ab.includes('Meteor') && Math.random() > 0.90) {
+        if (ab.includes('Poison') || ab.includes('Venom')) {
+            const p = ab.includes('Lethal Dose') && monsterHp < (monsterMaxHp * 0.5) ? 100 : 50;
+            roundDps += p; totalPoisonDamage += p;
+        }
+        if (ab.includes('Ignite') || ab.includes('Burn')) {
+            const b = 100; roundDps += b; totalBurnDamage += b;
+        }
+        if (ab.includes('Serrated Edge') || ab.includes('Rend') || ab.includes('Bleed') || ab.includes('Deep Wounds')) {
+            const dmgMatch = ab.match(/(\d+) DMG/);
+            const bl = dmgMatch ? parseInt(dmgMatch[1]) : 25;
+            roundDps += bl; totalBleedDamage += bl;
+        }
+        
+        let meteorChance = ab.includes('Apocalypse') && (mob.name.includes('Drake') || mob.name.includes('Lich')) ? 0.70 : 0.90;
+        if (ab.includes('Meteor') && Math.random() > meteorChance) {
             roundDps += 1500;
             if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '🌋 **METEOR IMPACT!** (1500 DMG)'; }
         }
@@ -299,6 +318,10 @@ export async function execute(message: Message) {
         if (ab.includes('Smoke Bomb') && Math.random() > 0.85) rawIncoming = 0;
     }
 
+    if (bonusDefPerc > 0) {
+        rawIncoming = Math.floor(rawIncoming * (1 - (bonusDefPerc / 100)));
+    }
+
     if (armorClass === 'HEAVY_ARMOR') rawIncoming = Math.floor(rawIncoming * 0.9); // flat 10% Legacy mitigation
 
     if (Math.random() * 100 < gearEvasion) {
@@ -310,6 +333,13 @@ export async function execute(message: Message) {
     }
 
     if (rawIncoming < 0) rawIncoming = 0;
+
+    if (playerHp - rawIncoming <= 0 && hasUndying && !undyingTriggered) {
+        undyingTriggered = true;
+        playerHp += 100;
+        rawIncoming = 0; // Negate the fatal blow
+        abilityHighlights += `✨ \`Undying\` saved you from a fatal blow!\n`;
+    }
 
     playerHp -= rawIncoming;
     totalDamageTaken += rawIncoming;
@@ -466,6 +496,10 @@ export async function execute(message: Message) {
   if (buffMessage) extraLoot += `\n${buffMessage}`;
 
   // Dynamic Highlight Reel Compilation
+  if (totalBurnDamage > 0) abilityHighlights += `🔥 \`Ignite\` burned the enemy for **${totalBurnDamage}** total DMG!\n`;
+  if (totalPoisonDamage > 0) abilityHighlights += `🧪 \`Poison\` melted the enemy for **${totalPoisonDamage}** total DMG!\n`;
+  if (totalBleedDamage > 0) abilityHighlights += `🩸 \`Bleed\` lacerated the enemy for **${totalBleedDamage}** total DMG!\n`;
+
   let highlights = abilityHighlights;
   if (totalEvades > 0) highlights += `💨 Evaded **${totalEvades}** Attacks\n`;
   if (totalMitigated > 0) highlights += `🛡️ Blocked **${totalMitigated}** Damage\n`;

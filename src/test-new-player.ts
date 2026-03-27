@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { prisma } from './db.js';
+import prisma from './db.js';
 import { execute as huntExecute } from './commands/hunt.js';
 
 async function runTest() {
@@ -13,15 +13,47 @@ async function runTest() {
     data: {
       discordId,
       name: 'Fresh Spawn',
-      level: 1,
-      hp: 100,
-      maxHp: 100,
+      level: 10,
+      hp: 1500,
+      maxHp: 1500,
       gold: 0,
+      location: 'abyssal_depths' // High tier zone to survive longer
     }
   });
 
-  // 3. Equip Bronze Armor
-  await prisma.equipment.create({ data: { playerId: player.id, slot: 'ARMOR', baseItemKey: 'bronze_chestplate', name: 'Bronze Chestplate', equipped: true } });
+  // 3. Equip Epic Meteor Staff & Epic Lich Mantle to test abilities
+  await prisma.equipment.createMany({
+      data: [
+          {
+              playerId: player.id,
+              slot: 'WEAPON',
+              baseItemKey: 'epic_meteor_staff',
+              name: '🟪 [Epic Meteor Staff]',
+              equipped: true,
+              equipmentClass: 'MAGIC_WEAPON',
+              bonusAtk: 300,
+              bonusDef: 0,
+              bonusCrit: 0,
+              bonusEvasion: 0,
+              bonusLifesteal: 0,
+              id: 'test_weap_1'
+          },
+          {
+              playerId: player.id,
+              slot: 'ARMOR',
+              baseItemKey: 'epic_lich_mantle',
+              name: '🟪 [Epic Lich Mantle]',
+              equipped: true,
+              equipmentClass: 'CLOTH',
+              bonusAtk: 0,
+              bonusDef: 200,
+              bonusCrit: 0,
+              bonusEvasion: 0,
+              bonusLifesteal: 0,
+              id: 'test_arm_1'
+          }
+      ]
+  });
 
   const mockMessage: any = {
     author: { id: discordId, username: player.name },
@@ -41,9 +73,12 @@ async function runTest() {
     }
   };
 
-  // Test Hunt
-  console.log('\n=> Executing: rpg hunt (Level 1 with Bronze Armor)');
-  await huntExecute(mockMessage);
+  console.log('\n=> Executing: rpg hunt (Level 10 with Epic Meteor Staff & Epic Lich Mantle)');
+  // Run multiple hunts to ensure RNG procs (like 10% Meteor) have a chance to trigger
+  for (let i = 0; i < 5; i++) {
+      console.log(`\n--- HUNT ATTEMPT ${i + 1} ---`);
+      await huntExecute(mockMessage);
+  }
 
 }
 
