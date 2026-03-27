@@ -114,10 +114,16 @@ export async function execute(message: Message) {
   const d3 = Math.floor(Math.random() * diceFaces) + 1;
   let slotMultiplier = 1;
   let isSlotJackpot = false;
+  let isSlotMatch = false;
 
   if (d1 === d2 && d2 === d3) {
     isSlotJackpot = true;
-    slotMultiplier = Math.pow(d1 + d2 + d3 + Math.floor(slotBonus / 2), 2); 
+    // Keep it massive for the 1%
+    slotMultiplier = Math.pow(d1 + d2 + d3 + slotBonus, 2); 
+  } else if (d1 === d2) {
+    isSlotMatch = true;
+    // Exactly a 9% chance for this block!
+    slotMultiplier = d1 + d2 + d3 + slotBonus; 
   }
 
 
@@ -658,6 +664,7 @@ export async function execute(message: Message) {
 
   let slotStr = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\``;
   if (isSlotJackpot) slotStr += ` = **!!! ${slotMultiplier}x JACKPOT MULTIPLIER !!!** 🔥🔥🔥`;
+  else if (isSlotMatch) slotStr += ` = **${slotMultiplier}x MATCH!** 🔥`;
   responseBody += `${slotStr}\n\n🛍️ **Final Payout:** 🪙 ${goldReward} Gold | ✨ ${xpReward} XP\n`;
 
   if (mobDrops.length > 0) {
