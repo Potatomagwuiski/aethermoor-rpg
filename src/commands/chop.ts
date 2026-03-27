@@ -8,10 +8,10 @@ export async function executeChop(message: Message) {
   const discordId = message.author.id;
   
   // 1. Redis Strict Cooldown Matrix (60 seconds)
-  const cdKey = `cd:chop:${discordId}`;
+  const cdKey = `cd:work:${discordId}`;
   
-  if (await enforceCooldown(cdKey, 60)) {
-       return message.reply(`⛏️ *Your arms are numb. You must wait 2 minutes before swinging your axe again.*`);
+  if (await enforceCooldown(cdKey, 30)) {
+       return message.reply(`⛏️ *Your arms are numb. You must wait 30 seconds before swinging your axe again.*`);
   }
 
   const player = await prisma.player.findUnique({
@@ -230,7 +230,7 @@ export async function executeChop(message: Message) {
     .setTitle(`🪓 The Great Forest`)
     .setColor(isSlotJackpot ? 0xFFD700 : 0x27AE60)
     .setDescription(`You slammed your **${toolName}** into the towering pines. The exertion dealt 🩸 **${exhaustionDamage} DMG** to your health.\n\n${slotMachineString}${highlights}\n\n**Loot Dropped:**\n${dropLog}\n\n**XP Gained:** ✨ ${xpReward}`)
-    .setFooter({ text: '60s Cooldown started.' });
+    .setFooter({ text: '30s Cooldown started.' });
 
   if (levelsGained > 0) {
     embed.addFields({ name: '🌟 LEVEL UP!', value: `You reached Level **${currentLevel + levelsGained}**! (+${levelsGained * 3} Stat Points)` });

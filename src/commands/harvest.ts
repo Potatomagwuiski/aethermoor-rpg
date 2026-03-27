@@ -6,12 +6,12 @@ import { enforceCooldown } from '../utils/cooldown.js';
 export async function executeHarvest(message: Message, args: string[]) {
   const discordId = message.author.id;
   // 1. Redis Strict Cooldown Matrix (60 seconds)
-  const cdKey = `cd:harvest:${discordId}`;
+  const cdKey = `cd:work:${discordId}`;
   
   try {
       const isCooldown = await redisClient.get(cdKey);
       if (isCooldown) {
-          return message.reply(`⛏️ *Your arms are numb. You must wait a minute before gathering again.*`);
+          return message.reply(`⛏️ *Your arms are numb. You must wait 30 seconds before gathering again.*`);
       }
       await redisClient.setEx(cdKey, 60, '1'); // 60 second cooldown
   } catch (e) {

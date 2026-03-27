@@ -8,10 +8,10 @@ export async function executeMine(message: Message) {
   const discordId = message.author.id;
   
   // 1. Redis Strict Cooldown Matrix (60 seconds)
-  const cdKey = `cd:mine:${discordId}`;
+  const cdKey = `cd:work:${discordId}`;
   
-  if (await enforceCooldown(cdKey, 60)) {
-       return message.reply(`⛏️ *Your arms are numb. You must wait 2 minutes before swinging your pickaxe again.*`);
+  if (await enforceCooldown(cdKey, 30)) {
+       return message.reply(`⛏️ *Your arms are numb. You must wait 30 seconds before swinging your pickaxe again.*`);
   }
 
   const player = await prisma.player.findUnique({
@@ -235,7 +235,7 @@ export async function executeMine(message: Message) {
     .setTitle(`⛏️ The Mines`)
     .setColor(isSlotJackpot ? 0xFFD700 : 0x7F8C8D)
     .setDescription(`You slammed your **${toolName}** into the cavern walls. The exertion dealt 🩸 **${exhaustionDamage} DMG** to your health.\n\n${slotMachineString}${highlights}\n\n**Loot Dropped:**\n${dropLog}\n\n**XP Gained:** ✨ ${xpReward}`)
-    .setFooter({ text: '60s Cooldown started.' });
+    .setFooter({ text: '30s Cooldown started.' });
 
   if (levelsGained > 0) {
     embed.addFields({ name: '🌟 LEVEL UP!', value: `You reached Level **${currentLevel + levelsGained}**! (+${levelsGained * 3} Stat Points)` });
