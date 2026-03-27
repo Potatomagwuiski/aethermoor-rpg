@@ -128,25 +128,25 @@ export async function execute(message: Message) {
   // --- MONSTER GENERATION HOIST ---
   const ZONED_MOBS: Record<string, any[]> = {
     lumina_plains: [
-      { name: 'Acid Slime', emoji: '💧', loot: [{ key: 'beast_core', name: 'Beast Core', chance: 0.5 }] },
-      { name: 'Goblin Scout', emoji: '👺', loot: [{ key: 'beast_core', name: 'Beast Core', chance: 0.4 }] },
-      { name: 'Cave Bat', emoji: '🦇', loot: [{ key: 'beast_core', name: 'Beast Core', chance: 0.4 }] }
+      { name: 'Acid Slime', emoji: '💧', loot: [{ key: 'slime_gel', name: 'Slime Gel', chance: 0.5 }] },
+      { name: 'Goblin Scout', emoji: '👺', loot: [{ key: 'goblin_ear', name: 'Goblin Ear', chance: 0.4 }] },
+      { name: 'Cave Bat', emoji: '🦇', loot: [{ key: 'bat_wing', name: 'Bat Wing', chance: 0.4 }] }
     ],
     whispering_woods: [
-      { name: 'Dire Wolf', emoji: '🐺', loot: [{ key: 'beast_core', name: 'Beast Core', chance: 0.4 }] },
-      { name: 'Forest Treant', emoji: '🌳', loot: [{ key: 'beast_core', name: 'Beast Core', chance: 0.3 }] }
+      { name: 'Dire Wolf', emoji: '🐺', loot: [{ key: 'wolf_pelt', name: 'Wolf Pelt', chance: 0.4 }] },
+      { name: 'Forest Treant', emoji: '🌳', loot: [{ key: 'living_bark', name: 'Living Bark', chance: 0.3 }] }
     ],
     ironpeak_mountains: [
-      { name: 'Skeleton Warrior', emoji: '💀', loot: [{ key: 'monster_core', name: 'Monster Core', chance: 0.5 }] },
-      { name: 'Rock Golem', emoji: '🪨', loot: [{ key: 'monster_core', name: 'Monster Core', chance: 0.3 }] }
+      { name: 'Skeleton Warrior', emoji: '💀', loot: [{ key: 'brittle_bone', name: 'Brittle Bone', chance: 0.5 }] },
+      { name: 'Rock Golem', emoji: '🪨', loot: [{ key: 'golem_rubble', name: 'Golem Rubble', chance: 0.3 }] }
     ],
     ashen_wastes: [
-      { name: 'Lesser Demon', emoji: '👿', loot: [{ key: 'abyssal_core', name: 'Abyssal Core', chance: 0.4 }] },
-      { name: 'Shadow Stalker', emoji: '🌑', loot: [{ key: 'abyssal_core', name: 'Abyssal Core', chance: 0.3 }] }
+      { name: 'Lesser Demon', emoji: '👿', loot: [{ key: 'demon_horn', name: 'Demon Horn', chance: 0.4 }] },
+      { name: 'Shadow Stalker', emoji: '🌑', loot: [{ key: 'shadow_dust', name: 'Shadow Dust', chance: 0.3 }] }
     ],
     abyssal_depths: [
-      { name: 'Mythic Drake', emoji: '🐉', loot: [{ key: 'void_core', name: 'Void Core', chance: 0.5 }] },
-      { name: 'Abyssal Lich', emoji: '🧙‍♂️', loot: [{ key: 'void_core', name: 'Void Core', chance: 0.4 }] }
+      { name: 'Mythic Drake', emoji: '🐉', loot: [{ key: 'drake_scale', name: 'Drake Scale', chance: 0.5 }] },
+      { name: 'Abyssal Lich', emoji: '🧙‍♂️', loot: [{ key: 'lich_phylactery', name: 'Lich Phylactery', chance: 0.4 }] }
     ]
   };
 
