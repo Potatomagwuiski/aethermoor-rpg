@@ -76,9 +76,11 @@ export async function execute(message: Message) {
         }
 
         if (bp.abilities) {
-            if (['uncommon', 'rare', 'epic', 'legendary'].includes(rarityLabel) && bp.abilities.length > 0) activeAbilities.push(bp.abilities[0]);
-            if (['rare', 'epic', 'legendary'].includes(rarityLabel) && bp.abilities.length > 1) activeAbilities.push(bp.abilities[1]);
-            if (['epic', 'legendary'].includes(rarityLabel) && bp.abilities.length > 2) activeAbilities.push(bp.abilities[2]);
+            if (['common', 'uncommon', 'rare', 'epic', 'legendary'].includes(rarityLabel) && bp.abilities.length > 0) activeAbilities.push(bp.abilities[0]);
+            if (['uncommon', 'rare', 'epic', 'legendary'].includes(rarityLabel) && bp.abilities.length > 1) activeAbilities.push(bp.abilities[1]);
+            if (['rare', 'epic', 'legendary'].includes(rarityLabel) && bp.abilities.length > 2) activeAbilities.push(bp.abilities[2]);
+            if (['epic', 'legendary'].includes(rarityLabel) && bp.abilities.length > 3) activeAbilities.push(bp.abilities[3]);
+            if (['legendary'].includes(rarityLabel) && bp.abilities.length > 4) activeAbilities.push(bp.abilities[4]);
         }
     }
 
