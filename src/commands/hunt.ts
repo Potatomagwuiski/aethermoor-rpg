@@ -47,6 +47,7 @@ export async function execute(message: Message) {
   let armorName = 'Casual Clothes';
   let weaponClass = 'NONE';
   let armorClass = 'NONE';
+  let activeAbilities: string[] = [];
 
   for (const eq of player.equipment || []) {
     gearAtk += eq.bonusAtk;
@@ -66,10 +67,19 @@ export async function execute(message: Message) {
         }
     }
 
-    if (BLUEPRINTS[baseKey] && BLUEPRINTS[baseKey].outputs[rarityLabel]) {
-        const baseStats = BLUEPRINTS[baseKey].outputs[rarityLabel];
-        if (baseStats.dps) gearAtk += baseStats.dps;
-        if (baseStats.defense) gearDef += baseStats.defense;
+    if (BLUEPRINTS[baseKey]) {
+        const bp = BLUEPRINTS[baseKey];
+        if (bp.outputs[rarityLabel]) {
+            const baseStats = bp.outputs[rarityLabel];
+            if (baseStats.dps) gearAtk += baseStats.dps;
+            if (baseStats.defense) gearDef += baseStats.defense;
+        }
+
+        if (bp.abilities) {
+            if (['uncommon', 'rare', 'epic', 'legendary'].includes(rarityLabel) && bp.abilities.length > 0) activeAbilities.push(bp.abilities[0]);
+            if (['rare', 'epic', 'legendary'].includes(rarityLabel) && bp.abilities.length > 1) activeAbilities.push(bp.abilities[1]);
+            if (['epic', 'legendary'].includes(rarityLabel) && bp.abilities.length > 2) activeAbilities.push(bp.abilities[2]);
+        }
     }
 
     if (eq.slot === 'WEAPON') {
@@ -170,8 +180,39 @@ export async function execute(message: Message) {
   if (weaponClass === 'HEAVY_WEAPON') playerBaseOutput += Math.floor(player.str * 2);
   if (weaponClass === 'MAGIC_WEAPON') playerBaseOutput += Math.floor(player.int * 2.5);
 
+  // --- ABILITY INJECTION (PRE-COMBAT) ---
+  let bonusCrit = 0;
+  let bonusEvasion = 0;
+  let bonusDefPerc = 0;
+  let lifestealGained = 0;
+  let abilityHighlights = '';
+
+  for (const ab of activeAbilities) {
+      if (!ab) continue;
+      
+      const pctMatch = ab.match(/\+(\d+)%/);
+      if (pctMatch) {
+          const val = parseInt(pctMatch[1]);
+          if (ab.includes('Evasion') || ab.includes('Dodge')) bonusEvasion += val;
+          if (ab.includes('Critical') || ab.includes('Crit')) bonusCrit += val;
+      }
+      
+      const flatDefMatch = ab.match(/grants (\d+) bonus DEF/i) || ab.match(/blocks (\d+) incoming/i);
+      if (flatDefMatch) gearDef += parseInt(flatDefMatch[1]);
+
+      const flatHpMatch = ab.match(/\+(\d+) Max HP/i);
+      if (flatHpMatch) playerHp += parseInt(flatHpMatch[1]);
+      
+      const reducedDmgMatch = ab.match(/Reduces physical damage taken by (\d+)%/i);
+      if (reducedDmgMatch) bonusDefPerc += parseInt(reducedDmgMatch[1]);
+
+      abilityHighlights += `🔹 \`${ab.split(':')[0].replace(/[*]/g, '').trim()}\` active.\n`;
+  }
+
   // Class Passives prep
   if (armorClass === 'LIGHT_ARMOR') gearEvasion += 15;
+  gearCrit += bonusCrit;
+  gearEvasion += bonusEvasion;
 
   let rounds = 0;
   let totalDamageDealt = 0;
@@ -189,19 +230,37 @@ export async function execute(message: Message) {
     // 1. Player Attacks!
     let roundDps = playerBaseOutput + gearAtk;
     
-    // Weapon Procs
-    if (weaponClass === 'FINESSE_WEAPON' && Math.random() > 0.95 && rounds === 1) {
-      jackpotTriggered = true;
-      roundDps = Math.floor(roundDps * 2.5);
-      jackpotMessage = '🗡️ **ASSASSIN\'S STRIKE!** You found a hidden coin purse! (+15 Bonus Gold multiplier)';
-    } else if (weaponClass === 'HEAVY_WEAPON' && Math.random() > 0.95 && rounds === 1) {
-      jackpotTriggered = true;
-      roundDps = Math.floor(roundDps * 3);
-      craftingItemDrop = "gold_ore"; 
-      jackpotMessage = '🪓 **SUNDERING STRIKE!** You shattered their defenses and salvaged some Gold Ore!';
-    } else if (weaponClass === 'MAGIC_WEAPON' && Math.random() > 0.95 && rounds === 1) {
-      jackpotTriggered = true;
-      jackpotMessage = '🎇 **WILD MAGIC!** You absorbed the chaotic leylines for an EXP Surge!';
+    // Process Active Weapon Abilities!
+    let abilityMsg = '';
+    for (const ab of activeAbilities) {
+        if (!ab) continue;
+        if (ab.includes('Sharpened') || ab.includes('Base Damage')) roundDps += Math.floor(roundDps * 0.05);
+        if (ab.includes('Heavy Strike') && rounds === 1) roundDps += Math.floor(roundDps * 0.10);
+        if (ab.includes('Backstab') && rounds === 1) roundDps += Math.floor(roundDps * 0.25);
+        if (ab.includes('Poison') || ab.includes('Venom')) roundDps += 50;
+        if (ab.includes('Ignite') || ab.includes('Burn')) roundDps += 100;
+        if (ab.includes('Serrated Edge') || ab.includes('Rend') || ab.includes('Bleed')) roundDps += 25;
+        
+        if (ab.includes('Meteor') && Math.random() > 0.90) {
+            roundDps += 1500;
+            if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '🌋 **METEOR IMPACT!** (1500 DMG)'; }
+        }
+        if (ab.includes('Execute') && monsterHp < (monsterMaxHp * 0.30) && Math.random() > 0.90) {
+            roundDps += 9999;
+            if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '💀 **EXECUTED!**'; }
+        }
+        if (ab.includes('Assassinate') && Math.random() > 0.85) {
+            roundDps += 9999;
+            if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '🔪 **ASSASSINATED!**'; }
+        }
+        if (ab.includes('Void Strike') && Math.random() > 0.85) {
+            roundDps += Math.floor(roundDps * 0.50);
+        }
+    }
+
+    if (abilityMsg && !jackpotTriggered) {
+        jackpotTriggered = true;
+        jackpotMessage = abilityMsg;
     }
 
     if (Math.random() * 100 < gearCrit) {
@@ -226,7 +285,21 @@ export async function execute(message: Message) {
     
     // Mitigation Engine (END multiplier halved from x2 to x1 to prevent immortality)
     let mitigation = Math.floor(gearDef * 0.75) + Math.floor(player.end * 1);
-    if (armorClass === 'HEAVY_ARMOR') rawIncoming = Math.floor(rawIncoming * 0.9); // 10% Flat mitigation
+    
+    // Armor Abilities!
+    for (const ab of activeAbilities) {
+        if (!ab) continue;
+        if (ab.includes('Mana Shield')) rawIncoming = Math.floor(rawIncoming * 0.90);
+        if (ab.includes('Sturdy')) rawIncoming = Math.floor(rawIncoming * 0.99);
+        if (ab.includes('Plated')) rawIncoming = Math.floor(rawIncoming * 0.98);
+        if (ab.includes('Hardened')) rawIncoming = Math.floor(rawIncoming * 0.97);
+        if (ab.includes('Alloyed Armor')) rawIncoming = Math.floor(rawIncoming * 0.95);
+        if (ab.includes('Shadow Step') && rounds === 1) rawIncoming = 0;
+        if (ab.includes('Deflection') && Math.random() > 0.98) rawIncoming = Math.floor(rawIncoming * 0.5);
+        if (ab.includes('Smoke Bomb') && Math.random() > 0.85) rawIncoming = 0;
+    }
+
+    if (armorClass === 'HEAVY_ARMOR') rawIncoming = Math.floor(rawIncoming * 0.9); // flat 10% Legacy mitigation
 
     if (Math.random() * 100 < gearEvasion) {
       rawIncoming = 0;
@@ -393,7 +466,7 @@ export async function execute(message: Message) {
   if (buffMessage) extraLoot += `\n${buffMessage}`;
 
   // Dynamic Highlight Reel Compilation
-  let highlights = '';
+  let highlights = abilityHighlights;
   if (totalEvades > 0) highlights += `💨 Evaded **${totalEvades}** Attacks\n`;
   if (totalMitigated > 0) highlights += `🛡️ Blocked **${totalMitigated}** Damage\n`;
   if (totalLifesteal > 0) highlights += `🦇 Siphoned **${totalLifesteal}** HP\n`;

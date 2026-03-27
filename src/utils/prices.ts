@@ -2,6 +2,7 @@ export const ITEM_SELL_PRICES: Record<string, number> = {
     // Basic Materials
     'wood': 2,
     'iron': 5,
+    'iron_ingot': 15,
     'gold_ore': 15,
     'elderwood': 25,
     'moon_herb': 50,
