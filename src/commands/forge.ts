@@ -8,7 +8,7 @@ export const BLUEPRINTS: Record<string, any> = {
   'bronze_sword': {
     name: 'Bronze Sword', materials: { copper: 10, tin: 5, wood: 5 },
     abilities: [
-      '✨ **Balanced**: +2% Hit Accuracy',
+      '✨ **Balanced**: +5% Critical Hit Chance',
       '✨ **Sharpened**: +5% Base Damage',
       '🛡️ **Parry**: 5% chance to negate a physical attack',
       '⚔️ **Cleave**: Deals 10% splash damage to subsequent enemies',
@@ -132,7 +132,7 @@ export const BLUEPRINTS: Record<string, any> = {
     name: 'Moonlight Staff', requiredBlueprint: 'blueprint_moonlight_staff', materials: { ashwood: 15, moon_herb: 5, living_wood: 2 },
     abilities: [
       '🌙 **Glimmer**: +5 Max HP',
-      '✨ **Lunar Glow**: +10% Evasion at Night',
+      '✨ **Nightshade**: +10% Dodge Chance',
       '💧 **Serenity**: Heals 10 HP per combat round',
       '🌙 **Eclipse**: 10% chance to blind the enemy, halving their accuracy',
       '🌟 **Full Moon**: 100% Critical Hit chance on the first 3 turns'
@@ -142,7 +142,7 @@ export const BLUEPRINTS: Record<string, any> = {
   'meteor_staff': {
     name: 'Meteor Staff', requiredBlueprint: 'blueprint_meteor_staff', materials: { elderwood: 20, mythic_dragon_scale: 1, rare_meteorite_ingot: 1 },
     abilities: [
-      '🔥 **Warmth**: Immune to Freeze',
+      '🔥 **Molten Core**: 10% chance to cast a 25 DMG fireball on attack',
       '✨ **Meteor**: 10% chance to cast a massive 1500 DMG AoE',
       '🔥 **Ignite**: Burns monster for 100 DMG per round',
       '🌋 **Apocalypse**: Meteor chance increases to 30% against Bosses',
@@ -179,7 +179,7 @@ export const BLUEPRINTS: Record<string, any> = {
       '✨ **Reap**: Heals for 10% of damage dealt',
       '💀 **Grave Digger**: +25% DMG against Undead',
       '👻 **Soul Rend**: Permanent +1 ATK for every fight won with this weapon',
-      '🌟 **Spirit Bind**: 20% chance to tame enemy into a pet'
+      '🌟 **Necromancy**: 20% chance to survive a fatal blow via Undying'
     ],
     outputs: { rare: { key: 'rare_soul_reaper', name: '🟦 [Rare Soul Reaper]', dps: 150 }, epic: { key: 'epic_soul_reaper', name: '🟪 [Epic Soul Reaper]', dps: 260 } }
   },
@@ -187,7 +187,7 @@ export const BLUEPRINTS: Record<string, any> = {
     name: 'Lich Tome', requiredBlueprint: 'blueprint_lich_tome', materials: { elderwood: 10, mythril: 10, shadow_dust: 20, void_fragment: 2 },
     abilities: [
       '💀 **Dark Whisper**: +5 INT',
-      '✨ **Soul Siphon**: Converts 15% of damage dealt into healing',
+      '✨ **Soul Devourer**: Converts 15% of damage dealt into healing',
       '🛡️ **Bone Armor**: Converts 50% of INT into DEF',
       '💀 **Phylactery**: Revive exactly once per battle with 50% HP',
       '🌟 **Deathless King**: Revive with 100% HP and double damage'
@@ -234,9 +234,9 @@ export const BLUEPRINTS: Record<string, any> = {
     abilities: [
       '✨ **Polished**: +5 DEF',
       '✨ **Alloyed Armor**: Reduces physical damage taken by 5%',
-      '🔥 **Fireproof**: Immune to burn effects',
+      '🔥 **Fireproof**: Reduces incoming damage by 5%',
       '⚡ **Reflective Coating**: Reflects 5% of melee damage back to the attacker',
-      '🌟 **Steel Resolve**: Immune to all debuffs and +20% Max HP'
+      '🌟 **Steel Resolve**: Reduces incoming damage by 15%'
     ],
     outputs: { common: { key: 'common_steel_chestplate', name: '⬜ [Common Steel Chestplate]', defense: 65 }, uncommon: { key: 'uncommon_steel_chestplate', name: '🟩 [Uncommon Steel Chestplate]', defense: 120 }, rare: { key: 'rare_steel_chestplate', name: '🟦 [Rare Steel Chestplate]', defense: 240 }, epic: { key: 'epic_steel_chestplate', name: '🟪 [Epic Steel Chestplate]', defense: 450 } }
   },
@@ -247,7 +247,7 @@ export const BLUEPRINTS: Record<string, any> = {
       '✨ **March**: +2% Evasion',
       '🏃 **Agility**: +1 Base ATK due to faster speed',
       '💨 **Fleetfoot**: Pre-emptively strikes the enemy for 5 DMG at combat start',
-      '🌟 **Windrunner**: 100% chance to act first, even against Bosses'
+      '🌟 **Windrunner**: 15% chance to strike a second time'
     ],
     outputs: { common: { key: 'common_bronze_boots', name: '⬜ [Common Bronze Boots]', defense: 4 }, uncommon: { key: 'uncommon_bronze_boots', name: '🟩 [Uncommon Bronze Boots]', defense: 8 }, rare: { key: 'rare_bronze_boots', name: '🟦 [Rare Bronze Boots]', defense: 16 }, epic: { key: 'epic_bronze_boots', name: '🟪 [Epic Bronze Boots]', defense: 32 } }
   },
@@ -256,11 +256,11 @@ export const BLUEPRINTS: Record<string, any> = {
   'apprentice_robe': {
     name: 'Apprentice Robe', materials: { wood: 15, basic_herb: 5, bat_wing: 2 },
     abilities: [
-      '✨ **Light Fabric**: +1 Max Mana',
+      '✨ **Light Fabric**: +1 Max Energy',
       '✨ **Mana Shield**: Reduces incoming damage by 10%',
       '💧 **Clear Mind**: +5% Energy Regen per round',
       '🔮 **Arcane Focus**: Spells cost 10% less Mana',
-      '🌟 **Archmage**: Spells have a 10% chance to cost 0 Mana'
+      '🌟 **Archmage**: +15 Max Energy'
     ],
     outputs: { common: { key: 'common_apprentice_robe', name: '⬜ [Common Apprentice Robe]', defense: 4 }, uncommon: { key: 'uncommon_apprentice_robe', name: '🟩 [Uncommon Apprentice Robe]', defense: 8 }, rare: { key: 'rare_apprentice_robe', name: '🟦 [Rare Apprentice Robe]', defense: 16 }, epic: { key: 'epic_apprentice_robe', name: '🟪 [Epic Apprentice Robe]', defense: 32 } }
   },
@@ -304,7 +304,7 @@ export const BLUEPRINTS: Record<string, any> = {
     abilities: [
       '✨ **Camouflage**: +2% Dodge Chance',
       '✨ **Shadow Step**: 100% Dodge First Attack',
-      '🐺 **Lone Wolf**: +15% ALL Stats if fighting without a pet',
+      '🐺 **Lone Wolf**: +15% Base Damage',
       '🗡️ **Ambush**: First attack always lands as a Critical Hit',
       '🌟 **Unseen Predator**: Stealth cannot be broken on the first attack'
     ],

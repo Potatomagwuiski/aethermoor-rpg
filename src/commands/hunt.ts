@@ -208,6 +208,7 @@ export async function execute(message: Message) {
       
       const flatDefMatch = ab.match(/grants (\d+) bonus DEF/i) || ab.match(/blocks (\d+) incoming/i);
       if (flatDefMatch) gearDef += parseInt(flatDefMatch[1]);
+      if (ab.includes('Stalwart')) gearDef += 5;
 
       const flatHpMatch = ab.match(/\+(\d+) Max HP/i);
       if (flatHpMatch) playerHp += parseInt(flatHpMatch[1]);
@@ -224,7 +225,10 @@ export async function execute(message: Message) {
       if (ab.includes('Reap')) gearLifesteal += 10;
       if (ab.includes('Attuned')) player.energy += 5;
       if (ab.includes('Woven Magic')) player.energy += 5;
+      if (ab.includes('Light Fabric')) player.energy += 1;
+      if (ab.includes('Archmage')) player.energy += 15;
       if (ab.includes('Dark Whisper')) player.int += 5;
+      if (ab.includes('Soul Devourer')) gearLifesteal += 15;
       if (ab.includes('Bone Armor')) gearDef += Math.floor(player.int * 0.5);
       if (ab.includes('Veil of Night')) {
           const evTransfer = Math.floor(gearEvasion * 0.2);
@@ -260,6 +264,8 @@ export async function execute(message: Message) {
         if (!ab) continue;
         if (ab.includes('Sharpened') || ab.includes('Base Damage')) roundDps += Math.floor(roundDps * 0.05);
         if (ab.includes('Heavy Strike') && rounds === 1) roundDps += Math.floor(roundDps * 0.10);
+        if (ab.includes('Fleetfoot') && rounds === 1) { monsterHp -= 5; totalDamageDealt += 5; }
+        if (ab.includes('Lone Wolf')) roundDps += Math.floor(roundDps * 0.15);
         if (ab.includes('Backstab') && rounds === 1) roundDps += Math.floor(roundDps * 0.25);
         
         if (ab.includes('Assassin') && weaponClass === 'FINESSE_WEAPON') {
@@ -304,7 +310,7 @@ export async function execute(message: Message) {
         if (ab.includes('Mana Tap') || ab.includes('Serenity')) {
             playerHp = Math.min(player.maxHp, playerHp + 10);
         }
-        if (ab.includes('Ember')) {
+        if (ab.includes('Ember') || ab.includes('Molten Core')) {
             roundDps += 25;
         }
         if (ab.includes('Arcane Overflow') && Math.random() > 0.90) {
@@ -353,6 +359,10 @@ export async function execute(message: Message) {
         }
         if (ab.includes('Abyssal Echo') && Math.random() > 0.75) {
             roundDps *= 2;
+        }
+        if (ab.includes('Windrunner') && Math.random() > 0.85) {
+            roundDps *= 2;
+            if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '🌟 **WINDRUNNER!** (Attacked Twice!)'; }
         }
     }
 
@@ -408,6 +418,9 @@ export async function execute(message: Message) {
         if (ab.includes('Bulwark') && Math.random() > 0.95) rawIncoming = 0;
         if (ab.includes('Unbreakable') && playerHp < (player.maxHp * 0.25)) mitigation += 50;
         if (ab.includes('Lord of Death') && rounds === 1) mitigation += 100;
+        if (ab.includes('Parry') && Math.random() > 0.95) rawIncoming = 0;
+        if (ab.includes('Fireproof')) rawIncoming = Math.floor(rawIncoming * 0.95);
+        if (ab.includes('Steel Resolve')) rawIncoming = Math.floor(rawIncoming * 0.85);
     }
 
     if (bonusDefPerc > 0) {
@@ -493,11 +506,18 @@ export async function execute(message: Message) {
   if (armorClass === 'CLOTH') {
     playerHp = Math.min(player.maxHp, playerHp + Math.floor(player.maxHp * 0.05)); // Mana Shield regen
   }
+  if (activeAbilities.join(',').includes('Arcane Recovery')) {
+    playerHp = Math.min(player.maxHp, playerHp + Math.floor(player.maxHp * 0.05));
+  }
 
   let baseGold = 5 * tier;
   let baseXP = Math.floor(Math.random() * 21 * tier) + (15 * tier); 
   let goldReward = baseGold * slotMultiplier;
   let xpReward = baseXP * slotMultiplier;
+  
+  if (activeAbilities.join(',').includes('Harvest')) goldReward = Math.floor(goldReward * 1.05);
+  if (activeAbilities.join(',').includes('Tracker') && (mob.name.includes('Wolf') || mob.name.includes('Beast') || mob.name.includes('Bear') || mob.name.includes('Slime'))) xpReward = Math.floor(xpReward * 1.05);
+  if (activeAbilities.join(',').includes('Grim Memento') && (mob.name.includes('Lich') || mob.name.includes('Undead') || mob.name.includes('Skeleton') || mob.name.includes('Ghoul'))) xpReward = Math.floor(xpReward * 1.50);
 
   if (jackpotTriggered && weaponClass === 'FINESSE_WEAPON') goldReward += 15 * slotMultiplier;
   if (jackpotTriggered && weaponClass === 'MAGIC_WEAPON') xpReward += 15 * slotMultiplier;
