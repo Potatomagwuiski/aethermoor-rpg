@@ -499,10 +499,27 @@ export async function executeForge(message: Message, args: string[]) {
   else if (resultOutput.key.includes('epic')) embedColor = 0x9B59B6; // Purple
   else if (resultOutput.key.includes('legendary')) embedColor = 0xF1C40F; // Gold
 
+  let flavorTitle = "🔨 Forge Completed:";
+  let flavorDesc = "*The Blacksmith's hammer rings out. Sparks fly as arcane energy fuses with the raw ore, violently cooling into its final form.*";
+
+  if (recipeId.includes('leather') || recipeId.includes('tunic') || recipeId.includes('boots')) {
+    flavorTitle = "🧵 Tailoring Completed:";
+    flavorDesc = "*The artisan carefully stitches the protective materials, weaving resilient enchantments directly into the seams.*";
+  } else if (recipeId.includes('robe') || recipeId.includes('mantle') || recipeId.includes('cloak')) {
+    flavorTitle = "✨ Weaving Completed:";
+    flavorDesc = "*Arcane threads spin rapidly on the loom. The fabric glows faintly as mystical energy is permanently bound within its folds.*";
+  } else if (recipeId.includes('staff') || recipeId.includes('tome') || recipeId.includes('scythe')) {
+    flavorTitle = "🔮 Enchantment Completed:";
+    flavorDesc = "*The ancient conduit hums with power as the final runic inscription burns into existence in a flash of deep purple light.*";
+  } else if (recipeId.includes('wood') || recipeId.includes('bow')) {
+    flavorTitle = "🏹 Fletcher Completed:";
+    flavorDesc = "*The craftsman flexes the timber, perfectly balancing the weapon's weight and tension before sealing it with enchanted sap.*";
+  }
+
   const resultEmbed = new EmbedBuilder()
-    .setTitle(`🔨 Forge Completed: ${blueprint.name}`)
+    .setTitle(`${flavorTitle} ${blueprint.name}`)
     .setColor(embedColor)
-    .setDescription(`*The Blacksmith's hammer rings out. Sparks fly as arcane energy fuses with the raw ore, violently cooling into its final form.*\n\n🎲 **Forging Roll:** \`${roll} / 100\`\n${logAddition}`)
+    .setDescription(`${flavorDesc}\n\n🎲 **Forging Roll:** \`${roll} / 100\`\n${logAddition}`)
     .addFields({ name: '✨ Forged Output', value: `> ${getEmoji(recipeId)} **${finalName}**\n> ${statLog}` });
 
   return message.reply({ embeds: [resultEmbed] });
