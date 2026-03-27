@@ -26,7 +26,7 @@ export async function execute(message: Message) {
   }
 
   const cdKey = `cooldown:hunt:${discordId}`;
-  if (await enforceCooldown(cdKey, 120)) {
+  if (await enforceCooldown(cdKey, 60)) {
     return message.reply('⏳ **Exhausted!** You are still recovering from your last hunt. Wait a few seconds!');
   }
 
