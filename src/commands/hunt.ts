@@ -558,28 +558,30 @@ export async function execute(message: Message) {
   }
 
   // THE GACHA SYSTEM
-  const COMMON_BPS = [
+  const TIER2_BPS = [
     { key: 'blueprint_iron_pickaxe', name: 'Iron Pickaxe' },
-    { key: 'blueprint_iron_axe', name: 'Iron Axe' }
-  ];
-  const UNCOMMON_BPS = [
+    { key: 'blueprint_iron_axe', name: 'Iron Axe' },
     { key: 'blueprint_iron_greatsword', name: 'Iron Greatsword' },
+    { key: 'blueprint_wolf_slayer', name: 'Wolf Slayer Sword' },
     { key: 'blueprint_venom_shiv', name: 'Venom Shiv' },
-    { key: 'blueprint_moonlight_staff', name: 'Moonlight Staff' },
-    { key: 'blueprint_soul_reaper', name: 'Soul Reaper' },
-    { key: 'blueprint_scout_cloak', name: 'Scout Cloak' },
     { key: 'blueprint_mystic_robe', name: 'Mystic Robe' },
-    { key: 'blueprint_iron_chestplate', name: 'Iron Chestplate' }
+    { key: 'blueprint_iron_chestplate', name: 'Iron Chestplate' },
+    { key: 'blueprint_steel_chestplate', name: 'Steel Chestplate' }
   ];
-  const EPIC_BPS = [
+  const TIER3_BPS = [
+    { key: 'blueprint_mythril_pickaxe', name: 'Mythril Pickaxe' },
+    { key: 'blueprint_mythril_axe', name: 'Mythril Axe' },
     { key: 'blueprint_mythril_cleaver', name: 'Mythril Cleaver' },
     { key: 'blueprint_shadow_blade', name: 'Shadow Blade' },
+    { key: 'blueprint_moonlight_staff', name: 'Moonlight Staff' },
     { key: 'blueprint_meteor_staff', name: 'Meteor Staff' },
+    { key: 'blueprint_soul_reaper', name: 'Soul Reaper' },
     { key: 'blueprint_lich_tome', name: 'Lich Tome' },
-    { key: 'blueprint_wolf_slayer', name: 'Wolf Slayer Sword' },
-    { key: 'blueprint_steel_chestplate', name: 'Steel Chestplate' },
-    { key: 'blueprint_shadow_tunic', name: 'Shadow Tunic' },
-    { key: 'blueprint_lich_mantle', name: 'Lich Mantle' }
+    { key: 'blueprint_lich_mantle', name: 'Lich Mantle' },
+    { key: 'blueprint_shadow_tunic', name: 'Shadow Tunic' }
+  ];
+  const TIER4_BPS = [
+    { key: 'blueprint_void_blade', name: 'Void Blade' }
   ];
   
   let gachaLootString = '';
@@ -587,16 +589,19 @@ export async function execute(message: Message) {
     const rarityRoll = Math.random();
     let dropKey = '';
     
-    if (tier >= 3 && rarityRoll > 0.99) {
-      gachaLootString = '🟧 `[✨ Blueprint: Void Blade ✨]`'; dropKey = 'blueprint_void_blade';
-    } else if (tier >= 3 && rarityRoll > 0.90) {
-      const bp = EPIC_BPS[Math.floor(Math.random() * EPIC_BPS.length)]; gachaLootString = `🟪 \`[Blueprint: ${bp.name}]\``; dropKey = bp.key;
-    } else if (tier >= 2 && rarityRoll > 0.70) {
-      const bp = UNCOMMON_BPS[Math.floor(Math.random() * UNCOMMON_BPS.length)]; gachaLootString = `🟦 \`[Blueprint: ${bp.name}]\``; dropKey = bp.key;
-    } else if (rarityRoll > 0.95) {
+    // Geographical Tier Locking Match
+    let BP_POOL: any[] | null = null;
+    let rankColor = '⬜';
+    if (tier === 2) { BP_POOL = TIER2_BPS; rankColor = '🟦'; }
+    if (tier === 3) { BP_POOL = TIER3_BPS; rankColor = '🟪'; }
+    if (tier >= 4) { BP_POOL = TIER4_BPS; rankColor = '🟧'; }
+
+    if (rarityRoll > 0.95) {
       gachaLootString = '🗝️ `[Dungeon Key]`'; dropKey = 'dungeon_key';
-    } else {
-      const bp = COMMON_BPS[Math.floor(Math.random() * COMMON_BPS.length)]; gachaLootString = `⬜ \`[Blueprint: ${bp.name}]\``; dropKey = bp.key;
+    } else if (BP_POOL !== null) {
+      const bp = BP_POOL[Math.floor(Math.random() * BP_POOL.length)]; 
+      gachaLootString = `${rankColor} \`[Blueprint: ${bp.name}]\``; 
+      dropKey = bp.key;
     }
 
     if (dropKey) {
