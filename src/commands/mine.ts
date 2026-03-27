@@ -135,7 +135,7 @@ export async function executeMine(message: Message) {
       if (ab.includes('Planet Cracker') && Math.random() > 0.95) { multiBonus *= 500; abilityHighlights += `🌟 \`Planet Cracker\` obliterated the zone! (500x Yield)\n`; }
       
       if (ab.includes('Overload') && Math.random() > 0.95) { isOverload = true; abilityHighlights += `🌟 \`Overload\` triggered a massive 10x Yield Boost!\n`; }
-      if (ab.includes('Hardened Tip')) { noDamage = true; }
+      if (ab.includes('Tireless Swing')) { noDamage = true; abilityHighlights += `💎 \`Tireless Swing\` prevented Exhaustion!\n`; }
       if (ab.includes('Earth Sense') && Math.random() > 0.90) { hiddenGem = true; abilityHighlights += `💎 \`Earth Sense\` found hidden gems!\n`; }
   }
 

@@ -327,7 +327,7 @@ export const BLUEPRINTS: Record<string, any> = {
     abilities: [
       '⛏️ **Prospect**: 5% chance for double ore',
       '⛏️ **Miner**: +1 Base Yield',
-      '💎 **Hardened Tip**: Mining never takes durability damage',
+      '💎 **Tireless Swing**: Mining never costs Exhaustion',
       '🪨 **Earth Sense**: 10% chance to find hidden gems',
       '🌟 **Mother Lode**: 1% chance to yield 50x ore'
     ],
@@ -360,7 +360,7 @@ export const BLUEPRINTS: Record<string, any> = {
     abilities: [
       '🪓 **Chop**: 5% chance for double wood',
       '🪓 **Lumberjack**: +1 Base Yield',
-      '🌳 **Sharp Blade**: Chopping never takes durability damage',
+      '🌳 **Evergreen Stamina**: Chopping never costs Exhaustion',
       '🍃 **Natures Bounty**: 10% chance to find hidden seeds',
       '🌟 **Timber!**: 1% chance to yield 50x wood'
     ],

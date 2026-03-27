@@ -135,7 +135,7 @@ export async function executeChop(message: Message) {
       if (ab.includes('World Tree Bane') && Math.random() > 0.95) { multiBonus *= 500; abilityHighlights += `🌟 \`World Tree Bane\` annihilated nature! (500x Yield)\n`; }
       
       if (ab.includes('Overload') && Math.random() > 0.95) { isOverload = true; abilityHighlights += `🌟 \`Overload\` triggered a massive 10x Yield Boost!\n`; }
-      if (ab.includes('Sharp Blade')) { noDamage = true; }
+      if (ab.includes('Evergreen Stamina')) { noDamage = true; abilityHighlights += `🌳 \`Evergreen Stamina\` prevented Exhaustion!\n`; }
       if (ab.includes('Natures Bounty') && Math.random() > 0.90) { hiddenGem = true; abilityHighlights += `🍃 \`Natures Bounty\` found hidden seeds!\n`; }
   }
 
