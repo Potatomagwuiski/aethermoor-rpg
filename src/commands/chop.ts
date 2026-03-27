@@ -106,8 +106,8 @@ export async function executeChop(message: Message) {
 
   // 3. Mathematical Drops
   let activeAbilities: string[] = [];
-  if (hasAxe && player.tools[0].activeAbilities) {
-      activeAbilities = player.tools[0].activeAbilities as string[];
+  if (hasAxe && (player.tools[0] as any).activeAbilities) {
+      activeAbilities = (player.tools[0] as any).activeAbilities as string[];
   }
 
   let bonusYield = 0;
@@ -115,11 +115,28 @@ export async function executeChop(message: Message) {
   let isOverload = false;
   let abilityHighlights = '';
 
+  let multiBonus = 1;
+  let noDamage = false;
+  let hiddenGem = false;
+
   for (const ab of activeAbilities) {
       if (!ab) continue;
       if (ab.includes('Lumberjack')) { bonusYield += 1; abilityHighlights += `🔹 \`Lumberjack\` added +1 Base Yield!\n`; }
       if (ab.includes('Arborist') && Math.random() > 0.85) { autoEpic = true; abilityHighlights += `🌳 \`Arborist\` procured a guaranteed Epic Wood!\n`; }
+      
+      if (ab.includes('Chop') && Math.random() > 0.95) { multiBonus *= 2; abilityHighlights += `🔹 \`Chop\` doubled the wood!\n`; }
+      if (ab.includes('Heavy Chop') && Math.random() > 0.90) { multiBonus *= 2; abilityHighlights += `🔹 \`Heavy Chop\` doubled the wood!\n`; }
+      if (ab.includes('Pristine Chop') && Math.random() > 0.85) { multiBonus *= 2; abilityHighlights += `🔹 \`Pristine Chop\` doubled the wood!\n`; }
+      
+      if (ab.includes('Clearcut') && Math.random() > 0.95) { multiBonus *= 4; abilityHighlights += `🌳 \`Clearcut\` quadrupled the wood!\n`; }
+      
+      if (ab.includes('Timber!') && Math.random() > 0.99) { multiBonus *= 50; abilityHighlights += `🌟 \`Timber!\` felled the forest! (50x Yield)\n`; }
+      if (ab.includes('Deforestation') && Math.random() > 0.98) { multiBonus *= 100; abilityHighlights += `🌟 \`Deforestation\` cleared the zone! (100x Yield)\n`; }
+      if (ab.includes('World Tree Bane') && Math.random() > 0.95) { multiBonus *= 500; abilityHighlights += `🌟 \`World Tree Bane\` annihilated nature! (500x Yield)\n`; }
+      
       if (ab.includes('Overload') && Math.random() > 0.95) { isOverload = true; abilityHighlights += `🌟 \`Overload\` triggered a massive 10x Yield Boost!\n`; }
+      if (ab.includes('Sharp Blade')) { noDamage = true; }
+      if (ab.includes('Natures Bounty') && Math.random() > 0.90) { hiddenGem = true; abilityHighlights += `🍃 \`Natures Bounty\` found hidden seeds!\n`; }
   }
 
   if (isOverload) {
@@ -137,12 +154,16 @@ export async function executeChop(message: Message) {
     if (roll > 95 || autoEpic) baseEpic = 1; 
   }
 
-  const finalPrimary = Math.floor(basePrimary * yieldMultiplier * slotMultiplier);
-  const finalSecondary = Math.floor(baseSecondary * yieldMultiplier * slotMultiplier);
-  const finalEpic = Math.floor(baseEpic * yieldMultiplier * slotMultiplier);
+  const finalPrimary = Math.floor(basePrimary * yieldMultiplier * slotMultiplier * multiBonus);
+  const finalSecondary = Math.floor(baseSecondary * yieldMultiplier * slotMultiplier * multiBonus);
+  const finalEpic = Math.floor(baseEpic * yieldMultiplier * slotMultiplier * multiBonus);
+  
+  if (hiddenGem) {
+      baseEpic += 1;
+  }
   
   const xpReward = 5 * toolTierRequired * slotMultiplier;
-  const exhaustionDamage = 2 * toolTierRequired; 
+  const exhaustionDamage = noDamage ? 0 : 2 * toolTierRequired; 
 
   // 4. Database Transactions
   const ops: any[] = [];

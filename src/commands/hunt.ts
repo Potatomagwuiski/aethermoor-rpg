@@ -215,8 +215,22 @@ export async function execute(message: Message) {
       const reducedDmgMatch = ab.match(/physical damage by (\d+)%/i) || ab.match(/physical damage taken by (\d+)%/i);
       if (reducedDmgMatch) bonusDefPerc += parseInt(reducedDmgMatch[1]);
 
-      if (ab.includes('Undying')) hasUndying = true;
+      if (ab.includes('Undying') || ab.includes('Phylactery')) hasUndying = true;
       if (ab.includes('Lich King')) hasLichKing = true;
+      
+      // New Pre-Combat Abilities
+      if (ab.includes('Bloodlust')) gearLifesteal += 5;
+      if (ab.includes('Void Touched')) gearLifesteal += 5;
+      if (ab.includes('Reap')) gearLifesteal += 10;
+      if (ab.includes('Attuned')) player.energy += 5;
+      if (ab.includes('Woven Magic')) player.energy += 5;
+      if (ab.includes('Dark Whisper')) player.int += 5;
+      if (ab.includes('Bone Armor')) gearDef += Math.floor(player.int * 0.5);
+      if (ab.includes('Veil of Night')) {
+          const evTransfer = Math.floor(gearEvasion * 0.2);
+          gearEvasion -= evTransfer;
+          gearDef += evTransfer;
+      }
   }
 
   // Class Passives prep
@@ -261,10 +275,47 @@ export async function execute(message: Message) {
         if (ab.includes('Ignite') || ab.includes('Burn')) {
             const b = 100; roundDps += b; totalBurnDamage += b;
         }
-        if (ab.includes('Serrated Edge') || ab.includes('Rend') || ab.includes('Bleed') || ab.includes('Deep Wounds')) {
+        if (ab.includes('Serrated Edge') || ab.includes('Rend') || ab.includes('Bleed') || ab.includes('Deep Wounds') || ab.includes('Grievous')) {
             const dmgMatch = ab.match(/(\d+) DMG/);
             const bl = dmgMatch ? parseInt(dmgMatch[1]) : 25;
             roundDps += bl; totalBleedDamage += bl;
+        }
+        
+        // --- NEW WEAPON ABILITIES ---
+        if (ab.includes('Cleave') && !mob.name.includes('Boss')) {
+            roundDps += Math.floor(roundDps * 0.10);
+        }
+        if (ab.includes('Beastbane') && (mob.name.includes('Wolf') || mob.name.includes('Beast') || mob.name.includes('Bear'))) {
+            roundDps += Math.floor(roundDps * 0.50);
+        }
+        if (ab.includes('Grave Digger') && (mob.name.includes('Lich') || mob.name.includes('Skeleton') || mob.name.includes('Ghoul'))) {
+            roundDps += Math.floor(roundDps * 0.25);
+        }
+        if (ab.includes('Mythril Edge') || ab.includes('Spectral Edge')) {
+            roundDps += Math.floor(roundDps * 0.10);
+        }
+        if (ab.includes('Armor Breaker') && rounds === 1) {
+            roundDps = Math.floor(roundDps * 1.50);
+            abilityMsg += '🌟 `Armor Breaker` shattered enemy defenses!';
+        }
+        if (ab.includes('Alpha Predator') && (mob.name.includes('Wolf') || mob.name.includes('Beast') || mob.name.includes('Bear'))) {
+            roundDps += Math.floor(roundDps * 0.25);
+        }
+        if (ab.includes('Mana Tap') || ab.includes('Serenity')) {
+            playerHp = Math.min(player.maxHp, playerHp + 10);
+        }
+        if (ab.includes('Ember')) {
+            roundDps += 25;
+        }
+        if (ab.includes('Arcane Overflow') && Math.random() > 0.90) {
+            roundDps += 125;
+            abilityMsg += '🌟 `Arcane Overflow` triggered 5x Embers!';
+        }
+        if (ab.includes('Plague')) {
+            monsterAttackPower = Math.floor(monsterAttackPower * 0.90);
+        }
+        if (ab.includes('Eclipse') && Math.random() > 0.90) {
+            monsterAttackPower = Math.floor(monsterAttackPower * 0.50);
         }
         
         let meteorChance = ab.includes('Apocalypse') && (mob.name.includes('Drake') || mob.name.includes('Lich')) ? 0.70 : 0.90;
@@ -272,9 +323,14 @@ export async function execute(message: Message) {
             roundDps += 1500;
             if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '🌋 **METEOR IMPACT!** (1500 DMG)'; }
         }
-        if (ab.includes('Execute') && monsterHp < (monsterMaxHp * 0.30) && Math.random() > 0.90) {
+        let executeThreshold = ab.includes('True Death') ? 0.40 : 0.30;
+        if (ab.includes('Execute') && monsterHp < (monsterMaxHp * executeThreshold) && Math.random() > 0.90) {
             roundDps += 9999;
             if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '💀 **EXECUTED!**'; }
+        }
+        if (ab.includes('Event Horizon') && Math.random() > 0.95 && !mob.name.includes('Boss')) {
+            monsterHp = 0;
+            if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '🌑 **EVENT HORIZON!** (Banished)'; }
         }
         if (ab.includes('Assassinate') && Math.random() > 0.85) {
             roundDps += 9999;
@@ -283,6 +339,26 @@ export async function execute(message: Message) {
         if (ab.includes('Void Strike') && Math.random() > 0.85) {
             roundDps += Math.floor(roundDps * 0.50);
         }
+        if (ab.includes('Heroic Legacy') && Math.random() > 0.95) {
+            roundDps *= 2;
+            if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '🌟 **HEROIC LEGACY!** (Damage Doubled!)'; }
+        }
+        if (ab.includes('Earthquake') && Math.random() > 0.90) {
+            roundDps *= 2;
+            if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '🌟 **EARTHQUAKE STUN!** (Massive Damage)'; }
+        }
+        if (ab.includes('Shadow Flurry') && Math.random() > 0.85) {
+            roundDps *= 3;
+            if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '🌟 **SHADOW FLURRY!** (Attacked 3x)'; }
+        }
+        if (ab.includes('Abyssal Echo') && Math.random() > 0.75) {
+            roundDps *= 2;
+        }
+    }
+
+    if (activeAbilities.join(',').includes('Armageddon') && Math.random() > 0.80) {
+        roundDps += 10000;
+        if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '☄️ **ARMAGEDDON!** (10,000 DMG)'; }
     }
 
     if (abilityMsg && !jackpotTriggered) {
@@ -290,6 +366,9 @@ export async function execute(message: Message) {
         jackpotMessage = abilityMsg;
     }
 
+    if (rounds <= 3 && activeAbilities.join(',').includes('Full Moon')) gearCrit = 100;
+    if (rounds === 1 && activeAbilities.join(',').includes('Ambush')) gearCrit = 100;
+    
     if (Math.random() * 100 < gearCrit) {
       roundDps = Math.floor(roundDps * 2);
       totalCrits++;
@@ -322,8 +401,13 @@ export async function execute(message: Message) {
         if (ab.includes('Hardened')) rawIncoming = Math.floor(rawIncoming * 0.97);
         if (ab.includes('Alloyed Armor')) rawIncoming = Math.floor(rawIncoming * 0.95);
         if (ab.includes('Shadow Step') && rounds === 1) rawIncoming = 0;
+        if (ab.includes('Unseen Predator') && rounds === 1) rawIncoming = 0;
+        if (ab.includes('Invulnerability') && rounds === 1) rawIncoming = 0;
         if (ab.includes('Deflection') && Math.random() > 0.98) rawIncoming = Math.floor(rawIncoming * 0.5);
         if (ab.includes('Smoke Bomb') && Math.random() > 0.85) rawIncoming = 0;
+        if (ab.includes('Bulwark') && Math.random() > 0.95) rawIncoming = 0;
+        if (ab.includes('Unbreakable') && playerHp < (player.maxHp * 0.25)) mitigation += 50;
+        if (ab.includes('Lord of Death') && rounds === 1) mitigation += 100;
     }
 
     if (bonusDefPerc > 0) {
@@ -332,12 +416,18 @@ export async function execute(message: Message) {
 
     if (armorClass === 'HEAVY_ARMOR') rawIncoming = Math.floor(rawIncoming * 0.9); // flat 10% Legacy mitigation
 
-    if (Math.random() * 100 < gearEvasion) {
+    if (Math.random() * 100 < gearEvasion || (activeAbilities.join(',').includes('Shadow Realm') && Math.random() > 0.95)) {
       rawIncoming = 0;
       totalEvades++;
     } else {
       totalMitigated += Math.min(mitigation, rawIncoming);
       rawIncoming -= mitigation;
+    }
+
+    if (activeAbilities.join(',').includes('Juggernaut') && Math.random() > 0.90) {
+      roundDps += rawIncoming; 
+      abilityHighlights += `🌟 \`Juggernaut\` reflected ${rawIncoming} DMG back! 🔄\n`;
+      rawIncoming = 0;
     }
 
     if (rawIncoming < 0) rawIncoming = 0;
@@ -347,6 +437,20 @@ export async function execute(message: Message) {
         playerHp += 100;
         rawIncoming = 0; // Negate the fatal blow
         abilityHighlights += `✨ \`Undying\` saved you from a fatal blow!\n`;
+    }
+    
+    if (playerHp - rawIncoming <= 0 && activeAbilities.join(',').includes('Deathless King') && !undyingTriggered) {
+        undyingTriggered = true;
+        playerHp += player.maxHp;
+        rawIncoming = 0; 
+        playerBaseOutput *= 2; 
+        abilityHighlights += `🌟 \`Deathless King\` revived you at FULL HP and Doubled your ATK for the rest of battle!\n`;
+    }
+
+    if (activeAbilities.join(',').includes('Singularity') && Math.random() > 0.90) {
+        roundDps += rawIncoming * 3;
+        abilityHighlights += `🌟 \`Singularity\` absorbed ${rawIncoming} DMG and reflected it! 🔄\n`;
+        rawIncoming = 0;
     }
 
     playerHp -= rawIncoming;

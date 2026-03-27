@@ -106,20 +106,37 @@ export async function executeMine(message: Message) {
 
   // 3. Mathematical Drops
   let activeAbilities: string[] = [];
-  if (hasPickaxe && player.tools[0].activeAbilities) {
-      activeAbilities = player.tools[0].activeAbilities as string[];
+  if (hasPickaxe && (player.tools[0] as any).activeAbilities) {
+      activeAbilities = (player.tools[0] as any).activeAbilities as string[];
   }
 
   let bonusYield = 0;
   let autoEpic = false;
   let isOverload = false;
   let abilityHighlights = '';
+  
+  let multiBonus = 1;
+  let noDamage = false;
+  let hiddenGem = false;
 
   for (const ab of activeAbilities) {
       if (!ab) continue;
       if (ab.includes('Miner')) { bonusYield += 1; abilityHighlights += `🔹 \`Miner\` added +1 Base Yield!\n`; }
       if (ab.includes('Prospector') && Math.random() > 0.85) { autoEpic = true; abilityHighlights += `💎 \`Prospector\` unearthed a guaranteed Epic Ore!\n`; }
+      
+      if (ab.includes('Prospect') && Math.random() > 0.95) { multiBonus *= 2; abilityHighlights += `🔹 \`Prospect\` doubled the ore!\n`; }
+      if (ab.includes('Heavy Swing') && Math.random() > 0.90) { multiBonus *= 2; abilityHighlights += `🔹 \`Heavy Swing\` doubled the ore!\n`; }
+      if (ab.includes('Pristine Swing') && Math.random() > 0.85) { multiBonus *= 2; abilityHighlights += `🔹 \`Pristine Swing\` doubled the ore!\n`; }
+      
+      if (ab.includes('Deep Strike') && Math.random() > 0.95) { multiBonus *= 4; abilityHighlights += `🪨 \`Deep Strike\` quadrupled the ore!\n`; }
+      
+      if (ab.includes('Mother Lode') && Math.random() > 0.99) { multiBonus *= 50; abilityHighlights += `🌟 \`Mother Lode\` found! (50x Yield)\n`; }
+      if (ab.includes('Core Drill') && Math.random() > 0.98) { multiBonus *= 100; abilityHighlights += `🌟 \`Core Drill\` struck deep! (100x Yield)\n`; }
+      if (ab.includes('Planet Cracker') && Math.random() > 0.95) { multiBonus *= 500; abilityHighlights += `🌟 \`Planet Cracker\` obliterated the zone! (500x Yield)\n`; }
+      
       if (ab.includes('Overload') && Math.random() > 0.95) { isOverload = true; abilityHighlights += `🌟 \`Overload\` triggered a massive 10x Yield Boost!\n`; }
+      if (ab.includes('Hardened Tip')) { noDamage = true; }
+      if (ab.includes('Earth Sense') && Math.random() > 0.90) { hiddenGem = true; abilityHighlights += `💎 \`Earth Sense\` found hidden gems!\n`; }
   }
 
   if (isOverload) {
@@ -137,12 +154,16 @@ export async function executeMine(message: Message) {
     if (roll > 95 || autoEpic) baseEpic = 1; 
   }
 
-  const finalPrimary = Math.floor(basePrimary * yieldMultiplier * slotMultiplier);
-  const finalSecondary = Math.floor(baseSecondary * yieldMultiplier * slotMultiplier);
-  const finalEpic = Math.floor(baseEpic * yieldMultiplier * slotMultiplier);
+  const finalPrimary = Math.floor(basePrimary * yieldMultiplier * slotMultiplier * multiBonus);
+  const finalSecondary = Math.floor(baseSecondary * yieldMultiplier * slotMultiplier * multiBonus);
+  const finalEpic = Math.floor(baseEpic * yieldMultiplier * slotMultiplier * multiBonus);
+  
+  if (hiddenGem) {
+      baseEpic += 1;
+  }
   
   const xpReward = 5 * toolTierRequired * slotMultiplier;
-  const exhaustionDamage = 2 * toolTierRequired; 
+  const exhaustionDamage = noDamage ? 0 : 2 * toolTierRequired; 
 
   // 4. Database Transactions
   const ops: any[] = [];
