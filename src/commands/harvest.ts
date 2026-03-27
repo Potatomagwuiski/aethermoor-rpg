@@ -43,12 +43,16 @@ export async function executeHarvest(message: Message, args: string[]) {
   const d1 = Math.floor(Math.random() * diceFaces) + 1;
   const d2 = Math.floor(Math.random() * diceFaces) + 1;
   const d3 = Math.floor(Math.random() * diceFaces) + 1;
-  let slotMultiplier = d1 + d2 + d3 + slotBonus;
+  let slotMultiplier = 1;
   let isSlotJackpot = false;
+  let isSlotMatch = false;
 
   if (d1 === d2 && d2 === d3) {
     isSlotJackpot = true;
-    slotMultiplier = slotMultiplier * slotMultiplier; // Square the multiplier on three of a kind!
+    slotMultiplier = Math.pow(d1 + d2 + d3 + slotBonus, 2); 
+  } else if (d1 === d2 || d2 === d3 || d1 === d3) {
+    isSlotMatch = true;
+    slotMultiplier = d1 + d2 + d3 + slotBonus;
   }
 
   // Geographical node table
@@ -111,9 +115,11 @@ export async function executeHarvest(message: Message, args: string[]) {
 
   await prisma.$transaction(ops);
 
-  let slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **${slotMultiplier}x Multiplier!**`;
+  let slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\``;
   if (isSlotJackpot) {
-    slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **!!! ${slotMultiplier}x JACKPOT MULTIPLIER !!!** 🔥`;
+    slotMachineString += ` = **!!! ${slotMultiplier}x JACKPOT MULTIPLIER !!!** 🔥🔥🔥`;
+  } else if (isSlotMatch) {
+    slotMachineString += ` = **${slotMultiplier}x MATCH!** 🔥`;
   }
 
   let dropOutput = '';

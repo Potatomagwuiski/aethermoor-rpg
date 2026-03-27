@@ -112,12 +112,16 @@ export async function execute(message: Message) {
   const d1 = Math.floor(Math.random() * diceFaces) + 1;
   const d2 = Math.floor(Math.random() * diceFaces) + 1;
   const d3 = Math.floor(Math.random() * diceFaces) + 1;
-  let slotMultiplier = d1 + d2 + d3 + slotBonus;
+  let slotMultiplier = 1;
   let isSlotJackpot = false;
+  let isSlotMatch = false;
 
   if (d1 === d2 && d2 === d3) {
     isSlotJackpot = true;
-    slotMultiplier = slotMultiplier * slotMultiplier; // Square the multiplier on three of a kind!
+    slotMultiplier = Math.pow(d1 + d2 + d3 + slotBonus, 2); 
+  } else if (d1 === d2 || d2 === d3 || d1 === d3) {
+    isSlotMatch = true;
+    slotMultiplier = d1 + d2 + d3 + slotBonus;
   }
 
 
@@ -656,7 +660,10 @@ export async function execute(message: Message) {
     responseBody += `**✨ Build Highlights:**\n${highlights}\n`;
   }
 
-  responseBody += `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **${slotMultiplier}x Multiplier!** ${slotMultiplier >= 3 ? '🔥' : ''}\n\n🛍️ **Final Payout:** 🪙 ${goldReward} Gold | ✨ ${xpReward} XP\n`;
+  let slotStr = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\``;
+  if (isSlotJackpot) slotStr += ` = **!!! ${slotMultiplier}x JACKPOT MULTIPLIER !!!** 🔥🔥🔥`;
+  else if (isSlotMatch) slotStr += ` = **${slotMultiplier}x MATCH!** 🔥`;
+  responseBody += `${slotStr}\n\n🛍️ **Final Payout:** 🪙 ${goldReward} Gold | ✨ ${xpReward} XP\n`;
 
   if (mobDrops.length > 0) {
     let dropStrings = mobDrops.map(d => `${getEmoji(d.key)} \`[${d.qty}x ${d.name}]\``).join('\n');
