@@ -105,14 +105,36 @@ export async function executeChop(message: Message) {
   }
 
   // 3. Mathematical Drops
-  const basePrimary = Math.floor(Math.random() * 3) + 1; 
+  let activeAbilities: string[] = [];
+  if (hasAxe && player.tools[0].activeAbilities) {
+      activeAbilities = player.tools[0].activeAbilities as string[];
+  }
+
+  let bonusYield = 0;
+  let autoEpic = false;
+  let isOverload = false;
+  let abilityHighlights = '';
+
+  for (const ab of activeAbilities) {
+      if (!ab) continue;
+      if (ab.includes('Lumberjack')) { bonusYield += 1; abilityHighlights += `🔹 \`Lumberjack\` added +1 Base Yield!\n`; }
+      if (ab.includes('Arborist') && Math.random() > 0.85) { autoEpic = true; abilityHighlights += `🌳 \`Arborist\` procured a guaranteed Epic Wood!\n`; }
+      if (ab.includes('Overload') && Math.random() > 0.95) { isOverload = true; abilityHighlights += `🌟 \`Overload\` triggered a massive 10x Yield Boost!\n`; }
+  }
+
+  if (isOverload) {
+      slotMultiplier *= 10;
+      isSlotJackpot = true;
+  }
+
+  const basePrimary = Math.floor(Math.random() * 3) + 1 + bonusYield; 
   let baseSecondary = 0;
   let baseEpic = 0;
 
   if (hasAxe) {
     const roll = Math.random() * 100;
     if (roll > 50) baseSecondary = Math.floor(Math.random() * 2) + 1; 
-    if (roll > 95) baseEpic = 1; 
+    if (roll > 95 || autoEpic) baseEpic = 1; 
   }
 
   const finalPrimary = Math.floor(basePrimary * yieldMultiplier * slotMultiplier);
@@ -176,11 +198,13 @@ export async function executeChop(message: Message) {
   if (isSlotJackpot) {
     slotMachineString = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\` = **!!! ${slotMultiplier}x JACKPOT MULTIPLIER !!!** 🔥`;
   }
+  
+  const highlights = abilityHighlights.length > 0 ? `\n**✨ Tool Highlights:**\n${abilityHighlights}` : '';
 
   const embed = new EmbedBuilder()
     .setTitle(`🪓 The Great Forest`)
     .setColor(isSlotJackpot ? 0xFFD700 : 0x27AE60)
-    .setDescription(`You slammed your **${toolName}** into the towering pines. The exertion dealt 🩸 **${exhaustionDamage} DMG** to your health.\n\n${slotMachineString}\n\n**Loot Dropped:**\n${dropLog}\n\n**XP Gained:** ✨ ${xpReward}`)
+    .setDescription(`You slammed your **${toolName}** into the towering pines. The exertion dealt 🩸 **${exhaustionDamage} DMG** to your health.\n\n${slotMachineString}${highlights}\n\n**Loot Dropped:**\n${dropLog}\n\n**XP Gained:** ✨ ${xpReward}`)
     .setFooter({ text: '60s Cooldown started.' });
 
   if (levelsGained > 0) {

@@ -124,6 +124,7 @@ model Tool {
   yieldMultiplier Float @default(1.0)
   monsterRepel    Int   @default(0)
   speedLuck       Int   @default(0)
+  activeAbilities String[] @default([])
 
   player    Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
 }

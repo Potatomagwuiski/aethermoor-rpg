@@ -274,26 +274,50 @@ export const BLUEPRINTS: Record<string, any> = {
   // --- TOOLS ---
   'bronze_pickaxe': {
     name: 'Bronze Pickaxe', materials: { copper: 15, wood: 10 },
+    abilities: [
+      '⛏️ **Miner**: +1 Base Yield'
+    ],
     outputs: { common: { key: 'common_bronze_pickaxe', name: '⬜ [Common Bronze Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'COMMON', yieldMultiplier: 1.25 }, uncommon: { key: 'uncommon_bronze_pickaxe', name: '🟩 [Uncommon Bronze Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'UNCOMMON', yieldMultiplier: 1.75 }, rare: { key: 'rare_bronze_pickaxe', name: '🟦 [Rare Bronze Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'RARE', yieldMultiplier: 2.5 } }
   },
   'iron_pickaxe': {
     name: 'Iron Pickaxe', requiredBlueprint: 'blueprint_iron_pickaxe', materials: { iron: 20, coal: 10, ashwood: 10 },
+    abilities: [
+      '⛏️ **Miner**: +1 Base Yield',
+      '💎 **Prospector**: 15% chance to guarantee an Epic Ore drop'
+    ],
     outputs: { common: { key: 'common_iron_pickaxe', name: '⬜ [Common Iron Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'COMMON', yieldMultiplier: 2.0 }, uncommon: { key: 'uncommon_iron_pickaxe', name: '🟩 [Uncommon Iron Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'UNCOMMON', yieldMultiplier: 2.75 }, rare: { key: 'rare_iron_pickaxe', name: '🟦 [Rare Iron Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'RARE', yieldMultiplier: 4.0 } }
   },
   'mythril_pickaxe': {
     name: 'Mythril Pickaxe', requiredBlueprint: 'blueprint_mythril_pickaxe', materials: { mythril: 30, elderwood: 20 },
+    abilities: [
+      '⛏️ **Miner**: +1 Base Yield',
+      '💎 **Prospector**: 15% chance to guarantee an Epic Ore drop',
+      '🌟 **Overload**: 5% chance to 10x all gathered resources'
+    ],
     outputs: { common: { key: 'common_mythril_pickaxe', name: '⬜ [Common Mythril Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'COMMON', yieldMultiplier: 3.5 }, uncommon: { key: 'uncommon_mythril_pickaxe', name: '🟩 [Uncommon Mythril Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'UNCOMMON', yieldMultiplier: 5.0 }, rare: { key: 'rare_mythril_pickaxe', name: '🟦 [Rare Mythril Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'RARE', yieldMultiplier: 8.0 } }
   },
   'bronze_axe': {
     name: 'Bronze Axe', materials: { copper: 10, wood: 15 },
+    abilities: [
+      '🪓 **Lumberjack**: +1 Base Yield'
+    ],
     outputs: { common: { key: 'common_bronze_axe', name: '⬜ [Common Bronze Axe]', isTool: true, type: 'AXE', rarity: 'COMMON', yieldMultiplier: 1.25 }, uncommon: { key: 'uncommon_bronze_axe', name: '🟩 [Uncommon Bronze Axe]', isTool: true, type: 'AXE', rarity: 'UNCOMMON', yieldMultiplier: 1.75 }, rare: { key: 'rare_bronze_axe', name: '🟦 [Rare Bronze Axe]', isTool: true, type: 'AXE', rarity: 'RARE', yieldMultiplier: 2.5 } }
   },
   'iron_axe': {
     name: 'Iron Axe', requiredBlueprint: 'blueprint_iron_axe', materials: { iron: 15, coal: 15, ashwood: 15 },
+    abilities: [
+      '🪓 **Lumberjack**: +1 Base Yield',
+      '🌳 **Arborist**: 15% chance to guarantee an Epic Wood drop'
+    ],
     outputs: { common: { key: 'common_iron_axe', name: '⬜ [Common Iron Axe]', isTool: true, type: 'AXE', rarity: 'COMMON', yieldMultiplier: 2.0 }, uncommon: { key: 'uncommon_iron_axe', name: '🟩 [Uncommon Iron Axe]', isTool: true, type: 'AXE', rarity: 'UNCOMMON', yieldMultiplier: 2.75 }, rare: { key: 'rare_iron_axe', name: '🟦 [Rare Iron Axe]', isTool: true, type: 'AXE', rarity: 'RARE', yieldMultiplier: 4.0 } }
   },
   'mythril_axe': {
     name: 'Mythril Axe', requiredBlueprint: 'blueprint_mythril_axe', materials: { mythril: 20, elderwood: 30 },
+    abilities: [
+      '🪓 **Lumberjack**: +1 Base Yield',
+      '🌳 **Arborist**: 15% chance to guarantee an Epic Wood drop',
+      '🌟 **Overload**: 5% chance to 10x all gathered resources'
+    ],
     outputs: { common: { key: 'common_mythril_axe', name: '⬜ [Common Mythril Axe]', isTool: true, type: 'AXE', rarity: 'COMMON', yieldMultiplier: 3.5 }, uncommon: { key: 'uncommon_mythril_axe', name: '🟩 [Uncommon Mythril Axe]', isTool: true, type: 'AXE', rarity: 'UNCOMMON', yieldMultiplier: 5.0 }, rare: { key: 'rare_mythril_axe', name: '🟦 [Rare Mythril Axe]', isTool: true, type: 'AXE', rarity: 'RARE', yieldMultiplier: 8.0 } }
   }
 };
@@ -633,7 +657,8 @@ export async function executeForge(message: Message, args: string[]) {
               name: finalName,
               rarity: r,
               equipped: true,
-              yieldMultiplier: resultOutput.yieldMultiplier
+              yieldMultiplier: resultOutput.yieldMultiplier,
+              activeAbilities: blueprint.abilities || []
           }
       }));
       statLog = `⛏️ **${resultOutput.yieldMultiplier}x** Gathering Yield`;
