@@ -3,7 +3,7 @@ import { prisma } from '../db.js';
 
 const RECIPES: Record<string, any> = {
   'roasted_trout': {
-    name: 'Roasted Trout', materials: { river_trout: 1, wood: 1, sticks: 2 }, buffName: '+10 ATK', buffKey: 'ATK_10', color: 0xE67E22
+    name: 'Roasted Trout', materials: { river_trout: 1, wood: 1, sticks: 2 }, buffName: '+10 ATK, Heal 5 HP / Round', buffKey: 'ATK_10_HOT_5', color: 0xE67E22
   },
   'koi_soup': {
     name: 'Koi Soup', materials: { golden_koi: 1, mooncap_mushroom: 1, sticks: 2 }, buffName: '+25 MAX HP', buffKey: 'HP_25', color: 0xF1C40F
@@ -47,7 +47,7 @@ export async function executeCook(message: Message, args: string[]) {
     // Default Recipe
     embed.addFields({ 
       name: `🐟 roasted_trout`, 
-      value: `Requires: 1 River Trout, 1 Wood, 2 Sticks\nBuff: **+10 ATK**` 
+      value: `Requires: 1 River Trout, 1 Wood, 2 Sticks\nBuff: **+10 ATK, Heal 5 HP / Round**` 
     });
 
     // Unlocked Recipes
@@ -89,7 +89,7 @@ export async function executeCook(message: Message, args: string[]) {
 
   // Check if player unlocked the recipe
   if (recipeKey !== 'roasted_trout') {
-    const hasRecipe = player.recipes.find(r => r.recipeKey === recipeKey);
+    const hasRecipe = player.recipes.find((r: any) => r.recipeKey === recipeKey);
     if (!hasRecipe) {
       return message.reply(`You don't know the recipe for \`${recipeKey}\` yet! You can discover new recipes by hunting monsters.`);
     }
@@ -101,7 +101,7 @@ export async function executeCook(message: Message, args: string[]) {
 
   // Check Materials
   for (const [matKey, reqQty] of Object.entries(recipe.materials)) {
-    const invItem = inventory.find(i => i.itemKey === matKey);
+    const invItem = inventory.find((i: any) => i.itemKey === matKey);
     const hasQty = invItem ? invItem.quantity : 0;
     if (hasQty < (reqQty as number)) {
       missingMaterials.push(`- **${matKey.replace(/_/g, ' ').toUpperCase()}**: Have ${hasQty}/${reqQty}`);

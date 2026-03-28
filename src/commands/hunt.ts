@@ -160,7 +160,7 @@ export async function execute(message: Message) {
   let activeHot = 0;
   let activeEot = 0;
   if (activeBuff && player.buffExpiresAt && player.buffExpiresAt > new Date()) {
-    if (activeBuff === 'ATK_10') { gearAtk += 10; buffMessage = '✨ **Buff Active:** Roasted Trout (+10 ATK)'; }
+    if (activeBuff === 'ATK_10_HOT_5') { gearAtk += 10; activeHot = 5; buffMessage = '✨ **Buff Active:** Roasted Trout (+10 ATK, Heals 5 HP / Round)'; }
     if (activeBuff === 'HP_25') { player.maxHp += 25; player.hp += 25; buffMessage = '✨ **Buff Active:** Koi Soup (+25 MAX HP)'; }
     if (activeBuff === 'DEF_50') { gearDef += 50; buffMessage = '✨ **Buff Active:** Glacial Filet (+50 DEF)'; }
     if (activeBuff === 'CRIT_15') { gearCrit += 15; buffMessage = '✨ **Buff Active:** Spicy Eel (+15% CRIT)'; }
