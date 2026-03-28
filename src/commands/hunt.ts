@@ -4,6 +4,7 @@ import redisClient from '../redis.js';
 import { enforceCooldown } from '../utils/cooldown.js';
 import { getEmoji } from '../utils/emojis.js';
 import { BLUEPRINTS } from './forge.js';
+import { getPinnedTrackerField } from '../utils/tracker.js';
 
 export async function execute(message: Message) {
   const discordId = message.author.id;
@@ -716,6 +717,9 @@ export async function execute(message: Message) {
   if (buffMessage) embed.addFields({ name: 'Active Buff', value: buffMessage, inline: false });
   if (levelsGained > 0) embed.addFields({ name: '🌟 LEVEL UP!', value: `You reached Level **${currentLevel}**! (+${pointsGained} Stat Points). Type \`rpg stat\` to spend them!`});
   if (gachaLootString) embed.addFields({ name: '🎁 MYSTERY LOOT DROP!', value: `You found a rare blueprint schematic:\n${gachaLootString}`});
+
+  const trackerField = await getPinnedTrackerField(player.id, player.pinnedForgeItem);
+  if (trackerField) embed.addFields(trackerField);
 
   await prisma.$transaction(dbOperations);
 

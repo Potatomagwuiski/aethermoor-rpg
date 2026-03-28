@@ -59,8 +59,10 @@ model Player {
   location        String   @default("lumina_plains")
 
   // Culinary Buffs
+  // Culinary & Progression Trackers
   activeBuff      String?
   buffExpiresAt   DateTime?
+  pinnedForgeItem String?
 
   // Core Allocatable Attributes
   pointsAvailable Int      @default(0)

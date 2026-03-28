@@ -2,6 +2,7 @@ import { Message, EmbedBuilder } from 'discord.js';
 import { prisma } from '../db.js';
 import redisClient from '../redis.js';
 import { enforceCooldown } from '../utils/cooldown.js';
+import { getPinnedTrackerField } from '../utils/tracker.js';
 
 export async function executeFish(message: Message, args: string[]) {
   const discordId = message.author.id;
@@ -121,6 +122,9 @@ export async function executeFish(message: Message, args: string[]) {
     .setTitle('🎣 Fishing Resolved')
     .setColor(isSlotJackpot ? 0xFFD700 : 0x1E90FF) // DodgerBlue
     .setDescription(`You cast your line into the regional waters.\n\n${slotMachineString}\n\n**Loot Dropped:**\n${dropOutput}\n**XP Gained:**\n✨ +${xpReward} EXP`);
+
+  const trackerField = await getPinnedTrackerField(player.id, player.pinnedForgeItem);
+  if (trackerField) embed.addFields(trackerField);
 
   return message.reply({ embeds: [embed] });
 }

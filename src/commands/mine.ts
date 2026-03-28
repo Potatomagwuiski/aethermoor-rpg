@@ -3,6 +3,7 @@ import { prisma } from '../db.js';
 import redisClient from '../redis.js';
 import { enforceCooldown } from '../utils/cooldown.js';
 import { getEmoji } from '../utils/emojis.js';
+import { getPinnedTrackerField } from '../utils/tracker.js';
 
 export async function executeMine(message: Message) {
   const discordId = message.author.id;
@@ -241,6 +242,9 @@ export async function executeMine(message: Message) {
   if (levelsGained > 0) {
     embed.addFields({ name: '🌟 LEVEL UP!', value: `You reached Level **${currentLevel + levelsGained}**! (+${levelsGained * 3} Stat Points)` });
   }
+
+  const trackerField = await getPinnedTrackerField(player.id, player.pinnedForgeItem);
+  if (trackerField) embed.addFields(trackerField);
 
   return message.reply({ embeds: [embed] });
 }

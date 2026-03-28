@@ -448,6 +448,15 @@ export async function executeForge(message: Message, args: string[]) {
             return;
         }
 
+        if (interaction.isStringSelectMenu() && interaction.customId.startsWith('forge_pin_')) {
+            const selectedRecipeKey = interaction.values[0];
+            const newPin = selectedRecipeKey === 'none' ? null : selectedRecipeKey;
+            await prisma.player.update({ where: { id: player.id }, data: { pinnedForgeItem: newPin } });
+            
+            const pinName = newPin ? BLUEPRINTS[newPin].name : 'Removed';
+            return interaction.reply({ content: `📌 Tracker Updated: **${pinName}**. The required materials will now appear on your gathering commands!`, ephemeral: true }).catch(() => {});
+        }
+
         let catUrl = 'weapons';
         if (interaction.customId === 'forge_armor') catUrl = 'armor';
         if (interaction.customId === 'forge_tools') catUrl = 'tools';
@@ -576,6 +585,19 @@ export async function executeForge(message: Message, args: string[]) {
                 })));
             const selectRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
             componentsArray.push(selectRow);
+
+            let pinOptions = [{ label: 'None (Unpin Tracker)', value: 'none', description: 'Remove the active blueprint tracker.' }, ...selectOptions];
+            if (pinOptions.length > 25) pinOptions = pinOptions.slice(0, 25);
+            const pinMenu = new StringSelectMenuBuilder()
+                .setCustomId(`forge_pin_${catUrl}`)
+                .setPlaceholder('📌 Select a Blueprint to Pin & Track Goals')
+                .addOptions(pinOptions.map(opt => ({
+                     label: opt.label,
+                     value: opt.value,
+                     description: opt.description
+                })));
+            const pinRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(pinMenu);
+            componentsArray.push(pinRow);
         }
 
         await interaction.update({ embeds: [newEmbed], components: componentsArray }).catch(console.error);
