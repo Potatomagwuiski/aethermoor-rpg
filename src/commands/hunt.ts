@@ -534,6 +534,13 @@ export async function execute(message: Message) {
   if (totalExecutionerBurst > 0) buildAnalysisString += `💥 **Executioner** triggered on ${totalCrits} Critical Strikes, dealing **${totalExecutionerBurst} extra burst damage**!\n`;
   if (momentumBonus > 1.0) buildAnalysisString += `📈 **Relentless** momentum ramped up your Attack over the fight, granting **+${Math.floor((momentumBonus - 1.0)*100)}% Bonus Damage** on the final blow!\n`;
 
+  // Fallback for basic builds
+  if (buildAnalysisString.length === 0) {
+      const dpsFromStats = playerBaseOutput * rounds;
+      const defFromStats = Math.floor(player.end * 1) * rounds;
+      buildAnalysisString += `⚖️ **Raw Stat Analysis**\nYour Attributes contributed **${dpsFromStats} Base Damage** and mitigated **${defFromStats} Damage**.\n*Tip: Seek out forged weapons to unlock synergistic abilities like Bleed or Poison!*`;
+  }
+
   // --- FAILURE STATE (DEATH PENALTY) ---
   if (playerHp <= 0 || rounds >= MAX_ROUNDS) {
     const goldLost = Math.floor(player.gold * 0.1);
