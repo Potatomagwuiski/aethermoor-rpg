@@ -759,10 +759,10 @@ export async function execute(message: Message) {
     if (rarityRoll > 0.95) {
       gachaLootString = '🗝️ `[Dungeon Key]`'; dropKey = 'dungeon_key';
     } else if (rarityRoll > 0.90) {
-      if (tier === 1) { dropKey = 'lumina_egg'; gachaLootString = '🥚 `[Lumina Pet Egg]`'; }
-      else if (tier === 2) { dropKey = 'mystic_egg'; gachaLootString = '🥚 `[Mystic Pet Egg]`'; }
-      else if (tier === 3) { dropKey = 'abyssal_egg'; gachaLootString = '🥚 `[Abyssal Pet Egg]`'; }
-      else { dropKey = 'astral_egg'; gachaLootString = '🥚 `[Astral Pet Egg]`'; }
+      if (tier === 1) { dropKey = 'lumina_lootbox'; gachaLootString = '📦 `[Lumina Lootbox]`'; }
+      else if (tier === 2) { dropKey = 'mystic_lootbox'; gachaLootString = '📦 `[Mystic Lootbox]`'; }
+      else if (tier === 3) { dropKey = 'abyssal_lootbox'; gachaLootString = '📦 `[Abyssal Lootbox]`'; }
+      else { dropKey = 'astral_lootbox'; gachaLootString = '📦 `[Astral Lootbox]`'; }
     } else if (rarityRoll > 0.85) {
       gachaLootString = '📦 `[Mystery Loot Box]`'; dropKey = 'lootbox';
     } else if (BP_POOL !== null) {

@@ -63,13 +63,18 @@ export async function executeOpen(message: Message, args: string[]) {
 
   let itemName = args[0].toLowerCase();
   
-  // Allow "rpg open lumina" to map to "lumina_egg"
+  // Allow "rpg open lumina" to map to "lumina_lootbox" or "lumina_egg"
   const aliases = ['lumina', 'mystic', 'abyssal', 'astral'];
   if (aliases.includes(itemName)) {
-      itemName += '_egg';
+      if (args[1] === 'egg') itemName += '_egg';
+      else itemName += '_lootbox';
   }
 
-  const validItems = ['lumina_egg', 'mystic_egg', 'abyssal_egg', 'astral_egg', 'lootbox'];
+  const validItems = [
+    'lumina_egg', 'mystic_egg', 'abyssal_egg', 'astral_egg', 
+    'lootbox', 
+    'lumina_lootbox', 'mystic_lootbox', 'abyssal_lootbox', 'astral_lootbox'
+  ];
   if (!validItems.includes(itemName)) {
       return message.reply(`Invalid item to open. Available: \`lootbox\`, \`lumina\`, \`mystic\`, \`abyssal\`, \`astral\`.`);
   }
@@ -130,24 +135,34 @@ export async function executeOpen(message: Message, args: string[]) {
       title = `🥚 Hatching ${itemName.split('_')[0].toUpperCase()} Egg...`;
       let rarityString = `[${petData.rarity}]`;
       if (petData.rarity === 'LEGENDARY') rarityString = `✨ [${petData.rarity}] ✨`;
-      descriptionOutput = `You crack open the Egg and extract its life essence...\n\n**You hatched a ${rarityString} ${petData.emoji} ${petData.name}!**\n(⚔️ +${petData.stats.atk} ATK | 🛡️ +${petData.stats.def} DEF | ❤️ +${petData.stats.hp} HP)\n\n**Bonus Loot:**\n`;
+      descriptionOutput = `You crack open the Egg and extract its life essence...\n\n**You hatched a ${rarityString} ${petData.emoji} ${petData.name}!**\n(⚔️ +${petData.stats.atk} ATK | 🛡️ +${petData.stats.def} DEF | ❤️ +${petData.stats.hp} HP)\n`;
+  }
 
-      // Resource Scaling based on Egg Tier
-      if (itemName === 'lumina_egg') {
+  // 2) TIERED LOOTBOX LOGIC
+  else if (itemName.includes('_lootbox')) {
+      const droppedEggKey = itemName.replace('_lootbox', '_egg');
+      giveItem(droppedEggKey, 1);
+      
+      title = `📦 Opening ${itemName.split('_')[0].toUpperCase()} Lootbox...`;
+      color = 0xF1C40F;
+      descriptionOutput = `You pry open the locked crate, discovering hidden riches! And... there's a Pet Egg tucked safely inside!\n\n**Rewards Dropped:**\n`;
+
+      // Resource Scaling based on Tier
+      if (itemName === 'lumina_lootbox') {
           rewardedGold = Math.floor(Math.random() * 50) + 25;
           giveItem('wood', Math.floor(Math.random() * 5) + 2);
           giveItem('copper_ore', Math.floor(Math.random() * 3) + 1);
-      } else if (itemName === 'mystic_egg') {
+      } else if (itemName === 'mystic_lootbox') {
           rewardedGold = Math.floor(Math.random() * 150) + 50;
           giveItem('oakwood', Math.floor(Math.random() * 10) + 5);
           giveItem('iron_ore', Math.floor(Math.random() * 5) + 2);
           giveItem('silver_ore', Math.floor(Math.random() * 2) + 1);
-      } else if (itemName === 'abyssal_egg') {
+      } else if (itemName === 'abyssal_lootbox') {
           rewardedGold = Math.floor(Math.random() * 500) + 200;
           giveItem('ashwood', Math.floor(Math.random() * 15) + 8);
           giveItem('mithril_ore', Math.floor(Math.random() * 8) + 3);
           giveItem('gold_ore', Math.floor(Math.random() * 3) + 1);
-      } else if (itemName === 'astral_egg') {
+      } else if (itemName === 'astral_lootbox') {
           rewardedGold = Math.floor(Math.random() * 1000) + 500;
           giveItem('elderwood', Math.floor(Math.random() * 20) + 10);
           giveItem('steel_ore', Math.floor(Math.random() * 10) + 5);
@@ -155,7 +170,7 @@ export async function executeOpen(message: Message, args: string[]) {
       }
   }
 
-  // 2) LOOTBOX LOGIC
+  // 3) MYSTERY LOOTBOX LOGIC
   else if (itemName === 'lootbox') {
       title = '📦 Opening Mystery Loot Box...';
       color = 0x3498DB;

@@ -4,10 +4,10 @@ import { enforceCooldown } from '../utils/cooldown.js';
 
 const SHOP_ITEMS: Record<string, { id: string, name: string, price: number, icon: string, description: string }> = {
   'lootbox': { id: 'lootbox', name: 'Mystery Loot Box', price: 200, icon: '📦', description: 'Roll for random gear, ores, or wood. Bypasses gathering.' },
-  'lumina_egg': { id: 'lumina_egg', name: 'Lumina Lootbox', price: 10000, icon: '📦', description: 'Tier 1 Resource Lootbox & Pet Egg. Grants Gold, Basic Materials, and rolls for a Pet.' },
-  'mystic_egg': { id: 'mystic_egg', name: 'Mystic Lootbox', price: 25000, icon: '📦', description: 'Tier 2 Resource Lootbox & Pet Egg. Grants Gold, Intermediate Materials, and rolls for a Pet.' },
-  'abyssal_egg': { id: 'abyssal_egg', name: 'Abyssal Lootbox', price: 50000, icon: '📦', description: 'Tier 3 Resource Lootbox & Pet Egg. Grants Gold, Advanced Materials, and rolls for a Pet.' },
-  'astral_egg': { id: 'astral_egg', name: 'Astral Lootbox', price: 100000, icon: '📦', description: 'Tier 4 Resource Lootbox & Pet Egg. Massive Gold & Elite Material drop. Ultimate Casino Pet roll.' },
+  'lumina_lootbox': { id: 'lumina_lootbox', name: 'Lumina Lootbox', price: 10000, icon: '📦', description: 'Tier 1 Resource Lootbox. Grants Gold, Basic Materials, and a Lumina Pet Egg.' },
+  'mystic_lootbox': { id: 'mystic_lootbox', name: 'Mystic Lootbox', price: 25000, icon: '📦', description: 'Tier 2 Resource Lootbox. Grants Gold, Intermediate Materials, and a Mystic Pet Egg.' },
+  'abyssal_lootbox': { id: 'abyssal_lootbox', name: 'Abyssal Lootbox', price: 50000, icon: '📦', description: 'Tier 3 Resource Lootbox. Grants Gold, Advanced Materials, and an Abyssal Pet Egg.' },
+  'astral_lootbox': { id: 'astral_lootbox', name: 'Astral Lootbox', price: 100000, icon: '📦', description: 'Tier 4 Resource Lootbox. Massive Gold & Elite Material drop. Astral Casino Pet Egg included.' },
   'dungeon_key': { id: 'dungeon_key', name: 'Dungeon Key', price: 5000, icon: '🗝️', description: 'Grants access to a 5-stage Dungeon featuring a massive Boss.' },
   'life_potion': { id: 'life_potion', name: 'Life Potion', price: 50, icon: '🧪', description: 'Restores you to Max HP. Required if you die during a Hunt or in a Dungeon.' },
   'guild_charter': { id: 'guild_charter', name: 'Guild Charter', price: 10000, icon: '📜', description: 'Massive Gold Sink. A prestigious charter allowing you to found a Guild.' },
