@@ -255,8 +255,11 @@ export async function execute(message: Message) {
 
   // Class Passives prep
   if (armorClass === 'LIGHT_ARMOR') gearEvasion += 15;
-  gearCrit += bonusCrit;
-  gearEvasion += bonusEvasion;
+  
+  // Base Stat Natural Scaling
+  gearCrit += bonusCrit + Math.floor(player.int * 0.5); // Every 2 INT = 1% Crit
+  gearEvasion += bonusEvasion + Math.floor(player.agi * 0.5); // Every 2 AGI = 1% Dodge
+  let baseMitigation = Math.floor(gearDef * 0.75) + Math.floor(player.end * 1); // Natural block
 
   let rounds = 0;
   let totalDamageDealt = 0;
@@ -472,7 +475,7 @@ export async function execute(message: Message) {
     }
     
     // Mitigation Engine (END multiplier halved from x2 to x1 to prevent immortality)
-    let mitigation = Math.floor(gearDef * 0.75) + Math.floor(player.end * 1);
+    let mitigation = baseMitigation;
     
     // Armor Abilities!
     for (const ab of activeAbilities) {
@@ -563,7 +566,7 @@ export async function execute(message: Message) {
   // --- UNIFIED COMBAT AGGREGATOR ---
   let buildAnalysisString = '';
 
-  let buildIdentity = `🛡️ **${gearDef}** DEF | 💥 **${Math.min(100, gearCrit)}%** Crit | 💨 **${Math.min(100, gearEvasion)}%** Dodge`;
+  let buildIdentity = `🛡️ **${baseMitigation}** Block | 💥 **${Math.min(100, gearCrit)}%** Crit | 💨 **${Math.min(100, gearEvasion)}%** Dodge`;
   if (gearLifesteal > 0) buildIdentity += ` | 🦇 **${gearLifesteal}%** Lifesteal`;
   const abStr = activeAbilities.join(',');
   if (abStr.includes('Hemorrhage')) buildIdentity += ` | 🩸 Bleed`;
