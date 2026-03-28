@@ -629,10 +629,18 @@ export async function execute(message: Message) {
     }
   }
 
-  // --- RECIPE DISCOVERY (10% CHANCE) ---
-  const ALL_RECIPES = ['koi_soup', 'glacial_filet', 'spicy_eel', 'void_sashimi', 'moonlight_brew', 'starlight_infusion', 'golden_skewer', 'glacier_stew', 'lava_seared_eel', 'abyssal_feast', 'lumberjack_pancakes', 'miner_goulash', 'fisherman_brew', 'golden_harvest_pie'];
+  // --- RECIPE DISCOVERY (10% CHANCE / ZONE GACHA) ---
+  const ZONE_RECIPES: Record<string, string[]> = {
+      lumina_plains: ['koi_soup', 'lumberjack_pancakes'],
+      whispering_woods: ['golden_skewer', 'moonlight_brew'],
+      ironpeak_mountains: ['glacier_stew', 'glacial_filet', 'miner_goulash'],
+      ashen_wastes: ['lava_seared_eel', 'spicy_eel', 'starlight_infusion'],
+      abyssal_depths: ['abyssal_feast', 'void_sashimi', 'fisherman_brew', 'golden_harvest_pie']
+  };
+
   if (Math.random() <= 0.10) {
-      const droppedRecipe = ALL_RECIPES[Math.floor(Math.random() * ALL_RECIPES.length)];
+      const gachaPool = ZONE_RECIPES[player.location || 'lumina_plains'] || ZONE_RECIPES['lumina_plains'];
+      const droppedRecipe = gachaPool[Math.floor(Math.random() * gachaPool.length)];
       const alreadyHas = player.recipes && player.recipes.find((r: any) => r.recipeKey === droppedRecipe);
       if (!alreadyHas) {
           if (gachaLootString) gachaLootString += '\n';
