@@ -6,9 +6,9 @@
   "type": "module",
   "scripts": {
     "start": "node dist/index.js",
-    "build": "tsc",
+    "build": "npx prisma db push && tsc",
     "dev": "tsx watch src/index.ts",
-    "db:push": "prisma db push",
+    "prebuild": "npx prisma generate",
     "db:generate": "prisma generate"
   },
   "keywords": [
