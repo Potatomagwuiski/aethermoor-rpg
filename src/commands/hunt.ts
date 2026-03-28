@@ -863,10 +863,10 @@ export async function execute(message: Message) {
   if (levelsGained > 0) embed.addFields({ name: '🌟 LEVEL UP!', value: `You reached Level **${currentLevel}**! (+${pointsGained} Stat Points). Type \`rpg stat\` to spend them!`});
   if (gachaLootString) embed.addFields({ name: '🎁 MYSTERY LOOT DROP!', value: `You found a rare blueprint schematic:\n${gachaLootString}`});
 
+  await prisma.$transaction(dbOperations);
+
   const trackerField = await getPinnedTrackerField(player.id, (player as any).pinnedForgeItems);
   if (trackerField) embed.addFields(trackerField);
-
-  await prisma.$transaction(dbOperations);
 
   return message.reply({ embeds: [embed] });
 }
