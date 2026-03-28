@@ -63,6 +63,7 @@ model Player {
   activeBuff      String?
   buffExpiresAt   DateTime?
   pinnedForgeItems String[] @default([])
+  lastDailyQuestRefresh DateTime?
 
   // Core Allocatable Attributes
   pointsAvailable Int      @default(0)
@@ -79,6 +80,7 @@ model Player {
   tools           Tool[]
   recipes         UnlockedRecipe[]
   pets            Pet[]
+  quests          Quest[]
 }
 
 model InventoryItem {
@@ -157,4 +159,18 @@ model Pet {
   equipped      Boolean @default(false)
 
   player    Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+}
+
+model Quest {
+  id          String   @id @default(uuid())
+  playerId    String
+  type        String   // "HUNT", "CHOP", "MINE", "FISH"
+  targetVal   Int      
+  currentVal  Int      @default(0)
+  rewardKey   String   
+  rewardQty   Int
+  completed   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  player      Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
 }

@@ -4,6 +4,7 @@ import redisClient from '../redis.js';
 import { enforceCooldown } from '../utils/cooldown.js';
 import { getPinnedTrackerField } from '../utils/tracker.js';
 import { BLUEPRINTS } from './forge.js';
+import { processQuestProgress } from '../utils/quests.js';
 
 export async function executeFish(message: Message, args: string[]) {
   const discordId = message.author.id;
@@ -176,6 +177,11 @@ export async function executeFish(message: Message, args: string[]) {
     .setTitle('🎣 Fishing Resolved')
     .setColor(isSlotJackpot ? 0xFFD700 : 0x1E90FF) // DodgerBlue
     .setDescription(`You cast your line into the regional waters.\n\n${slotMachineString}\n${abilityHighlights}\n**Loot Dropped:**\n${dropOutput}\n**XP Gained:**\n✨ +${xpReward} EXP`);
+
+  const questMsg = await processQuestProgress(player.id, 'FISH', 1);
+  if (questMsg) {
+      embed.addFields({ name: '🌟 Bounty Progression', value: questMsg });
+  }
 
   const trackerResult = await getPinnedTrackerField(player.id, (player as any).pinnedForgeItems);
   const row = new ActionRowBuilder<ButtonBuilder>();

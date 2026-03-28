@@ -1,5 +1,6 @@
 import { Message, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import prisma from '../db.js';
+import { processQuestProgress } from '../utils/quests.js';
 import redisClient from '../redis.js';
 import { enforceCooldown } from '../utils/cooldown.js';
 import { getEmoji } from '../utils/emojis.js';
@@ -16,7 +17,10 @@ export async function execute(message: Message) {
         equipment: {
             where: { equipped: true }
         },
-        recipes: true
+        recipes: true,
+        pets: {
+            where: { equipped: true }
+        }
     }
   });
 
@@ -195,13 +199,15 @@ export async function execute(message: Message) {
 
   let playerHp = player.hp;
   if (playerHp <= 0) playerHp = 1;
+  const activePet = player.pets && player.pets.length > 0 ? player.pets[0] : null;
+  const maxHpWithPet = player.maxHp + (activePet ? activePet.bonusHp : 0);
 
   let jackpotTriggered = false;
   let jackpotMessage = '';
   let craftingItemDrop: string | null = null;
   
-  // Base Damage Injection via Class Type (Heavily nerfed to force reliance on gear)
-  let playerBaseOutput = Math.floor(player.level * 2);
+  // Base Damage Injection via Class Type + Pet
+  let playerBaseOutput = Math.floor(player.level * 2) + (activePet ? activePet.bonusAtk : 0);
   if (weaponClass === 'FINESSE_WEAPON') playerBaseOutput += Math.floor(player.agi * 1.5);
   if (weaponClass === 'HEAVY_WEAPON') playerBaseOutput += Math.floor(player.str * 2);
   if (weaponClass === 'MAGIC_WEAPON') playerBaseOutput += Math.floor(player.int * 2.5);
@@ -573,7 +579,7 @@ export async function execute(message: Message) {
     }
     
     if (activeHot > 0 && playerHp > 0) {
-        playerHp = Math.min(player.maxHp, playerHp + activeHot);
+        playerHp = Math.min(maxHpWithPet, playerHp + activeHot);
     }
     
     combatLog.push(roundTitle + '\n' + `> ${pAttackStr}${eStr}.`);
@@ -752,6 +758,11 @@ export async function execute(message: Message) {
 
     if (rarityRoll > 0.95) {
       gachaLootString = '🗝️ `[Dungeon Key]`'; dropKey = 'dungeon_key';
+    } else if (rarityRoll > 0.90) {
+      if (tier === 1) { dropKey = 'lumina_egg'; gachaLootString = '🥚 `[Lumina Pet Egg]`'; }
+      else if (tier === 2) { dropKey = 'mystic_egg'; gachaLootString = '🥚 `[Mystic Pet Egg]`'; }
+      else if (tier === 3) { dropKey = 'abyssal_egg'; gachaLootString = '🥚 `[Abyssal Pet Egg]`'; }
+      else { dropKey = 'astral_egg'; gachaLootString = '🥚 `[Astral Pet Egg]`'; }
     } else if (BP_POOL !== null) {
       const bp = BP_POOL[Math.floor(Math.random() * BP_POOL.length)]; 
       gachaLootString = `${rankColor} \`[Blueprint: ${bp.name}]\``; 
@@ -865,6 +876,11 @@ export async function execute(message: Message) {
   if (gachaLootString) embed.addFields({ name: '🎁 MYSTERY LOOT DROP!', value: `You found a rare blueprint schematic:\n${gachaLootString}`});
 
   await prisma.$transaction(dbOperations);
+
+  const questMsg = await processQuestProgress(player.id, 'HUNT');
+  if (questMsg) {
+      embed.addFields({ name: '🌟 Bounty Progression', value: questMsg });
+  }
 
   const trackerResult = await getPinnedTrackerField(player.id, (player as any).pinnedForgeItems);
   const row = new ActionRowBuilder<ButtonBuilder>();

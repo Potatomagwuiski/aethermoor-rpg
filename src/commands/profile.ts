@@ -22,7 +22,8 @@ export async function executeProfile(message: Message, args: string[]) {
     include: {
       inventory: true,
       equipment: { where: { equipped: true } },
-      tools: { where: { equipped: true } }
+      tools: { where: { equipped: true } },
+      pets: { where: { equipped: true } }
     }
   });
 

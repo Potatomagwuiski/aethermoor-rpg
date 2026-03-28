@@ -78,6 +78,12 @@ export function calculateBuildArchitecture(player: any) {
     let buildIdentity = `🛡️ **${baseMitigation}** Block | 💥 **${Math.min(100, gearCrit)}%** Crit | 💨 **${Math.min(100, gearEvasion)}%** Dodge`;
     if (gearLifesteal > 0) buildIdentity += ` | 🦇 **${gearLifesteal}%** Lifesteal`;
     
+    const activePet = player.pets ? player.pets.find((p: any) => p.equipped) : null;
+    if (activePet) {
+        buildIdentity += ` | ${activePet.emoji} Pet`;
+        gearDef += activePet.bonusDef;
+    }
+
     const abStr = activeAbilities.join(',');
     if (abStr.includes('Hemorrhage')) buildIdentity += ` | 🩸 Bleed`;
     if (abStr.includes('Neurotoxin')) buildIdentity += ` | 🧪 Poison`;
@@ -96,7 +102,9 @@ export function calculateBuildArchitecture(player: any) {
         hasLichKing,
         gearDef,
         bonusCrit,
-        bonusEvasion
+        bonusEvasion,
+        petBonusAtk: activePet ? activePet.bonusAtk : 0,
+        petBonusHp: activePet ? activePet.bonusHp : 0
     };
 }
 

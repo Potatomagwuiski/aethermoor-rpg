@@ -5,7 +5,11 @@ export async function executeDungeon(message: Message, args: string[]) {
   const discordId = message.author.id;
   const player = await prisma.player.findUnique({ 
     where: { discordId },
-    include: { inventory: true, equipment: true }
+    include: { 
+      inventory: true, 
+      equipment: { where: { equipped: true } },
+      pets: { where: { equipped: true } }
+    }
   });
 
   if (!player) {
@@ -33,11 +37,15 @@ export async function executeDungeon(message: Message, args: string[]) {
   let totalDamageTaken = 0;
   let logText = '';
   const dbOperations: any[] = [];
+  
+  const activePet = player.pets && player.pets.length > 0 ? player.pets[0] : null;
+  const maxHpWithPet = player.maxHp + (activePet ? activePet.bonusHp : 0);
+  let runningHp = player.hp;
 
   // Mitigation Calculation Engine
   // Mitigation & Attack Engine
   let gearDef = 0;
-  let gearAtk = Math.floor(player.str * 2.5); // Base Unarmed ATK
+  let gearAtk = Math.floor(player.str * 2.5) + (activePet ? activePet.bonusAtk : 0); // Base Unarmed ATK + Pet
   if (player.equipment) {
     for (const gear of player.equipment) {
       if (gear.equipped) {
@@ -48,7 +56,6 @@ export async function executeDungeon(message: Message, args: string[]) {
   }
   let mitigation = Math.floor(gearDef * 0.75) + Math.floor(player.end * 1);
 
-  let runningHp = player.hp;
   let survived = true;
 
   // --- STAGE 1-5: The Gauntlet ---

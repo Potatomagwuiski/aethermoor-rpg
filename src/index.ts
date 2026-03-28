@@ -26,6 +26,8 @@ import { executeEquip } from './commands/equip.js';
 import { executeTravel } from './commands/travel.js';
 import { executeRest } from './commands/rest.js';
 import { executeCd } from './commands/cd.js';
+import { executePets } from './commands/pets.js';
+import { executeQuests } from './commands/quests.js';
 
 const client = new Client({
     intents: [
@@ -261,8 +263,23 @@ client.on(Events.MessageCreate, async (message) => {
             await executeCd(message);
         } catch (error: any) {
             console.error(error);
-            await message.reply(`Error executing cooldowns command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+            await message.reply(`Error executing cd command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
+    } else if (command === 'pets') {
+        try {
+            await executePets(message, args);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing pets command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
+    } else if (command === 'quests' || command === 'bounties') {
+        try {
+            await executeQuests(message, args);
+        } catch (error: any) {
+            console.error(error);
+            await message.reply(`Error executing quests command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
+        }
+
     } else if (command === 'equip' || command === 'e') {
         try {
             await executeEquip(message, args);

@@ -4,6 +4,7 @@ import redisClient from '../redis.js';
 import { enforceCooldown } from '../utils/cooldown.js';
 import { getPinnedTrackerField } from '../utils/tracker.js';
 import { BLUEPRINTS } from './forge.js';
+import { processQuestProgress } from '../utils/quests.js';
 
 export async function executeHarvest(message: Message, args: string[]) {
   const discordId = message.author.id;
@@ -141,6 +142,11 @@ export async function executeHarvest(message: Message, args: string[]) {
     .setTitle('🌾 Harvesting Resolved')
     .setColor(isSlotJackpot ? 0xFFD700 : 0x32CD32) // LimeGreen
     .setDescription(`You tended to the soil and harvested the region's flora.\n\n${slotMachineString}\n${abilityHighlights}\n**Loot Dropped:**\n${dropOutput}\n**XP Gained:**\n✨ +${xpReward} EXP`);
+
+  const questMsg = await processQuestProgress(player.id, 'HARVEST', 1);
+  if (questMsg) {
+      embed.addFields({ name: '🌟 Bounty Progression', value: questMsg });
+  }
 
   const trackerResult = await getPinnedTrackerField(player.id, (player as any).pinnedForgeItems);
   const row = new ActionRowBuilder<ButtonBuilder>();

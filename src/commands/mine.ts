@@ -5,6 +5,7 @@ import { enforceCooldown } from '../utils/cooldown.js';
 import { getEmoji } from '../utils/emojis.js';
 import { getPinnedTrackerField } from '../utils/tracker.js';
 import { BLUEPRINTS } from './forge.js';
+import { processQuestProgress } from '../utils/quests.js';
 
 export async function executeMine(message: Message) {
   const discordId = message.author.id;
@@ -254,6 +255,11 @@ export async function executeMine(message: Message) {
 
   if (levelsGained > 0) {
     embed.addFields({ name: '🌟 LEVEL UP!', value: `You reached Level **${currentLevel + levelsGained}**! (+${levelsGained * 3} Stat Points)` });
+  }
+
+  const questMsg = await processQuestProgress(player.id, 'MINE', 1);
+  if (questMsg) {
+      embed.addFields({ name: '🌟 Bounty Progression', value: questMsg });
   }
 
   const trackerResult = await getPinnedTrackerField(player.id, (player as any).pinnedForgeItems);
