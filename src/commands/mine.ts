@@ -241,7 +241,7 @@ export async function executeMine(message: Message) {
   if (isSlotJackpot) {
     slotMachineString += ` = **!!! ${slotMultiplier}x JACKPOT MULTIPLIER !!!** 🔥🔥🔥`;
   } else if (isSlotMatch) {
-    slotMachineString += ` = **${slotMultiplier}x MATCH!** 🔥`;
+    slotMachineString += ` = **MATCH!** (${slotMultiplier}x Drop Multiplier) 🔥`;
   }
   
   const highlights = abilityHighlights.length > 0 ? `\n**✨ Tool Highlights:**\n${abilityHighlights}` : '';

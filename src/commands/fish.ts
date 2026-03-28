@@ -164,7 +164,7 @@ export async function executeFish(message: Message, args: string[]) {
   if (isSlotJackpot) {
     slotMachineString += ` = **!!! ${slotMultiplier}x JACKPOT MULTIPLIER !!!** 🔥🔥🔥`;
   } else if (isSlotMatch) {
-    slotMachineString += ` = **${slotMultiplier}x MATCH!** 🔥`;
+    slotMachineString += ` = **MATCH!** (${slotMultiplier}x Drop Multiplier) 🔥`;
   }
 
   let dropOutput = '';

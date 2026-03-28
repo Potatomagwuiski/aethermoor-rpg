@@ -839,7 +839,7 @@ export async function execute(message: Message) {
 
   let slotStr = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\``;
   if (isSlotJackpot) slotStr += ` = **!!! ${slotMultiplier}x JACKPOT MULTIPLIER !!!** 🔥🔥🔥`;
-  else if (isSlotMatch) slotStr += ` = **${slotMultiplier}x MATCH!** 🔥`;
+  else if (isSlotMatch) slotStr += ` = **MATCH!** (${slotMultiplier}x Drop Multiplier) 🔥`;
   responseBody += `${slotStr}\n\n🛍️ **Final Payout:** 🪙 ${goldReward} Gold | ✨ ${xpReward} XP\n`;
 
   if (mobDrops.length > 0) {
