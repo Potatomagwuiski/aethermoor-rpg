@@ -531,6 +531,17 @@ export async function execute(message: Message) {
   // --- UNIFIED COMBAT AGGREGATOR ---
   let buildAnalysisString = '';
 
+  let buildIdentity = `🛡️ **${gearDef}** DEF | 💥 **${Math.min(100, gearCrit)}%** Crit | 💨 **${Math.min(100, gearEvasion)}%** Dodge`;
+  if (gearLifesteal > 0) buildIdentity += ` | 🦇 **${gearLifesteal}%** Lifesteal`;
+  const abStr = activeAbilities.join(',');
+  if (abStr.includes('Hemorrhage')) buildIdentity += ` | 🩸 Bleed`;
+  if (abStr.includes('Neurotoxin')) buildIdentity += ` | 🧪 Poison`;
+  if (abStr.includes('Relentless')) buildIdentity += ` | 📈 Momentum`;
+  if (abStr.includes('Executioner')) buildIdentity += ` | 🗡️ Burst`;
+  if (hasUndying || hasLichKing) buildIdentity += ` | ✨ Revive`;
+  
+  buildAnalysisString += `💠 **Build Architecture:** ${buildIdentity}\n`;
+
   let coreStats = [];
   if (totalEvades > 0) coreStats.push(`💨 ${totalEvades} Evades`);
   if (totalMitigated > 0) coreStats.push(`🛡️ ${totalMitigated} Blocked`);
