@@ -5,6 +5,7 @@ import { enforceCooldown } from '../utils/cooldown.js';
 import { getEmoji } from '../utils/emojis.js';
 import { BLUEPRINTS } from './forge.js';
 import { getPinnedTrackerField } from '../utils/tracker.js';
+import { calculateBuildArchitecture } from '../utils/stats.js';
 
 export async function execute(message: Message) {
   const discordId = message.author.id;
@@ -581,16 +582,8 @@ export async function execute(message: Message) {
   // --- UNIFIED COMBAT AGGREGATOR ---
   let buildAnalysisString = '';
 
-  let buildIdentity = `🛡️ **${baseMitigation}** Block | 💥 **${Math.min(100, gearCrit)}%** Crit | 💨 **${Math.min(100, gearEvasion)}%** Dodge`;
-  if (gearLifesteal > 0) buildIdentity += ` | 🦇 **${gearLifesteal}%** Lifesteal`;
-  const abStr = activeAbilities.join(',');
-  if (abStr.includes('Hemorrhage')) buildIdentity += ` | 🩸 Bleed`;
-  if (abStr.includes('Neurotoxin')) buildIdentity += ` | 🧪 Poison`;
-  if (abStr.includes('Relentless')) buildIdentity += ` | 📈 Momentum`;
-  if (abStr.includes('Executioner')) buildIdentity += ` | 🗡️ Burst`;
-  if (hasUndying || hasLichKing) buildIdentity += ` | ✨ Revive`;
-  
-  buildAnalysisString += `💠 **Build Architecture:** ${buildIdentity}\n`;
+  const buildData = calculateBuildArchitecture(player);
+  buildAnalysisString += `💠 **Build Architecture:** ${buildData.buildIdentity}\n`;
 
   let coreStats = [];
   if (totalEvades > 0) coreStats.push(`💨 ${totalEvades} Evades`);

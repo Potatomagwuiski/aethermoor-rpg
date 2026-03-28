@@ -1,7 +1,9 @@
 import { Message, EmbedBuilder } from 'discord.js';
 import { prisma } from '../db.js';
 import { getEmoji } from '../utils/emojis.js';
-
+import { calculateBuildArchitecture, getWeaponSlotModifierString } from '../utils/stats.js';
+import { GEAR } from '../data/items.js';
+import { BLUEPRINTS } from '../data/blueprints.js';
 export async function executeProfile(message: Message, args: string[]) {
   // If args[0] exists, try to look up another player by ping!
   let targetId = message.author.id;
@@ -46,10 +48,28 @@ export async function executeProfile(message: Message, args: string[]) {
   else {
     player.equipment.forEach(gear => {
       const emoji = getEmoji(gear.baseItemKey);
-      gearText += `• ${emoji} **${gear.name}** (+${gear.bonusAtk}⚔️ | +${gear.bonusDef}🛡️)\n`;
+      
+      let extra = '';
+      if (gear.slot === 'WEAPON') {
+          const activeAbilities = GEAR[gear.itemKey]?.abilities || BLUEPRINTS[gear.baseItemKey]?.abilities || [];
+          const slotTag = getWeaponSlotModifierString(gear.name || '', activeAbilities);
+          if (slotTag) extra = ` ${slotTag}`;
+      }
+
+      gearText += `• ${emoji} **${gear.name}** (+${gear.bonusAtk}⚔️ | +${gear.bonusDef}🛡️)${extra}\n`;
     });
   }
   embed.addFields({ name: '⚔️ Equipped Gear', value: gearText });
+
+  const buildData = calculateBuildArchitecture(player);
+  embed.addFields({ name: '💠 Build Architecture', value: buildData.buildIdentity });
+
+  if (player.activeBuff && player.buffExpiresAt && player.buffExpiresAt > new Date()) {
+      embed.addFields({ 
+          name: '🍺 Active Buffs', 
+          value: `> **${player.activeBuff.replace(/_/g, ' ')}**\n> Expires: <t:${Math.floor(player.buffExpiresAt.getTime() / 1000)}:R>` 
+      });
+  }
 
   // Parse Tools
   let toolsText = '';
