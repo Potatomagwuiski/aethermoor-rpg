@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { Client, GatewayIntentBits, Events } from 'discord.js';
+import { Client, GatewayIntentBits, Events, ActionRowBuilder, ButtonBuilder } from 'discord.js';
 import prisma from './db.js';
 import redisClient from './redis.js';
 import * as huntCommand from './commands/hunt.js';
@@ -48,6 +48,38 @@ client.once(Events.ClientReady, async (readyClient) => {
         console.log(`Connected to PostgreSQL Database. Current players registered: ${playerCount}`);
     } catch (e) {
         console.error('Failed to connect to databases (Redis/PG):', e);
+    }
+});
+
+client.on(Events.InteractionCreate, async (interaction) => {
+    if (!interaction.isButton()) return;
+    
+    // Tracker Unpin Logic
+    if (interaction.customId.startsWith('unpin_')) {
+        const parts = interaction.customId.split('_');
+        const targetUserId = parts.pop();
+        if (interaction.user.id !== targetUserId) {
+            return interaction.reply({ content: "❌ You cannot unpin someone else's tracker!", ephemeral: true });
+        }
+        
+        const pinKey = parts.slice(1).join('_');
+        
+        try {
+            const player = await prisma.player.findUnique({ where: { discordId: interaction.user.id } });
+            if (player && player.pinnedForgeItems) {
+                const newPins = (player.pinnedForgeItems as string[]).filter(k => k !== pinKey);
+                await prisma.player.update({ where: { id: player.id }, data: { pinnedForgeItems: newPins } });
+            }
+            
+            // Delete the button visually to clear UI clutter
+            await interaction.update({ components: [] });
+            await interaction.followUp({ content: `✅ Successfully unpinned the completed blueprint!`, ephemeral: true });
+        } catch (e) {
+            console.error('Interaction Error:', e);
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.reply({ content: 'Failed to process interaction.', ephemeral: true });
+            }
+        }
     }
 });
 

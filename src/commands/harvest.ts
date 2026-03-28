@@ -1,8 +1,9 @@
-import { Message, EmbedBuilder } from 'discord.js';
+import { Message, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { prisma } from '../db.js';
 import redisClient from '../redis.js';
 import { enforceCooldown } from '../utils/cooldown.js';
 import { getPinnedTrackerField } from '../utils/tracker.js';
+import { BLUEPRINTS } from './forge.js';
 
 export async function executeHarvest(message: Message, args: string[]) {
   const discordId = message.author.id;
@@ -141,8 +142,22 @@ export async function executeHarvest(message: Message, args: string[]) {
     .setColor(isSlotJackpot ? 0xFFD700 : 0x32CD32) // LimeGreen
     .setDescription(`You tended to the soil and harvested the region's flora.\n\n${slotMachineString}\n${abilityHighlights}\n**Loot Dropped:**\n${dropOutput}\n**XP Gained:**\n✨ +${xpReward} EXP`);
 
-  const trackerField = await getPinnedTrackerField(player.id, (player as any).pinnedForgeItems);
-  if (trackerField) embed.addFields(trackerField);
+  const trackerResult = await getPinnedTrackerField(player.id, (player as any).pinnedForgeItems);
+  const row = new ActionRowBuilder<ButtonBuilder>();
+  if (trackerResult) {
+      embed.addFields(trackerResult.field);
+      for (const completePin of trackerResult.completedPins) {
+          row.addComponents(
+              new ButtonBuilder()
+                  .setCustomId(`unpin_${completePin}_${player.id}`)
+                  .setLabel(`Unpin ${BLUEPRINTS[completePin].name}`)
+                  .setStyle(ButtonStyle.Success)
+          );
+      }
+  }
 
-  return message.reply({ embeds: [embed] });
+  const payload: any = { embeds: [embed] };
+  if (row.components.length > 0) payload.components = [row];
+
+  return message.reply(payload);
 }

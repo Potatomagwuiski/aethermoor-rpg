@@ -21,11 +21,13 @@ export async function getPinnedTrackerField(playerId: string, pinnedForgeItems: 
     
     let trackStr = '';
     const grandTotals: Record<string, number> = {};
+    const completedPins: string[] = [];
     
     validPins.forEach((pinKey, index) => {
         const blueprint = BLUEPRINTS[pinKey];
         trackStr += `**${blueprint.name}**\n`;
         
+        let allMet = true;
         for (const [matKey, reqQty] of Object.entries(blueprint.materials as Record<string, number>)) {
             if (!grandTotals[matKey]) grandTotals[matKey] = 0;
             grandTotals[matKey] += reqQty;
@@ -34,9 +36,12 @@ export async function getPinnedTrackerField(playerId: string, pinnedForgeItems: 
             const has = invItem ? invItem.quantity : 0;
             const emoji = getEmoji(matKey) || '📦';
             
+            if (has < reqQty) allMet = false;
             const status = has >= reqQty ? '✅' : '❌';
             trackStr += `> ${status} ${emoji} **${matKey.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}**: ${has}/${reqQty}\n`;
         }
+        
+        if (allMet) completedPins.push(pinKey);
         
         // Add spacing between pins if it's not the last one
         if (index < validPins.length - 1) {
@@ -60,5 +65,6 @@ export async function getPinnedTrackerField(playerId: string, pinnedForgeItems: 
         }
     }
     
-    return { name: `📌 Pinned Schematics (${validPins.length}/3)`, value: trackStr, inline: false };
+    const field = { name: `📌 Pinned Schematics (${validPins.length}/3)`, value: trackStr, inline: false };
+    return { field, completedPins };
 }

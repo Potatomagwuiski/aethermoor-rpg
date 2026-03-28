@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder } from 'discord.js';
+import { Message, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import prisma from '../db.js';
 import redisClient from '../redis.js';
 import { enforceCooldown } from '../utils/cooldown.js';
@@ -865,8 +865,22 @@ export async function execute(message: Message) {
 
   await prisma.$transaction(dbOperations);
 
-  const trackerField = await getPinnedTrackerField(player.id, (player as any).pinnedForgeItems);
-  if (trackerField) embed.addFields(trackerField);
+  const trackerResult = await getPinnedTrackerField(player.id, (player as any).pinnedForgeItems);
+  const row = new ActionRowBuilder<ButtonBuilder>();
+  if (trackerResult) {
+      embed.addFields(trackerResult.field);
+      for (const completePin of trackerResult.completedPins) {
+          row.addComponents(
+              new ButtonBuilder()
+                  .setCustomId(`unpin_${completePin}_${player.id}`)
+                  .setLabel(`Unpin ${BLUEPRINTS[completePin].name}`)
+                  .setStyle(ButtonStyle.Success)
+          );
+      }
+  }
 
-  return message.reply({ embeds: [embed] });
+  const payload: any = { embeds: [embed] };
+  if (row.components.length > 0) payload.components = [row];
+
+  return message.reply(payload);
 }
