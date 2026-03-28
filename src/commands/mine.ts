@@ -148,6 +148,18 @@ export async function executeMine(message: Message) {
       if (ab.includes('Earth Sense') && Math.random() > 0.90) { hiddenGem = true; abilityHighlights += `💎 \`Earth Sense\` found hidden gems!\n`; }
   }
 
+  // --- PRE-GATHERING CULINARY BUFF PARSING ---
+  if (player.activeBuff && player.buffExpiresAt && player.buffExpiresAt > new Date()) {
+      if (player.activeBuff === 'MINE_YIELD_1') { bonusYield += 1; abilityHighlights += `🥣 **Buff Active:** Miner's Goulash (+1 Base Yield)\n`; }
+      if (player.activeBuff === 'GATHER_NO_HP') { noDamage = true; abilityHighlights += `🥞 **Buff Active:** Lumberjack's Pancakes (0 Exhaustion!)\n`; }
+      if (player.activeBuff === 'GATHER_SLOT_10') { 
+          if (isSlotJackpot || isSlotMatch) slotMultiplier += 10; 
+          abilityHighlights += `🥧 **Buff Active:** Golden Harvest Pie (+10 Slot Multiplier!)\n`; 
+      }
+  } else if (player.activeBuff) {
+      await prisma.player.update({ where: { id: player.id }, data: { activeBuff: null, buffExpiresAt: null } });
+  }
+
   if (isOverload) {
       slotMultiplier *= 10;
       isSlotJackpot = true;

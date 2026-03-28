@@ -52,6 +52,17 @@ export async function executeHarvest(message: Message, args: string[]) {
     slotMultiplier = 3; 
   }
 
+  // --- PRE-GATHERING CULINARY BUFF PARSING ---
+  let abilityHighlights = '';
+  if (player.activeBuff && player.buffExpiresAt && player.buffExpiresAt > new Date()) {
+      if (player.activeBuff === 'GATHER_SLOT_10') { 
+          if (isSlotJackpot || isSlotMatch) slotMultiplier += 10; 
+          abilityHighlights += `🥧 **Buff Active:** Golden Harvest Pie (+10 Slot Multiplier!)\n`; 
+      }
+  } else if (player.activeBuff) {
+      await prisma.player.update({ where: { id: player.id }, data: { activeBuff: null, buffExpiresAt: null } });
+  }
+
   // Geographical node table
   const zone = player.location || 'lumina_plains';
 
@@ -127,7 +138,7 @@ export async function executeHarvest(message: Message, args: string[]) {
   const embed = new EmbedBuilder()
     .setTitle('🌾 Harvesting Resolved')
     .setColor(isSlotJackpot ? 0xFFD700 : 0x32CD32) // LimeGreen
-    .setDescription(`You tended to the soil and harvested the region's flora.\n\n${slotMachineString}\n\n**Loot Dropped:**\n${dropOutput}\n**XP Gained:**\n✨ +${xpReward} EXP`);
+    .setDescription(`You tended to the soil and harvested the region's flora.\n\n${slotMachineString}\n${abilityHighlights}\n**Loot Dropped:**\n${dropOutput}\n**XP Gained:**\n✨ +${xpReward} EXP`);
 
   return message.reply({ embeds: [embed] });
 }

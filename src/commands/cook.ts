@@ -17,6 +17,18 @@ const RECIPES: Record<string, any> = {
   'abyssal_feast': {
     name: 'Abyssal Feast', materials: { void_bass: 1, living_bark: 1, sticks: 10 }, buffName: '+250 ATK, Heal 80 HP / Round', buffKey: 'ATK_250_HOT_80', color: 0x5B2C6F
   },
+  'lumberjack_pancakes': {
+    name: 'Lumberjack\'s Pancakes', materials: { lumina_berry: 2, wood: 2, sticks: 5 }, buffName: 'Nullify Woodcutting & Mining Exhaustion', buffKey: 'GATHER_NO_HP', color: 0xF39C12
+  },
+  'miner_goulash': {
+    name: 'Miner\'s Goulash', materials: { cinderbloom: 1, copper: 3, sticks: 5 }, buffName: '+1 Base Ore Yield', buffKey: 'MINE_YIELD_1', color: 0x7F8C8D
+  },
+  'fisherman_brew': {
+    name: 'Fisherman\'s Brew', materials: { nightmare_kelp: 1, river_trout: 2, sticks: 5 }, buffName: 'Guaranteed Epic Fish', buffKey: 'FISH_EPIC', color: 0x3498DB
+  },
+  'golden_harvest_pie': {
+    name: 'Golden Harvest Pie', materials: { golden_koi: 1, frost_lotus: 1, sticks: 10 }, buffName: '+10 to Slot Machine Jackpots', buffKey: 'GATHER_SLOT_10', color: 0xF1C40F
+  },
   'koi_soup': {
     name: 'Koi Soup', materials: { golden_koi: 1, mooncap_mushroom: 1, sticks: 2 }, buffName: '+25 MAX HP', buffKey: 'HP_25', color: 0xF1C40F
   },
@@ -73,7 +85,11 @@ export async function executeCook(message: Message, args: string[]) {
       'golden_skewer': '🍢',
       'glacier_stew': '🍲',
       'lava_seared_eel': '🔥',
-      'abyssal_feast': '🌌'
+      'abyssal_feast': '🌌',
+      'lumberjack_pancakes': '🥞',
+      'miner_goulash': '🥣',
+      'fisherman_brew': '🍺',
+      'golden_harvest_pie': '🥧'
     };
 
     let learnedCount = 0;

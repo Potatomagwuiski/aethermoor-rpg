@@ -630,7 +630,7 @@ export async function execute(message: Message) {
   }
 
   // --- RECIPE DISCOVERY (10% CHANCE) ---
-  const ALL_RECIPES = ['koi_soup', 'glacial_filet', 'spicy_eel', 'void_sashimi', 'moonlight_brew', 'starlight_infusion', 'golden_skewer', 'glacier_stew', 'lava_seared_eel', 'abyssal_feast'];
+  const ALL_RECIPES = ['koi_soup', 'glacial_filet', 'spicy_eel', 'void_sashimi', 'moonlight_brew', 'starlight_infusion', 'golden_skewer', 'glacier_stew', 'lava_seared_eel', 'abyssal_feast', 'lumberjack_pancakes', 'miner_goulash', 'fisherman_brew', 'golden_harvest_pie'];
   if (Math.random() <= 0.10) {
       const droppedRecipe = ALL_RECIPES[Math.floor(Math.random() * ALL_RECIPES.length)];
       const alreadyHas = player.recipes && player.recipes.find((r: any) => r.recipeKey === droppedRecipe);

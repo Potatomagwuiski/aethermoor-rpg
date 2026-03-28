@@ -54,6 +54,19 @@ export async function executeFish(message: Message, args: string[]) {
     slotMultiplier = 3; 
   }
 
+  // --- PRE-GATHERING CULINARY BUFF PARSING ---
+  let abilityHighlights = '';
+  let forceEpic = false;
+  if (player.activeBuff && player.buffExpiresAt && player.buffExpiresAt > new Date()) {
+      if (player.activeBuff === 'FISH_EPIC') { forceEpic = true; abilityHighlights += `🍺 **Buff Active:** Fisherman's Brew (Guaranteed Epic!)\n`; }
+      if (player.activeBuff === 'GATHER_SLOT_10') { 
+          if (isSlotJackpot || isSlotMatch) slotMultiplier += 10; 
+          abilityHighlights += `🥧 **Buff Active:** Golden Harvest Pie (+10 Slot Multiplier!)\n`; 
+      }
+  } else if (player.activeBuff) {
+      await prisma.player.update({ where: { id: player.id }, data: { activeBuff: null, buffExpiresAt: null } });
+  }
+
   // Geographical node table
   const zone = player.location || 'lumina_plains';
 
@@ -76,7 +89,7 @@ export async function executeFish(message: Message, args: string[]) {
   let finalEpic = 0;
 
   if (Math.random() > 0.5) finalSecondary = Math.floor((Math.random() * 2) + 1) * slotMultiplier;
-  if (Math.random() > 0.95) finalEpic = 1 * slotMultiplier;
+  if (Math.random() > 0.95 || forceEpic) finalEpic = 1 * slotMultiplier;
 
   const xpReward = 2 * slotMultiplier;
 
@@ -121,7 +134,7 @@ export async function executeFish(message: Message, args: string[]) {
   const embed = new EmbedBuilder()
     .setTitle('🎣 Fishing Resolved')
     .setColor(isSlotJackpot ? 0xFFD700 : 0x1E90FF) // DodgerBlue
-    .setDescription(`You cast your line into the regional waters.\n\n${slotMachineString}\n\n**Loot Dropped:**\n${dropOutput}\n**XP Gained:**\n✨ +${xpReward} EXP`);
+    .setDescription(`You cast your line into the regional waters.\n\n${slotMachineString}\n${abilityHighlights}\n**Loot Dropped:**\n${dropOutput}\n**XP Gained:**\n✨ +${xpReward} EXP`);
 
   const trackerField = await getPinnedTrackerField(player.id, player.pinnedForgeItem);
   if (trackerField) embed.addFields(trackerField);

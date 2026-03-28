@@ -143,6 +143,17 @@ export async function executeChop(message: Message) {
       if (ab.includes('Natures Bounty') && Math.random() > 0.90) { hiddenGem = true; abilityHighlights += `🍃 \`Natures Bounty\` found hidden seeds!\n`; }
   }
 
+  // --- PRE-GATHERING CULINARY BUFF PARSING ---
+  if (player.activeBuff && player.buffExpiresAt && player.buffExpiresAt > new Date()) {
+      if (player.activeBuff === 'GATHER_NO_HP') { noDamage = true; abilityHighlights += `🥞 **Buff Active:** Lumberjack's Pancakes (0 Exhaustion!)\n`; }
+      if (player.activeBuff === 'GATHER_SLOT_10') { 
+          if (isSlotJackpot || isSlotMatch) slotMultiplier += 10; 
+          abilityHighlights += `🥧 **Buff Active:** Golden Harvest Pie (+10 Slot Multiplier!)\n`; 
+      }
+  } else if (player.activeBuff) {
+      await prisma.player.update({ where: { id: player.id }, data: { activeBuff: null, buffExpiresAt: null } });
+  }
+
   if (isOverload) {
       slotMultiplier *= 10;
       isSlotJackpot = true;
