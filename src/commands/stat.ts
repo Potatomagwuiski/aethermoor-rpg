@@ -23,9 +23,11 @@ export async function executeStat(message: Message, commandName: string, args: s
           { name: '💪 STR', value: player.str.toString(), inline: true },
           { name: '🏃 AGI', value: player.agi.toString(), inline: true },
           { name: '🧠 INT', value: player.int.toString(), inline: true },
-          { name: '🛡️ END', value: player.end.toString(), inline: true }
+          { name: '🛡️ END', value: player.end.toString(), inline: true },
+          { name: '\u200B', value: '\u200B', inline: false },
+          { name: '⚔️ The Combat Math Engine', value: `> 💪 **STR**: Enhances \`Heavy\` Weapons\n> 🏃 **AGI**: Enhances \`Finesse\` Weapons & passive **Dodge Chance**\n> 🧠 **INT**: Enhances \`Magic\` Weapons & passive **Crit Chance**\n> 🛡️ **END**: Permanent Mitigation & huge **Max HP** scaling`, inline: false }
         )
-        .setFooter({ text: 'To spend points, type: `rpg <str/agi/int/end> <amount>`' });
+        .setFooter({ text: 'To spend points, type: `rpg stat <str/agi/int/end> <amount>`' });
         
       return message.reply({ embeds: [embed] });
     }
