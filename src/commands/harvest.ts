@@ -149,7 +149,7 @@ export async function executeHarvest(message: Message, args: string[]) {
       for (const pin of trackerResult.pinDetails) {
           row.addComponents(
               new ButtonBuilder()
-                  .setCustomId(`unpin_${pin.key}_${player.id}`)
+                  .setCustomId(`unpin_${pin.key}_${player.discordId}`)
                   .setLabel(pin.isCompleted ? `✅ Unpin ${BLUEPRINTS[pin.key].name}` : `✖ Unpin ${BLUEPRINTS[pin.key].name}`)
                   .setStyle(pin.isCompleted ? ButtonStyle.Success : ButtonStyle.Secondary)
           );
