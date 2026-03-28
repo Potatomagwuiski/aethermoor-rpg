@@ -1,5 +1,6 @@
 import { Message, EmbedBuilder } from 'discord.js';
 import { prisma } from '../db.js';
+import { enforceCooldown } from '../utils/cooldown.js';
 
 const SHOP_ITEMS: Record<string, { id: string, name: string, price: number, icon: string, description: string }> = {
   'lootbox': { id: 'lootbox', name: 'Mystery Loot Box', price: 200, icon: '📦', description: 'Roll for random gear, ores, or wood. Bypasses gathering.' },
@@ -61,6 +62,16 @@ export async function executeBuy(message: Message, args: string[]) {
   const totalCost = item.price * quantityInput;
 
   const discordId = message.author.id;
+  
+  if (itemId === 'lootbox') {
+      const cdKey = `cd:buy_lootbox:${discordId}`;
+      const cd = await enforceCooldown(cdKey, 7200);
+      if (cd.onCooldown) {
+          const hours = Math.floor(cd.remainingMs / (1000 * 60 * 60));
+          const mins = Math.floor((cd.remainingMs % (1000 * 60 * 60)) / (1000 * 60));
+          return message.reply(`⏳ Stop right there! The merchant needs time to restock Mystery Loot Boxes. Please wait **${hours}h ${mins}m** before buying another.`);
+      }
+  }
   const player = await prisma.player.findUnique({ where: { discordId } });
 
   if (!player) {

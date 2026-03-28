@@ -763,6 +763,8 @@ export async function execute(message: Message) {
       else if (tier === 2) { dropKey = 'mystic_egg'; gachaLootString = '🥚 `[Mystic Pet Egg]`'; }
       else if (tier === 3) { dropKey = 'abyssal_egg'; gachaLootString = '🥚 `[Abyssal Pet Egg]`'; }
       else { dropKey = 'astral_egg'; gachaLootString = '🥚 `[Astral Pet Egg]`'; }
+    } else if (rarityRoll > 0.85) {
+      gachaLootString = '📦 `[Mystery Loot Box]`'; dropKey = 'lootbox';
     } else if (BP_POOL !== null) {
       const bp = BP_POOL[Math.floor(Math.random() * BP_POOL.length)]; 
       gachaLootString = `${rankColor} \`[Blueprint: ${bp.name}]\``; 

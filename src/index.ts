@@ -21,7 +21,7 @@ import { executeStat } from './commands/stat.js';
 import { executeSell } from './commands/sell.js';
 import { executeGive } from './commands/give.js';
 import { executePay } from './commands/pay.js';
-import { executeHatch } from './commands/hatch.js';
+import { executeOpen } from './commands/open.js';
 import { executeEquip } from './commands/equip.js';
 import { executeTravel } from './commands/travel.js';
 import { executeRest } from './commands/rest.js';
@@ -139,9 +139,9 @@ client.on(Events.MessageCreate, async (message) => {
             console.error(error);
             await message.reply(`Error executing harvest command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
-    } else if (command === 'hatch') {
+    } else if (command === 'hatch' || command === 'open') {
         try {
-            await executeHatch(message, args);
+            await executeOpen(message, args);
         } catch (error: any) {
             console.error(error);
             await message.reply(`Error executing hatch command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
@@ -288,7 +288,7 @@ client.on(Events.MessageCreate, async (message) => {
             await message.reply(`Error executing equip command: ${error.message}\n\`\`\`\n${error.stack}\n\`\`\``);
         }
     } else {
-        await message.reply('❓ **Unknown command.** Try:\n⚔️ `rpg hunt` | 🏰 `rpg dungeon`\n⛏️ `rpg mine` | 🪓 `rpg chop` | 🎣 `rpg fish` | 🌾 `rpg harvest`\n🛒 `rpg shop` | 💰 `rpg buy` | 🔄 `rpg trade`\n🔨 `rpg forge` | 🛡️ `rpg equip`\n🗺️ `rpg travel` | 🧪 `rpg heal`\n📖 `rpg profile` | 🎒 `rpg inv`\n📊 `rpg stat` | ❓ `rpg help`');
+        await message.reply('❓ **Unknown command.** Try:\n⚔️ `rpg hunt` | 🏰 `rpg dungeon`\n⛏️ `rpg mine` | 🪓 `rpg chop` | 🎣 `rpg fish` | 🌾 `rpg harvest`\n🛒 `rpg shop` | 💰 `rpg buy` | 🔄 `rpg trade` | 📦 `rpg open`\n🔨 `rpg forge` | 🛡️ `rpg equip`\n🗺️ `rpg travel` | 🧪 `rpg heal`\n📖 `rpg profile` | 🎒 `rpg inv`\n📊 `rpg stat` | ❓ `rpg help`');
     }
 });
 
