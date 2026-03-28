@@ -27,7 +27,7 @@ export const BLUEPRINTS: Record<string, any> = {
       '✨ **Hefty**: +2% Base Damage',
       '✨ **Heavy Strike**: +10% Damage on first turn',
       '🛡️ **Stalwart**: Grants 5 bonus DEF',
-      '⚔️ **Execution**: +15% Damage against enemies below 30% HP',
+      '🩸 **Hemorrhage**: Attacks apply a Bleed stack (2% Player Max HP True Dmg/stack)',
       '🌟 **Earthquake**: 10% chance to stun enemy and deal 200% DMG'
     ],
     outputs: {
@@ -43,7 +43,7 @@ export const BLUEPRINTS: Record<string, any> = {
       '🐺 **Tracker**: +5% XP from Beasts',
       '✨ **Beastbane**: Deals +50% Damage to Beasts & Wolves',
       '🩸 **Bloodlust**: Heals for 5% of damage dealt',
-      '💀 **Execute**: 10% chance to instantly kill monsters under 30% HP',
+      '📈 **Relentless**: Every round increases Base Damage by 10%',
       '🌟 **Alpha Predator**: Grants +10% ALL Stats when fighting Beasts'
     ],
     outputs: { rare: { key: 'rare_wolf_slayer', name: '🟦 [Rare Wolf Slayer]', dps: 85 }, epic: { key: 'epic_wolf_slayer', name: '🟪 [Epic Wolf Slayer]', dps: 150 } }
@@ -53,7 +53,7 @@ export const BLUEPRINTS: Record<string, any> = {
     abilities: [
       '✨ **Light Edge**: +5% Evasion',
       '✨ **Mythril Edge**: Ignores 10% of enemy DEF',
-      '🩸 **Rend**: Applies a 20 DMG bleed each turn',
+      '🩸 **Hemorrhage**: Attacks apply a Bleed stack (2% Player Max HP True Dmg/stack)',
       '⚡ **Thunderous Blow**: 5% chance to stun enemy for 1 turn',
       '🌟 **Armor Breaker**: Permanently reduces enemy DEF to 0 on first hit'
     ],
@@ -65,7 +65,7 @@ export const BLUEPRINTS: Record<string, any> = {
       '🌌 **Void Touched**: +5% Lifesteal',
       '✨ **Void Strike**: 15% chance to ignore 50% of monster DEF',
       '🌌 **Abyssal Echo**: 25% chance to attack a second time',
-      '🌑 **Event Horizon**: 5% chance to instantly banish non-bosses',
+      '🧪 **Neurotoxin**: 30% chance on hit to apply a Poison Stack (-5% Monster DMG/stack)',
       '🌟 **Singularity**: 10% chance to absorb all incoming damage and reflect it 3x'
     ],
     outputs: { rare: { key: 'rare_void_blade', name: '🟦 [Rare Void Blade]', dps: 100 }, epic: { key: 'epic_void_blade', name: '🟪 [Epic Void Blade]', dps: 200 }, legendary: { key: 'legendary_void_blade', name: '🟧 [✨ LEGENDARY VOID BLADE ✨]', dps: 500 } }
@@ -95,7 +95,7 @@ export const BLUEPRINTS: Record<string, any> = {
       '✨ **Poison**: Deals 50 DMG every combat round',
       '💨 **Swiftness**: +15% Base Evasion',
       '☠️ **Lethal Dose**: Poison damage doubles when monster is below 50% HP',
-      '🌟 **Plague**: Poison spreads, reducing Enemy ATK by 25%'
+      '🧪 **Neurotoxin**: 30% chance on hit to apply a Poison Stack (-5% Monster DMG/stack)'
     ],
     outputs: { rare: { key: 'rare_venom_shiv', name: '🟦 [Rare Venom Shiv]', dps: 90 }, epic: { key: 'epic_venom_shiv', name: '🟪 [Epic Venom Shiv]', dps: 160 } }
   },
@@ -103,7 +103,7 @@ export const BLUEPRINTS: Record<string, any> = {
     name: 'Shadow Blade', requiredBlueprint: 'blueprint_shadow_blade', materials: { mythril: 65, gold_ore: 25, shadow_dust: 5 },
     abilities: [
       '🌑 **Dim**: +5% Evasion in low light',
-      '✨ **Assassinate**: 15% chance to execute non-bosses',
+      '📈 **Relentless**: Every round increases Base Damage by 10%',
       '💨 **Phantom Strike**: +10% Base Evasion',
       '🔪 **Deep Wounds**: Deals 50 bleeding damage every round',
       '🌟 **True Death**: Execution threshold increased to 40% HP'
@@ -158,7 +158,7 @@ export const BLUEPRINTS: Record<string, any> = {
       '🌾 **Reaper**: +2% Base Damage',
       '✨ **Harvest**: +5% bonus Gold on kills',
       '💀 **Soul Siphon**: Heals 2 HP upon killing an enemy',
-      '👻 **Spectral Edge**: Attacks ignore 5% of target DEF',
+      '💥 **Executioner**: Critical strikes deal 3.5x damage instead of 2.0x',
       '🌟 **Grim Memento**: +50% XP from Undead'
     ],
     outputs: {
@@ -178,7 +178,7 @@ export const BLUEPRINTS: Record<string, any> = {
       '👻 **Ethereal**: +5% Evasion against physical attacks',
       '✨ **Reap**: Heals for 10% of damage dealt',
       '💀 **Grave Digger**: +25% DMG against Undead',
-      '👻 **Soul Rend**: Permanent +1 ATK for every fight won with this weapon',
+      '💥 **Executioner**: Critical strikes deal 3.5x damage instead of 2.0x',
       '🌟 **Necromancy**: 20% chance to survive a fatal blow via Undying'
     ],
     outputs: { rare: { key: 'rare_soul_reaper', name: '🟦 [Rare Soul Reaper]', dps: 150 }, epic: { key: 'epic_soul_reaper', name: '🟪 [Epic Soul Reaper]', dps: 260 } }

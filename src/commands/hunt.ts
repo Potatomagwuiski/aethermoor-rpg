@@ -266,6 +266,12 @@ export async function execute(message: Message) {
   let totalCrits = 0;
   let totalMitigated = 0;
 
+  let bleedStacks = 0;
+  let poisonStacks = 0;
+  let momentumBonus = 1.0;
+  let totalPoisonMitigated = 0;
+  let totalExecutionerBurst = 0;
+
   const MAX_ROUNDS = 20;
 
   while (playerHp > 0 && monsterHp > 0 && rounds < MAX_ROUNDS) {
@@ -273,6 +279,12 @@ export async function execute(message: Message) {
 
     // 1. Player Attacks!
     let roundDps = playerBaseOutput + gearAtk;
+    
+    // Ramp-up Build
+    if (activeAbilities.join(',').includes('Relentless')) {
+        momentumBonus += 0.10;
+        roundDps = Math.floor(roundDps * momentumBonus);
+    }
     
     // Process Active Weapon Abilities!
     let abilityMsg = '';
@@ -396,7 +408,14 @@ export async function execute(message: Message) {
     if (rounds === 1 && activeAbilities.join(',').includes('Ambush')) gearCrit = 100;
     
     if (Math.random() * 100 < gearCrit) {
-      roundDps = Math.floor(roundDps * 2);
+      if (activeAbilities.join(',').includes('Executioner')) {
+          const baseCrit = Math.floor(roundDps * 2);
+          const executionerCrit = Math.floor(roundDps * 3.5);
+          roundDps = executionerCrit;
+          totalExecutionerBurst += (executionerCrit - baseCrit);
+      } else {
+          roundDps = Math.floor(roundDps * 2);
+      }
       totalCrits++;
     }
 
@@ -410,10 +429,29 @@ export async function execute(message: Message) {
     monsterHp -= roundDps;
     totalDamageDealt += roundDps;
 
+    // DoT Execution
+    if (activeAbilities.join(',').includes('Hemorrhage')) bleedStacks++;
+    if (bleedStacks > 0) {
+        let tickTrueDmg = Math.floor(player.maxHp * 0.02 * bleedStacks);
+        if (tickTrueDmg < 1) tickTrueDmg = 1;
+        monsterHp -= tickTrueDmg;
+        totalBleedDamage += tickTrueDmg;
+    }
+
     if (monsterHp <= 0) break; // Monster SLAIN!
 
     // 2. Monster Counter-Attacks!
     let rawIncoming = Math.floor(Math.random() * monsterAttackPower) + Math.floor(monsterAttackPower / 2);
+
+    // Debuff Logic
+    if (activeAbilities.join(',').includes('Neurotoxin') && Math.random() < 0.30) {
+        poisonStacks = Math.min(10, poisonStacks + 1); // 50% max reduction
+    }
+    if (poisonStacks > 0) {
+        const poisonMitigation = Math.floor(rawIncoming * (0.05 * poisonStacks));
+        rawIncoming -= poisonMitigation;
+        totalPoisonMitigated += poisonMitigation;
+    }
     
     // Mitigation Engine (END multiplier halved from x2 to x1 to prevent immortality)
     let mitigation = Math.floor(gearDef * 0.75) + Math.floor(player.end * 1);
@@ -490,6 +528,12 @@ export async function execute(message: Message) {
     }
   }
 
+  let buildAnalysisString = '';
+  if (totalBleedDamage > 0) buildAnalysisString += `🩸 **Hemorrhage** tore the enemy apart, dealing **${totalBleedDamage} True Damage** over ${rounds} rounds!\n`;
+  if (totalPoisonMitigated > 0) buildAnalysisString += `🧪 **Neurotoxin** weakened the enemy, preventing **${totalPoisonMitigated} Damage** from hitting you!\n`;
+  if (totalExecutionerBurst > 0) buildAnalysisString += `💥 **Executioner** triggered on ${totalCrits} Critical Strikes, dealing **${totalExecutionerBurst} extra burst damage**!\n`;
+  if (momentumBonus > 1.0) buildAnalysisString += `📈 **Relentless** momentum ramped up your Attack over the fight, granting **+${Math.floor((momentumBonus - 1.0)*100)}% Bonus Damage** on the final blow!\n`;
+
   // --- FAILURE STATE (DEATH PENALTY) ---
   if (playerHp <= 0 || rounds >= MAX_ROUNDS) {
     const goldLost = Math.floor(player.gold * 0.1);
@@ -519,6 +563,10 @@ export async function execute(message: Message) {
         { name: 'Damage Taken', value: `${totalDamageTaken} DMG`, inline: true },
         { name: '🔬 Combat Analysis', value: `**Avg Output**: ${averageDps} DMG/Round\n**Armor Mitigated**: ${mitigationPerRound} DMG/Round\n\n${tip}` }
       );
+      
+    if (buildAnalysisString.length > 0) {
+        deathEmbed.addFields({ name: '🛠️ Build Performance Analysis', value: buildAnalysisString });
+    }
     return message.reply({ embeds: [deathEmbed] });
   }
 
@@ -726,6 +774,7 @@ export async function execute(message: Message) {
       { name: 'Total Damage Output', value: `${totalDamageDealt} DMG`, inline: true }
     );
 
+  if (buildAnalysisString.length > 0) embed.addFields({ name: '🛠️ Build Performance Analysis', value: buildAnalysisString, inline: false });
   if (buffMessage) embed.addFields({ name: 'Active Buff', value: buffMessage, inline: false });
   if (levelsGained > 0) embed.addFields({ name: '🌟 LEVEL UP!', value: `You reached Level **${currentLevel}**! (+${pointsGained} Stat Points). Type \`rpg stat\` to spend them!`});
   if (gachaLootString) embed.addFields({ name: '🎁 MYSTERY LOOT DROP!', value: `You found a rare blueprint schematic:\n${gachaLootString}`});
