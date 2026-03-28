@@ -123,9 +123,9 @@ export async function execute(message: Message) {
     isSlotJackpot = true;
     // Keep it massive for the 1%
     slotMultiplier = 20; 
-  } else if (d1 === d2) {
+  } else if (d1 === d2 || d2 === d3 || d1 === d3) {
     isSlotMatch = true;
-    // Exactly a 9% chance for this block!
+    // A 27% natural baseline chance, making the slot machine bounce constantly!
     slotMultiplier = 3; 
   }
 
