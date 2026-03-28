@@ -424,7 +424,7 @@ export async function executeForge(message: Message, args: string[]) {
     const menuEmbed = new EmbedBuilder()
       .setTitle('🔨 The Forge')
       .setColor(0xE67E22)
-      .setDescription('Welcome to the Blacksmith. Type `rpg forge <item>` to craft an item. **Warriors receive a flat +20 bonus to their RNG quality roll.**');
+      .setDescription('Welcome to the Blacksmith. Explore your weapon, armor, and tool schematics below.');
       
     const row = new ActionRowBuilder<ButtonBuilder>()
         .addComponents(
