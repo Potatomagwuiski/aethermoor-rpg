@@ -273,9 +273,12 @@ export async function execute(message: Message) {
   let totalExecutionerBurst = 0;
 
   const MAX_ROUNDS = 20;
+  let combatLog: string[] = [];
 
   while (playerHp > 0 && monsterHp > 0 && rounds < MAX_ROUNDS) {
     rounds++;
+    let roundTitle = `**Round ${rounds}**`;
+    let roundActions: string[] = [];
 
     // 1. Player Attacks!
     let roundDps = playerBaseOutput + gearAtk;
@@ -407,12 +410,16 @@ export async function execute(message: Message) {
     if (rounds <= 3 && activeAbilities.join(',').includes('Full Moon')) gearCrit = 100;
     if (rounds === 1 && activeAbilities.join(',').includes('Ambush')) gearCrit = 100;
     
+    let isCrit = false;
+    let isExecute = false;
     if (Math.random() * 100 < gearCrit) {
+      isCrit = true;
       if (activeAbilities.join(',').includes('Executioner')) {
           const baseCrit = Math.floor(roundDps * 2);
           const executionerCrit = Math.floor(roundDps * 3.5);
           roundDps = executionerCrit;
           totalExecutionerBurst += (executionerCrit - baseCrit);
+          isExecute = true;
       } else {
           roundDps = Math.floor(roundDps * 2);
       }
@@ -429,6 +436,10 @@ export async function execute(message: Message) {
     monsterHp -= roundDps;
     totalDamageDealt += roundDps;
 
+    let pAttackStr = `🗡️ You dealt **${roundDps}** DMG.`;
+    if (isExecute) pAttackStr = `💥 **CRITICAL EXECUTION!** You dealt **${roundDps}** DMG.`;
+    else if (isCrit) pAttackStr = `💥 **CRIT!** You dealt **${roundDps}** DMG.`;
+
     // DoT Execution
     if (activeAbilities.join(',').includes('Hemorrhage')) bleedStacks++;
     if (bleedStacks > 0) {
@@ -436,9 +447,16 @@ export async function execute(message: Message) {
         if (tickTrueDmg < 1) tickTrueDmg = 1;
         monsterHp -= tickTrueDmg;
         totalBleedDamage += tickTrueDmg;
+        pAttackStr += ` 🩸 *[Hemorrhage: ${tickTrueDmg} true DMG]*`;
     }
+    
+    roundActions.push(`> ${pAttackStr}`);
 
-    if (monsterHp <= 0) break; // Monster SLAIN!
+    if (monsterHp <= 0) {
+        roundActions.push(`> 💀 **${mob.name.toUpperCase()} WAS SLAIN!**`);
+        combatLog.push(roundTitle + '\n' + roundActions.join('\n'));
+        break; // Monster SLAIN!
+    }
 
     // 2. Monster Counter-Attacks!
     let rawIncoming = Math.floor(Math.random() * monsterAttackPower) + Math.floor(monsterAttackPower / 2);
@@ -483,9 +501,11 @@ export async function execute(message: Message) {
 
     if (armorClass === 'HEAVY_ARMOR') rawIncoming = Math.floor(rawIncoming * 0.9); // flat 10% Legacy mitigation
 
+    let evaded = false;
     if (Math.random() * 100 < gearEvasion || (activeAbilities.join(',').includes('Shadow Realm') && Math.random() > 0.95)) {
       rawIncoming = 0;
       totalEvades++;
+      evaded = true;
     } else {
       totalMitigated += Math.min(mitigation, rawIncoming);
       rawIncoming -= mitigation;
@@ -523,9 +543,21 @@ export async function execute(message: Message) {
     playerHp -= rawIncoming;
     totalDamageTaken += rawIncoming;
     
+    if (evaded) {
+        roundActions.push(`> 💨 You evaded the enemy's attack!`);
+    } else {
+        let preMit = rawIncoming + mitigation;
+        let eStr = `> 👹 ${mob.name} struck you for **${rawIncoming}** DMG.`;
+        if (mitigation > 0) eStr += ` 🛡️ *[${Math.min(mitigation, preMit)} Blocked]*`;
+        if (poisonStacks > 0) eStr += ` 🧪 *[Poison Weakened]*`;
+        roundActions.push(eStr);
+    }
+    
     if (activeHot > 0 && playerHp > 0) {
         playerHp = Math.min(player.maxHp, playerHp + activeHot);
     }
+    
+    combatLog.push(roundTitle + '\n' + roundActions.join('\n'));
   }
 
   // --- UNIFIED COMBAT AGGREGATOR ---
@@ -591,10 +623,20 @@ export async function execute(message: Message) {
         tip = `💡 *Tip: It was a close fight! You just ran out of HP. Drink a Health Potion before hunting!*`;
     }
 
+    let deathDesc = `You swung your **${weaponName}** but you lacked the DPS and Defenses to survive the ${currentZone.replace(/_/g, ' ')}.\n\n`;
+    if (combatLog.length > 6) {
+        const firstFew = combatLog.slice(0, 3);
+        const lastFew = combatLog.slice(-2);
+        deathDesc += firstFew.join('\n\n') + `\n\n... *[ ${combatLog.length - 5} Rounds Omitted for brevity ]* ...\n\n` + lastFew.join('\n\n') + '\n\n';
+    } else {
+        deathDesc += combatLog.join('\n\n') + '\n\n';
+    }
+    deathDesc += `The ${mob.emoji} ${mob.name} overwhelmed you after **${rounds} Rounds** of combat.\n\n🔻 **You lost ${goldLost} Gold (10%).**\n❤️ **You are heavily injured. Use Potions to heal before hunting again.**`;
+
     const deathEmbed = new EmbedBuilder()
       .setTitle(`☠️ DEFEAT: SLAIN BY ${mob.name.toUpperCase()}`)
       .setColor(0x8B0000)
-      .setDescription(`You swung your **${weaponName}** but you lacked the DPS and Defenses to survive the ${currentZone.replace('_', ' ')}.\n\nThe ${mob.emoji} ${mob.name} overwhelmed you after **${rounds} Rounds** of combat.\n\n🔻 **You lost ${goldLost} Gold (10%).**\n❤️ **You are heavily injured. Use Potions to heal before hunting again.**`)
+      .setDescription(deathDesc)
       .addFields(
         { name: 'Damage Dealt', value: `${totalDamageDealt} DMG`, inline: true },
         { name: 'Damage Taken', value: `${totalDamageTaken} DMG`, inline: true },
@@ -773,7 +815,17 @@ export async function execute(message: Message) {
   if (buffMessage) extraLoot += `\n${buffMessage}`;
 
   // Dynamic Highlight Reel Compilation
-  let responseBody = `You swung your **${weaponName}** leading to an intense exchange. The ${mob.emoji} ${mob.name} retaliated against your **${armorName}**.\n\n**Combat Log (${rounds} Rounds):**\nDamage Dealt: 💥 ${totalDamageDealt}\nDamage Taken: 🩸 ${totalDamageTaken}\n\n`;
+  let responseBody = `You swung your **${weaponName}** leading to an intense exchange. The ${mob.emoji} ${mob.name} retaliated against your **${armorName}**.\n\n`;
+
+  if (combatLog.length > 6) {
+      const firstFew = combatLog.slice(0, 3);
+      const lastFew = combatLog.slice(-2);
+      responseBody += firstFew.join('\n\n') + `\n\n... *[ ${combatLog.length - 5} Rounds Omitted for brevity ]* ...\n\n` + lastFew.join('\n\n') + '\n\n';
+  } else {
+      responseBody += combatLog.join('\n\n') + '\n\n';
+  }
+  
+  responseBody += `**Final Combat Stats:** 💥 ${totalDamageDealt} Output | 🩸 ${totalDamageTaken} Taken\n\n`;
 
   let slotStr = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\``;
   if (isSlotJackpot) slotStr += ` = **!!! ${slotMultiplier}x JACKPOT MULTIPLIER !!!** 🔥🔥🔥`;
