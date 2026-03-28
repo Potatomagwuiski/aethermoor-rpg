@@ -468,6 +468,7 @@ export async function executeForge(message: Message, args: string[]) {
         let craftableCatalog = '';
         let missingCatalog = '';
         let selectOptions: any[] = [];
+        let allOptions: any[] = [];
 
         for (const [key, blueprint] of Object.entries(BLUEPRINTS)) {
           if (!blueprint.materials) continue; 
@@ -536,6 +537,12 @@ export async function executeForge(message: Message, args: string[]) {
           } else {
               missingCatalog += outputStr;
           }
+          
+          allOptions.push({
+              label: blueprint.name.substring(0, 50),
+              value: key,
+              description: `Cost: ${Object.keys(blueprint.materials).map(k => `${blueprint.materials[k as keyof typeof blueprint.materials]}x ${k.replace(/_/g, ' ')}`).join(', ').substring(0, 40)}`
+          });
         }
         
         let componentsArray: any[] = [row];
@@ -569,7 +576,7 @@ export async function executeForge(message: Message, args: string[]) {
             if (selectOptions.length === 0) {
                 selectOptions.push({
                     label: 'No Craftable Blueprints',
-                    value: 'none',
+                    value: 'empty_placeholder',
                     description: 'Gather more materials first!'
                 });
             }
@@ -586,7 +593,7 @@ export async function executeForge(message: Message, args: string[]) {
             const selectRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
             componentsArray.push(selectRow);
 
-            let pinOptions = [{ label: 'None (Unpin Tracker)', value: 'none', description: 'Remove the active blueprint tracker.' }, ...selectOptions];
+            let pinOptions = [{ label: 'None (Unpin Tracker)', value: 'none', description: 'Remove the active blueprint tracker.' }, ...allOptions];
             if (pinOptions.length > 25) pinOptions = pinOptions.slice(0, 25);
             const pinMenu = new StringSelectMenuBuilder()
                 .setCustomId(`forge_pin_${catUrl}`)
