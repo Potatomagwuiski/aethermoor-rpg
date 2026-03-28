@@ -528,17 +528,36 @@ export async function execute(message: Message) {
     }
   }
 
+  // --- UNIFIED COMBAT AGGREGATOR ---
   let buildAnalysisString = '';
-  if (totalBleedDamage > 0) buildAnalysisString += `🩸 **Hemorrhage** tore the enemy apart, dealing **${totalBleedDamage} True Damage** over ${rounds} rounds!\n`;
-  if (totalPoisonMitigated > 0) buildAnalysisString += `🧪 **Neurotoxin** weakened the enemy, preventing **${totalPoisonMitigated} Damage** from hitting you!\n`;
-  if (totalExecutionerBurst > 0) buildAnalysisString += `💥 **Executioner** triggered on ${totalCrits} Critical Strikes, dealing **${totalExecutionerBurst} extra burst damage**!\n`;
-  if (momentumBonus > 1.0) buildAnalysisString += `📈 **Relentless** momentum ramped up your Attack over the fight, granting **+${Math.floor((momentumBonus - 1.0)*100)}% Bonus Damage** on the final blow!\n`;
+
+  let coreStats = [];
+  if (totalEvades > 0) coreStats.push(`💨 ${totalEvades} Evades`);
+  if (totalMitigated > 0) coreStats.push(`🛡️ ${totalMitigated} Blocked`);
+  if (totalLifesteal > 0) coreStats.push(`🦇 ${totalLifesteal} Siphoned`);
+  if (totalCrits > 0) coreStats.push(`💥 ${totalCrits} Crits`);
+  
+  if (coreStats.length > 0) buildAnalysisString += `⚙️ **Core Combat:** ${coreStats.join(' | ')}\n`;
+
+  if (totalBleedDamage > 0) buildAnalysisString += `🩸 **Hemorrhage:** Dealt **${totalBleedDamage}** True DMG over ${rounds} rounds\n`;
+  if (totalPoisonMitigated > 0) buildAnalysisString += `🧪 **Neurotoxin:** Prevented **${totalPoisonMitigated}** incoming DMG\n`;
+  if (totalExecutionerBurst > 0) buildAnalysisString += `💥 **Executioner:** Triggered **${totalExecutionerBurst}** extra Burst DMG\n`;
+  if (momentumBonus > 1.0) buildAnalysisString += `📈 **Relentless:** Ramped Attack to **+${Math.floor((momentumBonus - 1.0)*100)}%** Bonus DMG\n`;
+  if (totalBurnDamage > 0) buildAnalysisString += `🔥 **Ignite:** Burned enemy for **${totalBurnDamage} DMG**\n`;
+  if (totalPoisonDamage > 0) buildAnalysisString += `🧪 **Toxin:** Poisoned enemy for **${totalPoisonDamage} DMG**\n`;
+
+  if (jackpotTriggered && jackpotMessage.length > 0) abilityHighlights += `${jackpotMessage}\n`;
+
+  if (abilityHighlights.length > 0) {
+      const uniqueHighlights = [...new Set(abilityHighlights.split('\n').filter(s => s.trim() !== ''))];
+      buildAnalysisString += `✨ **Spell/Ability Procs:**\n${uniqueHighlights.join('\n')}\n`;
+  }
 
   // Fallback for basic builds
   if (buildAnalysisString.length === 0) {
       const dpsFromStats = playerBaseOutput * rounds;
       const defFromStats = Math.floor(player.end * 1) * rounds;
-      buildAnalysisString += `⚖️ **Raw Stat Analysis**\nYour Attributes contributed **${dpsFromStats} Base Damage** and mitigated **${defFromStats} Damage**.\n*Tip: Seek out forged weapons to unlock synergistic abilities like Bleed or Poison!*`;
+      buildAnalysisString += `⚖️ **Raw Stat Analysis**\nYour Attributes contributed **${dpsFromStats} Base Damage** and mitigated **${defFromStats} Damage**.\n*Tip: Seek out forged weapons to unlock synergistic abilities!*`;
   }
 
   // --- FAILURE STATE (DEATH PENALTY) ---
@@ -743,22 +762,7 @@ export async function execute(message: Message) {
   if (buffMessage) extraLoot += `\n${buffMessage}`;
 
   // Dynamic Highlight Reel Compilation
-  if (totalBurnDamage > 0) abilityHighlights += `🔥 \`Ignite\` burned the enemy for **${totalBurnDamage}** total DMG!\n`;
-  if (totalPoisonDamage > 0) abilityHighlights += `🧪 \`Poison\` melted the enemy for **${totalPoisonDamage}** total DMG!\n`;
-  if (totalBleedDamage > 0) abilityHighlights += `🩸 \`Bleed\` lacerated the enemy for **${totalBleedDamage}** total DMG!\n`;
-
-  let highlights = abilityHighlights;
-  if (totalEvades > 0) highlights += `💨 Evaded **${totalEvades}** Attacks\n`;
-  if (totalMitigated > 0) highlights += `🛡️ Blocked **${totalMitigated}** Damage\n`;
-  if (totalLifesteal > 0) highlights += `🦇 Siphoned **${totalLifesteal}** HP\n`;
-  if (totalCrits > 0) highlights += `💥 Landed **${totalCrits}** Critical Hits\n`;
-  if (jackpotTriggered) highlights += `${jackpotMessage}\n`;
-
   let responseBody = `You swung your **${weaponName}** leading to an intense exchange. The ${mob.emoji} ${mob.name} retaliated against your **${armorName}**.\n\n**Combat Log (${rounds} Rounds):**\nDamage Dealt: 💥 ${totalDamageDealt}\nDamage Taken: 🩸 ${totalDamageTaken}\n\n`;
-
-  if (highlights.length > 0) {
-    responseBody += `**✨ Build Highlights:**\n${highlights}\n`;
-  }
 
   let slotStr = `> 🎰 \`[ 🎲 x${d1} ] [ 🎲 x${d2} ] [ 🎲 x${d3} ]\``;
   if (isSlotJackpot) slotStr += ` = **!!! ${slotMultiplier}x JACKPOT MULTIPLIER !!!** 🔥🔥🔥`;
