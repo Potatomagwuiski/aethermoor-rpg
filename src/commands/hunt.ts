@@ -654,11 +654,11 @@ export async function execute(message: Message) {
   }
   const levelsGained = currentLevel - player.level;
 
-  if (activeHot > 0 && rounds > 0) abilityHighlights += `🍵 Moonlight Brew regenerated **${activeHot * rounds}** HP!\n`;
+  if (activeHot > 0 && rounds > 0) abilityHighlights += `🍵 Meal Regeneration restored **${activeHot * rounds}** HP!\n`;
   if (activeEot > 0 && rounds > 0) {
       const energyRegen = activeEot * rounds;
       player.energy = Math.min(100, player.energy + energyRegen);
-      abilityHighlights += `✨ Starlight Infusion restored **${energyRegen}** Energy!\n`;
+      abilityHighlights += `✨ Meal Energization restored **${energyRegen}** Energy!\n`;
   }
 
   const updateData: any = { gold: { increment: goldReward }, level: currentLevel, xp: currentXp, hp: playerHp, energy: player.energy };
