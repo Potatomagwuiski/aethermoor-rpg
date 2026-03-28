@@ -112,7 +112,8 @@ export async function execute(message: Message) {
   // The Rarity Rig: Powerful weapons manipulate RNG fabric
   if (Math.random() * 100 < slotBonus) {
       d2 = d1; // Guaranteed 3x Match
-      if (Math.random() * 100 < (slotBonus / 2)) d3 = d1; // Upgraded into Guaranteed 20x Jackpot
+      // Tame the endgame inflation: 1/4th chance to jump from a Match to a full Jackpot
+      if (Math.random() * 100 < (slotBonus / 4)) d3 = d1;
   }
   let slotMultiplier = 1;
   let isSlotJackpot = false;
