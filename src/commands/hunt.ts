@@ -106,8 +106,14 @@ export async function execute(message: Message) {
   }
 
   const d1 = Math.floor(Math.random() * diceFaces) + 1;
-  const d2 = Math.floor(Math.random() * diceFaces) + 1;
-  const d3 = Math.floor(Math.random() * diceFaces) + 1;
+  let d2 = Math.floor(Math.random() * diceFaces) + 1;
+  let d3 = Math.floor(Math.random() * diceFaces) + 1;
+
+  // The Rarity Rig: Powerful weapons manipulate RNG fabric
+  if (Math.random() * 100 < slotBonus) {
+      d2 = d1; // Guaranteed 3x Match
+      if (Math.random() * 100 < (slotBonus / 2)) d3 = d1; // Upgraded into Guaranteed 20x Jackpot
+  }
   let slotMultiplier = 1;
   let isSlotJackpot = false;
   let isSlotMatch = false;
