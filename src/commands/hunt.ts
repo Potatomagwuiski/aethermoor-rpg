@@ -162,6 +162,10 @@ export async function execute(message: Message) {
   let activeEot = 0;
   if (activeBuff && player.buffExpiresAt && player.buffExpiresAt > new Date()) {
     if (activeBuff === 'ATK_10_HOT_5') { gearAtk += 10; activeHot = 5; buffMessage = '✨ **Buff Active:** Roasted Trout (+10 ATK, Heals 5 HP / Round)'; }
+    if (activeBuff === 'ATK_25_HOT_10') { gearAtk += 25; activeHot = 10; buffMessage = '✨ **Buff Active:** Golden Skewer (+25 ATK, Heals 10 HP / Round)'; }
+    if (activeBuff === 'ATK_60_HOT_20') { gearAtk += 60; activeHot = 20; buffMessage = '✨ **Buff Active:** Glacier Stew (+60 ATK, Heals 20 HP / Round)'; }
+    if (activeBuff === 'ATK_120_HOT_40') { gearAtk += 120; activeHot = 40; buffMessage = '✨ **Buff Active:** Lava-Seared Eel (+120 ATK, Heals 40 HP / Round)'; }
+    if (activeBuff === 'ATK_250_HOT_80') { gearAtk += 250; activeHot = 80; buffMessage = '✨ **Buff Active:** Abyssal Feast (+250 ATK, Heals 80 HP / Round)'; }
     if (activeBuff === 'HP_25') { player.maxHp += 25; player.hp += 25; buffMessage = '✨ **Buff Active:** Koi Soup (+25 MAX HP)'; }
     if (activeBuff === 'DEF_50') { gearDef += 50; buffMessage = '✨ **Buff Active:** Glacial Filet (+50 DEF)'; }
     if (activeBuff === 'CRIT_15') { gearCrit += 15; buffMessage = '✨ **Buff Active:** Spicy Eel (+15% CRIT)'; }
@@ -626,7 +630,7 @@ export async function execute(message: Message) {
   }
 
   // --- RECIPE DISCOVERY (10% CHANCE) ---
-  const ALL_RECIPES = ['koi_soup', 'glacial_filet', 'spicy_eel', 'void_sashimi', 'moonlight_brew', 'starlight_infusion'];
+  const ALL_RECIPES = ['koi_soup', 'glacial_filet', 'spicy_eel', 'void_sashimi', 'moonlight_brew', 'starlight_infusion', 'golden_skewer', 'glacier_stew', 'lava_seared_eel', 'abyssal_feast'];
   if (Math.random() <= 0.10) {
       const droppedRecipe = ALL_RECIPES[Math.floor(Math.random() * ALL_RECIPES.length)];
       const alreadyHas = player.recipes && player.recipes.find((r: any) => r.recipeKey === droppedRecipe);

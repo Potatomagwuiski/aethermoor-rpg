@@ -5,6 +5,18 @@ const RECIPES: Record<string, any> = {
   'roasted_trout': {
     name: 'Roasted Trout', materials: { river_trout: 1, wood: 1, sticks: 2 }, buffName: '+10 ATK, Heal 5 HP / Round', buffKey: 'ATK_10_HOT_5', color: 0xE67E22
   },
+  'golden_skewer': {
+    name: 'Golden Skewer', materials: { golden_koi: 1, ashwood: 1, sticks: 3 }, buffName: '+25 ATK, Heal 10 HP / Round', buffKey: 'ATK_25_HOT_10', color: 0xF39C12
+  },
+  'glacier_stew': {
+    name: 'Glacier Stew', materials: { glacier_cod: 1, oakwood: 1, sticks: 4 }, buffName: '+60 ATK, Heal 20 HP / Round', buffKey: 'ATK_60_HOT_20', color: 0x85C1E9
+  },
+  'lava_seared_eel': {
+    name: 'Lava-Seared Eel', materials: { lava_eel: 1, ebony_wood: 1, sticks: 5 }, buffName: '+120 ATK, Heal 40 HP / Round', buffKey: 'ATK_120_HOT_40', color: 0xE74C3C
+  },
+  'abyssal_feast': {
+    name: 'Abyssal Feast', materials: { void_bass: 1, living_bark: 1, sticks: 10 }, buffName: '+250 ATK, Heal 80 HP / Round', buffKey: 'ATK_250_HOT_80', color: 0x5B2C6F
+  },
   'koi_soup': {
     name: 'Koi Soup', materials: { golden_koi: 1, mooncap_mushroom: 1, sticks: 2 }, buffName: '+25 MAX HP', buffKey: 'HP_25', color: 0xF1C40F
   },
@@ -57,7 +69,11 @@ export async function executeCook(message: Message, args: string[]) {
       'spicy_eel': '🐍',
       'void_sashimi': '🦑',
       'moonlight_brew': '🍵',
-      'starlight_infusion': '✨'
+      'starlight_infusion': '✨',
+      'golden_skewer': '🍢',
+      'glacier_stew': '🍲',
+      'lava_seared_eel': '🔥',
+      'abyssal_feast': '🌌'
     };
 
     let learnedCount = 0;
