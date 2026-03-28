@@ -402,6 +402,39 @@ export const BLUEPRINTS: Record<string, any> = {
       '🌟 **World Tree Bane**: 5% chance to yield 500x wood instantly'
     ],
     outputs: { common: { key: 'common_mythril_axe', name: '⬜ [Common Mythril Axe]', isTool: true, type: 'AXE', rarity: 'COMMON', yieldMultiplier: 3.5 }, uncommon: { key: 'uncommon_mythril_axe', name: '🟩 [Uncommon Mythril Axe]', isTool: true, type: 'AXE', rarity: 'UNCOMMON', yieldMultiplier: 5.0 }, rare: { key: 'rare_mythril_axe', name: '🟦 [Rare Mythril Axe]', isTool: true, type: 'AXE', rarity: 'RARE', yieldMultiplier: 8.0 } }
+  },
+  'bronze_fishing_rod': {
+    name: 'Bronze Fishing Rod', materials: { copper: 20, wood: 40, seaweed: 15 },
+    abilities: [
+      '🎣 **Reel In**: 10% chance for double fish',
+      '🐟 **Angler**: +1 Base Yield',
+      '💎 **Tireless Cast**: Fishing never costs Exhaustion',
+      '🌊 **Earth Sense**: 10% chance to find hidden treasure',
+      '🌟 **Tidal Wave**: 1% chance to yield 50x fish'
+    ],
+    outputs: { common: { key: 'common_bronze_fishing_rod', name: '⬜ [Common Bronze Fishing Rod]', isTool: true, type: 'FISHING_ROD', rarity: 'COMMON', yieldMultiplier: 1.25 }, uncommon: { key: 'uncommon_bronze_fishing_rod', name: '🟩 [Uncommon Bronze Fishing Rod]', isTool: true, type: 'FISHING_ROD', rarity: 'UNCOMMON', yieldMultiplier: 1.75 }, rare: { key: 'rare_bronze_fishing_rod', name: '🟦 [Rare Bronze Fishing Rod]', isTool: true, type: 'FISHING_ROD', rarity: 'RARE', yieldMultiplier: 2.5 } }
+  },
+  'iron_fishing_rod': {
+    name: 'Iron Fishing Rod', requiredBlueprint: 'blueprint_iron_fishing_rod', materials: { iron: 35, ashwood: 60, river_trout: 20 },
+    abilities: [
+      '🎣 **Heavy Reel**: 10% chance for double fish',
+      '🐟 **Expert Angler**: +2 Base Yield',
+      '💎 **Fisherman\'s Luck**: 15% chance to guarantee an Epic Fish drop',
+      '🌊 **Deep Sea Catch**: 5% chance for quadruple yield',
+      '🌟 **Leviathans Bounty**: 2% chance to yield 100x fish'
+    ],
+    outputs: { common: { key: 'common_iron_fishing_rod', name: '⬜ [Common Iron Fishing Rod]', isTool: true, type: 'FISHING_ROD', rarity: 'COMMON', yieldMultiplier: 2.0 }, uncommon: { key: 'uncommon_iron_fishing_rod', name: '🟩 [Uncommon Iron Fishing Rod]', isTool: true, type: 'FISHING_ROD', rarity: 'UNCOMMON', yieldMultiplier: 2.75 }, rare: { key: 'rare_iron_fishing_rod', name: '🟦 [Rare Iron Fishing Rod]', isTool: true, type: 'FISHING_ROD', rarity: 'RARE', yieldMultiplier: 4.0 } }
+  },
+  'mythril_fishing_rod': {
+    name: 'Mythril Fishing Rod', requiredBlueprint: 'blueprint_mythril_fishing_rod', materials: { mythril: 70, elderwood: 110, golden_koi: 25 },
+    abilities: [
+      '🎣 **Pristine Cast**: 15% chance for double fish',
+      '🐟 **Master Angler**: +3 Base Yield',
+      '💎 **Fisherman\'s Luck**: 15% chance to guarantee an Epic Fish drop',
+      '🌟 **Overload**: 5% chance to 10x all gathered resources',
+      '🌟 **Poseidons Wrath**: 5% chance to yield 500x fish instantly'
+    ],
+    outputs: { common: { key: 'common_mythril_fishing_rod', name: '⬜ [Common Mythril Fishing Rod]', isTool: true, type: 'FISHING_ROD', rarity: 'COMMON', yieldMultiplier: 3.5 }, uncommon: { key: 'uncommon_mythril_fishing_rod', name: '🟩 [Uncommon Mythril Fishing Rod]', isTool: true, type: 'FISHING_ROD', rarity: 'UNCOMMON', yieldMultiplier: 5.0 }, rare: { key: 'rare_mythril_fishing_rod', name: '🟦 [Rare Mythril Fishing Rod]', isTool: true, type: 'FISHING_ROD', rarity: 'RARE', yieldMultiplier: 8.0 } }
   }
 };
 

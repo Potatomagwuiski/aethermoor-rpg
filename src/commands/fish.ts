@@ -29,12 +29,44 @@ export async function executeFish(message: Message, args: string[]) {
   const diceFaces = 10;
   let slotBonus = 0;
   let hasFishingRod = player.tools && player.tools.length > 0;
+  let yieldMultiplier = 1;
   if (hasFishingRod) {
     const r = player.tools[0].rarity;
     if (r === 'UNCOMMON') slotBonus = 5;
     else if (r === 'RARE') slotBonus = 10;
     else if (r === 'EPIC') slotBonus = 20;
     else if (r === 'LEGENDARY') slotBonus = 50;
+    yieldMultiplier = player.tools[0].yieldMultiplier || 1;
+  }
+
+  let activeAbilities: string[] = [];
+  if (hasFishingRod && (player.tools[0] as any).activeAbilities) {
+      activeAbilities = (player.tools[0] as any).activeAbilities as string[];
+  }
+
+  let bonusYield = 0;
+  let autoEpic = false;
+  let isOverload = false;
+  let multiBonus = 1;
+  
+  let abilityHighlights = '';
+
+  for (const ab of activeAbilities) {
+      if (!ab) continue;
+      if (ab.includes('Angler')) { bonusYield += 1; abilityHighlights += `🔹 \`${ab.split('**')[1]}\` added Yield!\n`; }
+      if (ab.includes("Fisherman's Luck") && Math.random() > 0.85) { autoEpic = true; abilityHighlights += `💎 \`Fisherman's Luck\` brought in an Epic Fish!\n`; }
+      
+      if (ab.includes('Reel In') && Math.random() > 0.90) { multiBonus *= 2; abilityHighlights += `🔹 \`Reel In\` doubled the fish!\n`; }
+      if (ab.includes('Heavy Reel') && Math.random() > 0.90) { multiBonus *= 2; abilityHighlights += `🔹 \`Heavy Reel\` doubled the fish!\n`; }
+      if (ab.includes('Pristine Cast') && Math.random() > 0.85) { multiBonus *= 2; abilityHighlights += `🔹 \`Pristine Cast\` doubled the fish!\n`; }
+      
+      if (ab.includes('Deep Sea Catch') && Math.random() > 0.95) { multiBonus *= 4; abilityHighlights += `🌊 \`Deep Sea Catch\` quadrupled the fish!\n`; }
+      
+      if (ab.includes('Tidal Wave') && Math.random() > 0.99) { multiBonus *= 50; abilityHighlights += `🌟 \`Tidal Wave\` hit! (50x Yield)\n`; }
+      if (ab.includes('Leviathans Bounty') && Math.random() > 0.98) { multiBonus *= 100; abilityHighlights += `🌟 \`Leviathans Bounty\` surfaced! (100x Yield)\n`; }
+      if (ab.includes('Poseidons Wrath') && Math.random() > 0.95) { multiBonus *= 500; abilityHighlights += `🌟 \`Poseidons Wrath\` flooded the zone! (500x Yield)\n`; }
+      
+      if (ab.includes('Overload') && Math.random() > 0.95) { isOverload = true; abilityHighlights += `🌟 \`Overload\` triggered a massive 10x Yield Boost!\n`; }
   }
 
   const d1 = Math.floor(Math.random() * diceFaces) + 1;
@@ -55,7 +87,6 @@ export async function executeFish(message: Message, args: string[]) {
   }
 
   // --- PRE-GATHERING CULINARY BUFF PARSING ---
-  let abilityHighlights = '';
   let forceEpic = false;
   if (player.activeBuff && player.buffExpiresAt && player.buffExpiresAt > new Date()) {
       if (player.activeBuff === 'FISH_EPIC') { forceEpic = true; abilityHighlights += `🍺 **Buff Active:** Fisherman's Brew (Guaranteed Epic!)\n`; }
@@ -84,12 +115,21 @@ export async function executeFish(message: Message, args: string[]) {
       secondaryDropKey = 'void_bass';
   }
 
-  const finalPrimary = Math.floor((Math.random() * 3) + 1) * slotMultiplier;
-  let finalSecondary = 0;
-  let finalEpic = 0;
+  if (isOverload) {
+      slotMultiplier *= 10;
+      isSlotJackpot = true;
+  }
 
-  if (Math.random() > 0.5) finalSecondary = Math.floor((Math.random() * 2) + 1) * slotMultiplier;
-  if (Math.random() > 0.95 || forceEpic) finalEpic = 1 * slotMultiplier;
+  const basePrimary = Math.floor(Math.random() * 3) + 1 + bonusYield;
+  let baseSecondary = 0;
+  let baseEpic = 0;
+
+  if (Math.random() > 0.5) baseSecondary = Math.floor(Math.random() * 2) + 1;
+  if (Math.random() > 0.95 || forceEpic || autoEpic) baseEpic = 1;
+
+  const finalPrimary = Math.floor(basePrimary * yieldMultiplier * slotMultiplier * multiBonus);
+  const finalSecondary = Math.floor(baseSecondary * yieldMultiplier * slotMultiplier * multiBonus);
+  const finalEpic = Math.floor(baseEpic * yieldMultiplier * slotMultiplier * multiBonus);
 
   const xpReward = 2 * slotMultiplier;
 
