@@ -260,12 +260,12 @@ export async function executeMine(message: Message) {
   const row = new ActionRowBuilder<ButtonBuilder>();
   if (trackerResult) {
       embed.addFields(trackerResult.field);
-      for (const completePin of trackerResult.completedPins) {
+      for (const pin of trackerResult.pinDetails) {
           row.addComponents(
               new ButtonBuilder()
-                  .setCustomId(`unpin_${completePin}_${player.id}`)
-                  .setLabel(`Unpin ${BLUEPRINTS[completePin].name}`)
-                  .setStyle(ButtonStyle.Success)
+                  .setCustomId(`unpin_${pin.key}_${player.id}`)
+                  .setLabel(pin.isCompleted ? `✅ Unpin ${BLUEPRINTS[pin.key].name}` : `✖ Unpin ${BLUEPRINTS[pin.key].name}`)
+                  .setStyle(pin.isCompleted ? ButtonStyle.Success : ButtonStyle.Secondary)
           );
       }
   }
