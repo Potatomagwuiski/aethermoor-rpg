@@ -2,8 +2,7 @@ import { Message, EmbedBuilder } from 'discord.js';
 import { prisma } from '../db.js';
 import { getEmoji } from '../utils/emojis.js';
 import { calculateBuildArchitecture, getWeaponSlotModifierString } from '../utils/stats.js';
-import { GEAR } from '../data/items.js';
-import { BLUEPRINTS } from '../data/blueprints.js';
+import { BLUEPRINTS } from './forge.js';
 export async function executeProfile(message: Message, args: string[]) {
   // If args[0] exists, try to look up another player by ping!
   let targetId = message.author.id;
@@ -51,7 +50,16 @@ export async function executeProfile(message: Message, args: string[]) {
       
       let extra = '';
       if (gear.slot === 'WEAPON') {
-          const activeAbilities = GEAR[gear.itemKey]?.abilities || BLUEPRINTS[gear.baseItemKey]?.abilities || [];
+          const bp = BLUEPRINTS[gear.baseItemKey];
+          let activeAbilities: string[] = [];
+          if (bp && bp.abilities) {
+              const rarity = gear.rarity.toLowerCase();
+              if (['common', 'uncommon', 'rare', 'epic', 'legendary'].includes(rarity) && bp.abilities.length > 0) activeAbilities.push(bp.abilities[0]);
+              if (['uncommon', 'rare', 'epic', 'legendary'].includes(rarity) && bp.abilities.length > 1) activeAbilities.push(bp.abilities[1]);
+              if (['rare', 'epic', 'legendary'].includes(rarity) && bp.abilities.length > 2) activeAbilities.push(bp.abilities[2]);
+              if (['epic', 'legendary'].includes(rarity) && bp.abilities.length > 3) activeAbilities.push(bp.abilities[3]);
+              if (['legendary'].includes(rarity) && bp.abilities.length > 4) activeAbilities.push(bp.abilities[4]);
+          }
           const slotTag = getWeaponSlotModifierString(gear.name || '', activeAbilities);
           if (slotTag) extra = ` ${slotTag}`;
       }

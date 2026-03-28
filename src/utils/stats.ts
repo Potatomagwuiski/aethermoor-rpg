@@ -1,5 +1,4 @@
-import { BLUEPRINTS } from '../data/blueprints.js';
-import { GEAR } from '../data/items.js';
+import { BLUEPRINTS } from '../commands/forge.js';
 
 export function calculateBuildArchitecture(player: any) {
     if (!player.equipment || player.equipment.length === 0) {
@@ -11,9 +10,18 @@ export function calculateBuildArchitecture(player: any) {
         };
     }
 
-    const activeAbilities = player.equipment.flatMap((eq: any) => 
-        GEAR[eq.itemKey]?.abilities || BLUEPRINTS[eq.baseItemKey]?.abilities || []
-    );
+    const activeAbilities = player.equipment.flatMap((eq: any) => {
+        const bp = BLUEPRINTS[eq.baseItemKey];
+        if (!bp || !bp.abilities) return [];
+        let abs = [];
+        const rarity = eq.rarity.toLowerCase();
+        if (['common', 'uncommon', 'rare', 'epic', 'legendary'].includes(rarity) && bp.abilities.length > 0) abs.push(bp.abilities[0]);
+        if (['uncommon', 'rare', 'epic', 'legendary'].includes(rarity) && bp.abilities.length > 1) abs.push(bp.abilities[1]);
+        if (['rare', 'epic', 'legendary'].includes(rarity) && bp.abilities.length > 2) abs.push(bp.abilities[2]);
+        if (['epic', 'legendary'].includes(rarity) && bp.abilities.length > 3) abs.push(bp.abilities[3]);
+        if (['legendary'].includes(rarity) && bp.abilities.length > 4) abs.push(bp.abilities[4]);
+        return abs;
+    });
 
     let gearCrit = 0;
     let gearEvasion = 0;
