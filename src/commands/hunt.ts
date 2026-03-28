@@ -446,9 +446,11 @@ export async function execute(message: Message) {
     monsterHp -= roundDps;
     totalDamageDealt += roundDps;
 
-    let pAttackStr = `🗡️ You dealt **${roundDps}** DMG.`;
-    if (isExecute) pAttackStr = `💥 **CRITICAL EXECUTION!** You dealt **${roundDps}** DMG.`;
-    else if (isCrit) pAttackStr = `💥 **CRIT!** You dealt **${roundDps}** DMG.`;
+    const attackVerbs = ['slashed', 'struck', 'hit', 'bashed', 'hammered', 'smote', 'cleaved', 'battered'];
+    const pVerb = attackVerbs[Math.floor(Math.random() * attackVerbs.length)];
+    let pAttackStr = `🗡️ You ${pVerb} the **${mob.name}** for **${roundDps}** DMG`;
+    if (isExecute) pAttackStr = `💥 **CRITICAL EXECUTION!** You obliterated the **${mob.name}** for **${roundDps}** DMG`;
+    else if (isCrit) pAttackStr = `💥 **CRITICAL HIT!** You viciously struck the **${mob.name}** for **${roundDps}** DMG`;
 
     // DoT Execution
     if (activeAbilities.join(',').includes('Hemorrhage')) bleedStacks++;
@@ -457,14 +459,11 @@ export async function execute(message: Message) {
         if (tickTrueDmg < 1) tickTrueDmg = 1;
         monsterHp -= tickTrueDmg;
         totalBleedDamage += tickTrueDmg;
-        pAttackStr += ` 🩸 *[Hemorrhage: ${tickTrueDmg} true DMG]*`;
+        pAttackStr += `, profoundly bleeding it for ${tickTrueDmg} true DMG`;
     }
-    
-    roundActions.push(`> ${pAttackStr}`);
 
     if (monsterHp <= 0) {
-        roundActions.push(`> 💀 **${mob.name.toUpperCase()} WAS SLAIN!**`);
-        combatLog.push(roundTitle + '\n' + roundActions.join('\n'));
+        combatLog.push(roundTitle + '\n' + `> ${pAttackStr}, instantly **SLAYING** it! 💀`);
         break; // Monster SLAIN!
     }
 
@@ -553,21 +552,30 @@ export async function execute(message: Message) {
     playerHp -= rawIncoming;
     totalDamageTaken += rawIncoming;
     
+    const mobVerbs = ['clawed', 'bit', 'struck', 'bashed', 'slapped', 'gashed', 'rammed'];
+    const mVerb = mobVerbs[Math.floor(Math.random() * mobVerbs.length)];
+
+    let eStr = '';
     if (evaded) {
-        roundActions.push(`> 💨 You evaded the enemy's attack!`);
+        eStr = `, and you effortlessly **evaded** its counter-attack! 💨`;
     } else {
         let preMit = rawIncoming + mitigation;
-        let eStr = `> 👹 ${mob.name} struck you for **${rawIncoming}** DMG.`;
-        if (mitigation > 0) eStr += ` 🛡️ *[${Math.min(mitigation, preMit)} Blocked]*`;
-        if (poisonStacks > 0) eStr += ` 🧪 *[Poison Weakened]*`;
-        roundActions.push(eStr);
+        eStr = `, before it retaliated and ${mVerb} you for **${rawIncoming}** DMG`;
+        
+        let tags = [];
+        if (mitigation > 0) tags.push(`🛡️ ${Math.min(mitigation, preMit)} Blocked`);
+        if (poisonStacks > 0) tags.push(`🧪 Poison Weakened`);
+        
+        if (tags.length > 0) {
+            eStr += ` *[${tags.join(' | ')}]*`;
+        }
     }
     
     if (activeHot > 0 && playerHp > 0) {
         playerHp = Math.min(player.maxHp, playerHp + activeHot);
     }
     
-    combatLog.push(roundTitle + '\n' + roundActions.join('\n'));
+    combatLog.push(roundTitle + '\n' + `> ${pAttackStr}${eStr}.`);
   }
 
   // --- UNIFIED COMBAT AGGREGATOR ---
