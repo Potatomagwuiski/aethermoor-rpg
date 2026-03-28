@@ -62,7 +62,7 @@ model Player {
   // Culinary & Progression Trackers
   activeBuff      String?
   buffExpiresAt   DateTime?
-  pinnedForgeItem String?
+  pinnedForgeItems String[] @default([])
 
   // Core Allocatable Attributes
   pointsAvailable Int      @default(0)

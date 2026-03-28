@@ -2,26 +2,43 @@ import { prisma } from '../db.js';
 import { BLUEPRINTS } from '../commands/forge.js';
 import { getEmoji } from './emojis.js';
 
-export async function getPinnedTrackerField(playerId: string, pinnedForgeItem: string | null): Promise<any | null> {
-    if (!pinnedForgeItem || !BLUEPRINTS[pinnedForgeItem]) return null;
+export async function getPinnedTrackerField(playerId: string, pinnedForgeItems: string[] | null): Promise<any | null> {
+    if (!pinnedForgeItems || pinnedForgeItems.length === 0) return null;
     
-    const blueprint = BLUEPRINTS[pinnedForgeItem];
-    if (!blueprint.materials) return null;
+    // Validate that all strings are still real blueprints (in case of patches)
+    const validPins = pinnedForgeItems.filter(key => BLUEPRINTS[key] && BLUEPRINTS[key].materials);
+    if (validPins.length === 0) return null;
+
+    // Collect ALL material keys across ALL pinned blueprints into one giant set
+    const requiredMatKeys = new Set<string>();
+    validPins.forEach(key => {
+        Object.keys(BLUEPRINTS[key].materials as Record<string, number>).forEach(mat => requiredMatKeys.add(mat));
+    });
 
     const inventory = await prisma.inventoryItem.findMany({
-        where: { playerId, itemKey: { in: Object.keys(blueprint.materials) } }
+        where: { playerId, itemKey: { in: Array.from(requiredMatKeys) } }
     });
     
     let trackStr = '';
-    for (const [matKey, reqQty] of Object.entries(blueprint.materials as Record<string, number>)) {
-         const invItem = inventory.find((i: any) => i.itemKey === matKey);
-         const has = invItem ? invItem.quantity : 0;
-         const emoji = getEmoji(matKey) || '📦';
-         
-         const status = has >= reqQty ? '✅' : '❌';
-         // E.g. ✅ 🪵 Wood: 12/10
-         trackStr += `${status} ${emoji} **${matKey.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}**: ${has}/${reqQty}\n`;
-    }
     
-    return { name: `📌 Pinned Tracker: ${blueprint.name}`, value: trackStr, inline: false };
+    validPins.forEach((pinKey, index) => {
+        const blueprint = BLUEPRINTS[pinKey];
+        trackStr += `**${blueprint.name}**\n`;
+        
+        for (const [matKey, reqQty] of Object.entries(blueprint.materials as Record<string, number>)) {
+            const invItem = inventory.find((i: any) => i.itemKey === matKey);
+            const has = invItem ? invItem.quantity : 0;
+            const emoji = getEmoji(matKey) || '📦';
+            
+            const status = has >= reqQty ? '✅' : '❌';
+            trackStr += `> ${status} ${emoji} **${matKey.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}**: ${has}/${reqQty}\n`;
+        }
+        
+        // Add spacing between pins if it's not the last one
+        if (index < validPins.length - 1) {
+            trackStr += '\n';
+        }
+    });
+    
+    return { name: `📌 Pinned Schematics (${validPins.length}/3)`, value: trackStr, inline: false };
 }

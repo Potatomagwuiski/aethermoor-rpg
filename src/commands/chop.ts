@@ -258,7 +258,7 @@ export async function executeChop(message: Message) {
     embed.addFields({ name: '🌟 LEVEL UP!', value: `You reached Level **${currentLevel + levelsGained}**! (+${levelsGained * 3} Stat Points)` });
   }
 
-  const trackerField = await getPinnedTrackerField(player.id, player.pinnedForgeItem);
+  const trackerField = await getPinnedTrackerField(player.id, (player as any).pinnedForgeItems);
   if (trackerField) embed.addFields(trackerField);
 
   return message.reply({ embeds: [embed] });

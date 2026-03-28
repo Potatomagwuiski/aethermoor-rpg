@@ -176,7 +176,7 @@ export async function executeFish(message: Message, args: string[]) {
     .setColor(isSlotJackpot ? 0xFFD700 : 0x1E90FF) // DodgerBlue
     .setDescription(`You cast your line into the regional waters.\n\n${slotMachineString}\n${abilityHighlights}\n**Loot Dropped:**\n${dropOutput}\n**XP Gained:**\n✨ +${xpReward} EXP`);
 
-  const trackerField = await getPinnedTrackerField(player.id, player.pinnedForgeItem);
+  const trackerField = await getPinnedTrackerField(player.id, (player as any).pinnedForgeItems);
   if (trackerField) embed.addFields(trackerField);
 
   return message.reply({ embeds: [embed] });

@@ -2,6 +2,7 @@ import { Message, EmbedBuilder } from 'discord.js';
 import { prisma } from '../db.js';
 import redisClient from '../redis.js';
 import { enforceCooldown } from '../utils/cooldown.js';
+import { getPinnedTrackerField } from '../utils/tracker.js';
 
 export async function executeHarvest(message: Message, args: string[]) {
   const discordId = message.author.id;
@@ -139,6 +140,9 @@ export async function executeHarvest(message: Message, args: string[]) {
     .setTitle('🌾 Harvesting Resolved')
     .setColor(isSlotJackpot ? 0xFFD700 : 0x32CD32) // LimeGreen
     .setDescription(`You tended to the soil and harvested the region's flora.\n\n${slotMachineString}\n${abilityHighlights}\n**Loot Dropped:**\n${dropOutput}\n**XP Gained:**\n✨ +${xpReward} EXP`);
+
+  const trackerField = await getPinnedTrackerField(player.id, (player as any).pinnedForgeItems);
+  if (trackerField) embed.addFields(trackerField);
 
   return message.reply({ embeds: [embed] });
 }

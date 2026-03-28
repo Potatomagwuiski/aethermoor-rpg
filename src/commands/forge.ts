@@ -483,11 +483,27 @@ export async function executeForge(message: Message, args: string[]) {
 
         if (interaction.isStringSelectMenu() && interaction.customId.startsWith('forge_pin_')) {
             const selectedRecipeKey = interaction.values[0];
-            const newPin = selectedRecipeKey === 'none' ? null : selectedRecipeKey;
-            await prisma.player.update({ where: { id: player.id }, data: { pinnedForgeItem: newPin } });
+            let pins: string[] = (player as any).pinnedForgeItems || [];
             
-            const pinName = newPin ? BLUEPRINTS[newPin].name : 'Removed';
-            return interaction.reply({ content: `📌 Tracker Updated: **${pinName}**. The required materials will now appear on your gathering commands!`, ephemeral: true }).catch(() => {});
+            if (selectedRecipeKey === 'none') {
+                pins = [];
+                await prisma.player.update({ where: { id: player.id }, data: { pinnedForgeItems: pins } });
+                return interaction.reply({ content: `📌 Tracker Cleared.`, ephemeral: true }).catch(() => {});
+            }
+
+            if (pins.includes(selectedRecipeKey)) {
+                pins = pins.filter((p: string) => p !== selectedRecipeKey);
+                await prisma.player.update({ where: { id: player.id }, data: { pinnedForgeItems: pins } });
+                return interaction.reply({ content: `📌 Unpinned: **${BLUEPRINTS[selectedRecipeKey].name}**. You are currently tracking ${pins.length}/3 blueprints.`, ephemeral: true }).catch(() => {});
+            }
+
+            pins.push(selectedRecipeKey);
+            if (pins.length > 3) {
+                pins.shift(); // Remove oldest
+            }
+
+            await prisma.player.update({ where: { id: player.id }, data: { pinnedForgeItems: pins } });
+            return interaction.reply({ content: `📌 Pinned: **${BLUEPRINTS[selectedRecipeKey].name}**. You are currently tracking ${pins.length}/3 blueprints.`, ephemeral: true }).catch(() => {});
         }
 
         let catUrl = 'weapons';
