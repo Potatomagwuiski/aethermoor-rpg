@@ -10,7 +10,7 @@ export async function executeRest(message: Message) {
   const player = await prisma.player.findUnique({ where: { discordId } });
 
   if (!player) return message.reply(`You are but a whisper in the void. Type \`rpg start\`.`);
-  if (player.hp > 0) return message.reply(`🔥 You are not dead! You do not need to rest at the campfire.`);
+  if (player.hp >= player.maxHp) return message.reply(`🔥 You are already at maximum health! Get back into the fray!`);
 
   // Define 2-Minute (120s) Global Lockout
   const LOCKOUT_SECONDS = 120;
