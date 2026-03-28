@@ -164,6 +164,8 @@ export async function executeChop(message: Message) {
   const finalPrimary = Math.floor(basePrimary * yieldMultiplier * slotMultiplier * multiBonus);
   const finalSecondary = Math.floor(baseSecondary * yieldMultiplier * slotMultiplier * multiBonus);
   const finalEpic = Math.floor(baseEpic * yieldMultiplier * slotMultiplier * multiBonus);
+  const finalSticks = Math.floor((Math.random() * 2 + 1) * yieldMultiplier * slotMultiplier);
+  
   
   const xpReward = 5 * toolTierRequired * slotMultiplier;
   const exhaustionDamage = noDamage ? 0 : 2 * toolTierRequired; 
@@ -187,6 +189,12 @@ export async function executeChop(message: Message) {
     where: { playerId_itemKey: { playerId: player.id, itemKey: epicDropKey } },
     update: { quantity: { increment: finalEpic } },
     create: { playerId: player.id, itemKey: epicDropKey, quantity: finalEpic }
+  }));
+
+  if (finalSticks > 0) ops.push(prisma.inventoryItem.upsert({
+    where: { playerId_itemKey: { playerId: player.id, itemKey: 'sticks' } },
+    update: { quantity: { increment: finalSticks } },
+    create: { playerId: player.id, itemKey: 'sticks', quantity: finalSticks }
   }));
 
   // Leveling Engine
@@ -215,6 +223,7 @@ export async function executeChop(message: Message) {
 
   // 6. Visual Output
   let dropLog = `${getEmoji(primaryDropKey)} **+${finalPrimary} ${primaryDropKey.replace(/_/g, ' ').toUpperCase()}**`;
+  dropLog += `\n🪵 **+${finalSticks} STICKS**`;
   if (finalSecondary > 0) dropLog += `\n${getEmoji(secondaryDropKey)} **+${finalSecondary} ${secondaryDropKey.replace(/_/g, ' ').toUpperCase()}**`;
   if (finalEpic > 0) dropLog += `\n${getEmoji(epicDropKey)} **+${finalEpic} ${epicDropKey.replace(/_/g, ' ').toUpperCase()}!** ✨`;
 

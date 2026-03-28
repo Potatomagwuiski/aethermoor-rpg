@@ -13,7 +13,8 @@ export async function execute(message: Message) {
     include: {
         equipment: {
             where: { equipped: true }
-        }
+        },
+        recipes: true
     }
   });
 
@@ -156,12 +157,16 @@ export async function execute(message: Message) {
   // --- PRE-COMBAT CULINARY BUFF PARSING ---
   let buffMessage = '';
   let activeBuff = player.activeBuff;
+  let activeHot = 0;
+  let activeEot = 0;
   if (activeBuff && player.buffExpiresAt && player.buffExpiresAt > new Date()) {
     if (activeBuff === 'ATK_10') { gearAtk += 10; buffMessage = '✨ **Buff Active:** Roasted Trout (+10 ATK)'; }
     if (activeBuff === 'HP_25') { player.maxHp += 25; player.hp += 25; buffMessage = '✨ **Buff Active:** Koi Soup (+25 MAX HP)'; }
     if (activeBuff === 'DEF_50') { gearDef += 50; buffMessage = '✨ **Buff Active:** Glacial Filet (+50 DEF)'; }
     if (activeBuff === 'CRIT_15') { gearCrit += 15; buffMessage = '✨ **Buff Active:** Spicy Eel (+15% CRIT)'; }
     if (activeBuff === 'ATK_100_LS_10') { gearAtk += 100; gearLifesteal += 10; buffMessage = '✨ **Buff Active:** Void Sashimi (+100 ATK, 10% LIFESTEAL)'; }
+    if (activeBuff === 'HOT_10') { activeHot = 10; buffMessage = '✨ **Buff Active:** Moonlight Brew (Heals 10 HP / Round)'; }
+    if (activeBuff === 'EOT_5') { activeEot = 5; buffMessage = '✨ **Buff Active:** Starlight Infusion (+5 Energy / Round)'; }
   } else if (activeBuff) {
     await prisma.player.update({ where: { id: player.id }, data: { activeBuff: null, buffExpiresAt: null } });
     activeBuff = null;
@@ -474,6 +479,10 @@ export async function execute(message: Message) {
 
     playerHp -= rawIncoming;
     totalDamageTaken += rawIncoming;
+    
+    if (activeHot > 0 && playerHp > 0) {
+        playerHp = Math.min(player.maxHp, playerHp + activeHot);
+    }
   }
 
   // --- FAILURE STATE (DEATH PENALTY) ---
@@ -615,6 +624,24 @@ export async function execute(message: Message) {
     }
   }
 
+  // --- RECIPE DISCOVERY (10% CHANCE) ---
+  const ALL_RECIPES = ['koi_soup', 'glacial_filet', 'spicy_eel', 'void_sashimi', 'moonlight_brew', 'starlight_infusion'];
+  if (Math.random() <= 0.10) {
+      const droppedRecipe = ALL_RECIPES[Math.floor(Math.random() * ALL_RECIPES.length)];
+      const alreadyHas = player.recipes && player.recipes.find((r: any) => r.recipeKey === droppedRecipe);
+      if (!alreadyHas) {
+          if (gachaLootString) gachaLootString += '\n';
+          gachaLootString += `📜 \`[Ancient Recipe: ${droppedRecipe.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}]\``;
+          dbOperations.push(prisma.unlockedRecipe.upsert({
+              where: { playerId_recipeKey: { playerId: player.id, recipeKey: droppedRecipe } },
+              update: {},
+              create: { playerId: player.id, recipeKey: droppedRecipe }
+          }));
+          if (!player.recipes) player.recipes = [];
+          player.recipes.push({ recipeKey: droppedRecipe } as any);
+      }
+  }
+
   // Leveling Engine
   let currentLevel = player.level;
   let currentXp = player.xp + xpReward;
@@ -627,7 +654,14 @@ export async function execute(message: Message) {
   }
   const levelsGained = currentLevel - player.level;
 
-  const updateData: any = { gold: { increment: goldReward }, level: currentLevel, xp: currentXp, hp: playerHp };
+  if (activeHot > 0 && rounds > 0) abilityHighlights += `🍵 Moonlight Brew regenerated **${activeHot * rounds}** HP!\n`;
+  if (activeEot > 0 && rounds > 0) {
+      const energyRegen = activeEot * rounds;
+      player.energy = Math.min(100, player.energy + energyRegen);
+      abilityHighlights += `✨ Starlight Infusion restored **${energyRegen}** Energy!\n`;
+  }
+
+  const updateData: any = { gold: { increment: goldReward }, level: currentLevel, xp: currentXp, hp: playerHp, energy: player.energy };
   if (levelsGained > 0) {
     updateData.pointsAvailable = { increment: pointsGained };
     updateData.maxHp = { increment: levelsGained * 5 };
