@@ -4,10 +4,10 @@ import { enforceCooldown } from '../utils/cooldown.js';
 
 const SHOP_ITEMS: Record<string, { id: string, name: string, price: number, icon: string, description: string }> = {
   'lootbox': { id: 'lootbox', name: 'Mystery Loot Box', price: 200, icon: '📦', description: 'Roll for random gear, ores, or wood. Bypasses gathering.' },
-  'lumina_egg': { id: 'lumina_egg', name: 'Lumina Pet Egg', price: 10000, icon: '🥚', description: 'Tier 1 Gacha Pet Box. Low chance for Rare pets.' },
-  'mystic_egg': { id: 'mystic_egg', name: 'Mystic Pet Egg', price: 25000, icon: '🥚', description: 'Tier 2 Gacha Pet Box. Solid chance for Rare, slight chance for Epic.' },
-  'abyssal_egg': { id: 'abyssal_egg', name: 'Abyssal Pet Egg', price: 50000, icon: '🥚', description: 'Tier 3 Gacha Pet Box. High chance for Epic, very tiny chance for Legendary.' },
-  'astral_egg': { id: 'astral_egg', name: 'Astral Pet Egg', price: 100000, icon: '🥚', description: 'Tier 4 Gacha Pet Box. The Ultimate Casino Sink. Best odds for Legendary pets.' },
+  'lumina_egg': { id: 'lumina_egg', name: 'Lumina Lootbox', price: 10000, icon: '📦', description: 'Tier 1 Resource Lootbox & Pet Egg. Grants Gold, Basic Materials, and rolls for a Pet.' },
+  'mystic_egg': { id: 'mystic_egg', name: 'Mystic Lootbox', price: 25000, icon: '📦', description: 'Tier 2 Resource Lootbox & Pet Egg. Grants Gold, Intermediate Materials, and rolls for a Pet.' },
+  'abyssal_egg': { id: 'abyssal_egg', name: 'Abyssal Lootbox', price: 50000, icon: '📦', description: 'Tier 3 Resource Lootbox & Pet Egg. Grants Gold, Advanced Materials, and rolls for a Pet.' },
+  'astral_egg': { id: 'astral_egg', name: 'Astral Lootbox', price: 100000, icon: '📦', description: 'Tier 4 Resource Lootbox & Pet Egg. Massive Gold & Elite Material drop. Ultimate Casino Pet roll.' },
   'dungeon_key': { id: 'dungeon_key', name: 'Dungeon Key', price: 5000, icon: '🗝️', description: 'Grants access to a 5-stage Dungeon featuring a massive Boss.' },
   'life_potion': { id: 'life_potion', name: 'Life Potion', price: 50, icon: '🧪', description: 'Restores you to Max HP. Required if you die during a Hunt or in a Dungeon.' },
   'guild_charter': { id: 'guild_charter', name: 'Guild Charter', price: 10000, icon: '📜', description: 'Massive Gold Sink. A prestigious charter allowing you to found a Guild.' },
