@@ -20,12 +20,16 @@ export async function getPinnedTrackerField(playerId: string, pinnedForgeItems: 
     });
     
     let trackStr = '';
+    const grandTotals: Record<string, number> = {};
     
     validPins.forEach((pinKey, index) => {
         const blueprint = BLUEPRINTS[pinKey];
         trackStr += `**${blueprint.name}**\n`;
         
         for (const [matKey, reqQty] of Object.entries(blueprint.materials as Record<string, number>)) {
+            if (!grandTotals[matKey]) grandTotals[matKey] = 0;
+            grandTotals[matKey] += reqQty;
+
             const invItem = inventory.find((i: any) => i.itemKey === matKey);
             const has = invItem ? invItem.quantity : 0;
             const emoji = getEmoji(matKey) || '📦';
@@ -39,6 +43,22 @@ export async function getPinnedTrackerField(playerId: string, pinnedForgeItems: 
             trackStr += '\n';
         }
     });
+
+    if (validPins.length > 1) {
+        trackStr += '\n**🛒 Grand Total Material Needs**\n';
+        for (const [matKey, totalReq] of Object.entries(grandTotals)) {
+            const invItem = inventory.find((i: any) => i.itemKey === matKey);
+            const has = invItem ? invItem.quantity : 0;
+            const missing = Math.max(0, totalReq - has);
+            const emoji = getEmoji(matKey) || '📦';
+            
+            if (missing > 0) {
+                trackStr += `> ❌ ${emoji} **${matKey.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}**: Need **${missing}** more\n`;
+            } else {
+                trackStr += `> ✅ ${emoji} **${matKey.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}**: All ${totalReq} gathered!\n`;
+            }
+        }
+    }
     
     return { name: `📌 Pinned Schematics (${validPins.length}/3)`, value: trackStr, inline: false };
 }
