@@ -17,7 +17,7 @@ export async function executeHarvest(message: Message, args: string[]) {
 
   const player = await prisma.player.findUnique({
     where: { discordId },
-    include: { tools: { where: { type: 'HOE', equipped: true } } }
+    include: { tools: { where: { type: 'SICKLE', equipped: true } } }
   });
 
   if (!player) {
@@ -57,6 +57,48 @@ export async function executeHarvest(message: Message, args: string[]) {
 
   // --- PRE-GATHERING CULINARY BUFF PARSING ---
   let abilityHighlights = '';
+
+  let hasSickle = player.tools && player.tools.length > 0;
+  let yieldMultiplier = 1;
+  let toolName = 'Bare Hands';
+  
+  if (hasSickle) {
+    const tool = player.tools[0] as any;
+    yieldMultiplier = tool.yieldMultiplier || 1.25;
+    toolName = `${tool.name} (x${yieldMultiplier} Yield)`;
+  }
+
+  let activeAbilities: string[] = [];
+  if (hasSickle && (player.tools[0] as any).activeAbilities) {
+      activeAbilities = (player.tools[0] as any).activeAbilities as string[];
+  }
+
+  let bonusYield = 0;
+  let autoEpic = false;
+  let isOverload = false;
+
+  let multiBonus = 1;
+  let noDamage = false;
+  let hiddenGem = false;
+
+  for (const ab of activeAbilities) {
+      if (!ab) continue;
+      if (ab.includes('Harvester') && !ab.includes('Expert') && !ab.includes('Grand')) { bonusYield += 1; abilityHighlights += `🔹 \`Harvester\` added +1 Base Yield!\n`; }
+      if (ab.includes('Expert Harvester')) { bonusYield += 2; abilityHighlights += `🌱 \`Expert Harvester\` added +2 Base Yield!\n`; }
+      if (ab.includes('Grand Harvester')) { bonusYield += 3; abilityHighlights += `🌿 \`Grand Harvester\` added +3 Base Yield!\n`; }
+      
+      if (ab.includes('Reap') && !ab.includes('Efficient') && !ab.includes('Master') && Math.random() > 0.95) { multiBonus *= 2; abilityHighlights += `🔹 \`Reap\` doubled the herbs!\n`; }
+      if (ab.includes('Efficient Reap') && Math.random() > 0.90) { multiBonus *= 2; abilityHighlights += `🔹 \`Efficient Reap\` doubled the herbs!\n`; }
+      if (ab.includes('Master Reap') && Math.random() > 0.80) { multiBonus *= 2; abilityHighlights += `🔹 \`Master Reap\` doubled the herbs!\n`; }
+      
+      if (ab.includes('Mother Lode') && Math.random() > 0.99) { multiBonus *= 50; abilityHighlights += `🌟 \`Mother Lode\` found! (50x Yield)\n`; }
+      if (ab.includes('Golden Harvest') && Math.random() > 0.98) { multiBonus *= 50; abilityHighlights += `🌟 \`Golden Harvest\` found! (50x Yield)\n`; }
+      if (ab.includes('Bountiful Blessing') && Math.random() > 0.95) { multiBonus *= 50; abilityHighlights += `🌟 \`Bountiful Blessing\`! (50x Yield)\n`; }
+      
+      if (ab.includes('Tireless Swing')) { noDamage = true; abilityHighlights += `💎 \`Tireless Swing\` prevented Exhaustion!\n`; }
+      if (ab.includes('Sense') && Math.random() > 0.90) { hiddenGem = true; abilityHighlights += `🌿 \`Earth Sense\` found hidden seeds!\n`; }
+  }
+
   if (player.activeBuff && player.buffExpiresAt && player.buffExpiresAt > new Date()) {
       if (player.activeBuff === 'GATHER_SLOT_10') { 
           if (isSlotJackpot || isSlotMatch) slotMultiplier += 10; 
@@ -91,12 +133,13 @@ export async function executeHarvest(message: Message, args: string[]) {
       epicDropKey = 'demon_horn';
   }
 
-  const finalPrimary = Math.floor((Math.random() * 3) + 1) * slotMultiplier;
-  let finalSecondary = 0;
-  let finalEpic = 0;
+  const basePrimary = Math.floor(Math.random() * 3) + 1;
+  const baseSecondary = Math.random() > 0.5 ? Math.floor(Math.random() * 2) + 1 : 0;
+  const baseEpic = Math.random() > 0.95 ? 1 : 0;
 
-  if (Math.random() > 0.5) finalSecondary = Math.floor((Math.random() * 2) + 1) * slotMultiplier;
-  if (Math.random() > 0.95) finalEpic = 1 * slotMultiplier;
+  const finalPrimary = Math.floor(((basePrimary + bonusYield) * yieldMultiplier * slotMultiplier) * multiBonus);
+  const finalSecondary = Math.floor(((baseSecondary) * yieldMultiplier * slotMultiplier) * multiBonus) + (hiddenGem ? 1 : 0);
+  const finalEpic = Math.floor(((baseEpic) * yieldMultiplier * slotMultiplier) * multiBonus) + (autoEpic ? 1 : 0);
 
   const xpReward = 2 * slotMultiplier;
 

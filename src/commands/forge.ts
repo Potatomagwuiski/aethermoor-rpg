@@ -131,7 +131,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { base: { key: 'titan_mace', name: 'Titan Mace', dps: 370, rarity: 'EPIC' } }
   },
   'iron_greatsword': {
-    name: 'Iron Greatsword', materials: { iron: 40, ashwood: 15 },
+    name: 'Iron Greatsword', requiredBlueprint: 'blueprint_iron_greatsword', materials: { iron: 40, ashwood: 15 },
     abilities: [
       '🛡️ **Passive [Parry]**: 10% chance to completely block an attack.',
       '⚡ **Active [Wide Cleave]**: 35% chance to hit a second target for 50% DMG'
@@ -147,7 +147,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { base: { key: 'iron_spellblade', name: 'Iron Spellblade', dps: 100 , rarity: 'UNCOMMON' } }
   },
   'steel_claymore': {
-    name: 'Steel Claymore', materials: { steel: 50, strong_wood: 20, golem_rubble: 10 },
+    name: 'Steel Claymore', requiredBlueprint: 'blueprint_steel_claymore', materials: { steel: 50, strong_wood: 20, golem_rubble: 10 },
     abilities: [
       '🛡️ **Passive [Juggernaut]**: Increases Max HP by 50',
       '⚡ **Active [Whirlwind]**: 15% chance to deal 75% AoE Damage to the whole pack!'
@@ -197,7 +197,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { base: { key: 'wood_staff', name: 'Wood Staff', dps: 15 , rarity: 'COMMON' } }
   },
   'bone_staff': {
-    name: 'Bone Staff', materials: { iron: 15, ashwood: 30, brittle_bone: 15 },
+    name: 'Bone Staff', requiredBlueprint: 'blueprint_bone_staff', materials: { iron: 15, ashwood: 30, brittle_bone: 15 },
     abilities: [
       '🛡️ **Passive [Necromancy]**: Restores 5 HP directly upon slaying an enemy.',
       '⚡ **Active [Drain Life]**: 25% chance to steal 20 HP from the enemy.'
@@ -205,7 +205,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { base: { key: 'bone_staff', name: 'Bone Staff', dps: 85 , rarity: 'RARE' } }
   },
   'moonlight_staff': {
-    name: 'Moonlight Staff', materials: { steel: 20, strong_wood: 40, shadow_dust: 10 },
+    name: 'Moonlight Staff', requiredBlueprint: 'blueprint_moonlight_staff', materials: { steel: 20, strong_wood: 40, shadow_dust: 10 },
     abilities: [
       '🛡️ **Passive [Lunar Grace]**: +10 Max Mana and heals 5 HP per round.',
       '⚡ **Active [Moonbeam]**: 20% chance to strike all enemies with Moonlight for 50% true DMG.'
@@ -239,7 +239,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { base: { key: 'shortbow', name: 'Shortbow', dps: 16 , rarity: 'COMMON' } }
   },
   'hunters_bow': {
-    name: 'Hunters Bow', materials: { ashwood: 35, iron: 10, wolf_pelt: 2 },
+    name: 'Hunters Bow', requiredBlueprint: 'blueprint_hunters_bow', materials: { ashwood: 35, iron: 10, wolf_pelt: 2 },
     abilities: [
       '🛡️ **Passive [Camouflage]**: +15% Base Evasion',
       '⚡ **Active [Volley]**: 20% chance to fire a second arrow.'
@@ -255,7 +255,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { base: { key: 'compound_longbow', name: 'Compound Longbow', dps: 120 , rarity: 'COMMON' } }
   },
   'recurve_bow': {
-    name: 'Recurve Bow', materials: { strong_wood: 50, steel: 15, golem_rubble: 5 },
+    name: 'Recurve Bow', requiredBlueprint: 'blueprint_recurve_bow', materials: { strong_wood: 50, steel: 15, golem_rubble: 5 },
     abilities: [
       '🛡️ **Passive [Deadly Aim]**: Critical Hits deal 200% damage instead of 150%.',
       '⚡ **Active [Volley]**: 25% chance to fire 3 arrows at random enemies.'
@@ -300,7 +300,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { base: { key: 'wooden_club', name: 'Wooden Club', dps: 14 , rarity: 'COMMON' } }
   },
   'iron_mace': {
-    name: 'Iron Mace', materials: { iron: 50, ashwood: 10 },
+    name: 'Iron Mace', requiredBlueprint: 'blueprint_iron_mace', materials: { iron: 50, ashwood: 10 },
     abilities: [
       '🛡️ **Passive [Shatter]**: Ignores 20% of enemy Armor.',
       '⚡ **Active [Stagger]**: 20% chance to prevent the enemy from attacking this round!'
@@ -393,7 +393,7 @@ name: 'Steel Chestplate', requiredBlueprint: 'blueprint_steel_chestplate', mater
     outputs: { base: { key: 'juggernaut_plate', name: 'Juggernaut Plate', defense: 380, rarity: 'EPIC' } }
   },
   'apprentice_robe': {
-name: 'Apprentice Robe', materials: { copper: 10, wood: 30, basic_herb: 5 },
+name: 'Apprentice Robe', requiredBlueprint: 'blueprint_apprentice_robe', materials: { copper: 10, wood: 30, basic_herb: 5 },
     abilities: [
       '✨ **Light Fabric**: +1 Max Energy',
       '✨ **Mana Shield**: Reduces incoming damage by 10%',
@@ -471,7 +471,7 @@ name: 'Bronze Sickle', materials: { copper: 30, sticks: 20, slime_gel: 10 },
       '🌿 **Earth Sense**: 10% chance to find hidden seeds',
       '🌟 **Mother Lode**: 1% chance to yield 50x materials'
     ],
-    outputs: { base: { key: 'bronze_sickle', name: 'Bronze Sickle', yield: 1.25 , rarity: 'COMMON' } }
+    outputs: { base: { key: 'bronze_sickle', name: 'Bronze Sickle', yieldMultiplier: 1.25, rarity: 'COMMON', isTool: true, type: 'SICKLE' } }
   },
   'iron_sickle': {
 name: 'Iron Sickle', requiredBlueprint: 'blueprint_iron_sickle', materials: { iron: 50, ashwood: 40, bat_wing: 15 },
@@ -482,7 +482,7 @@ name: 'Iron Sickle', requiredBlueprint: 'blueprint_iron_sickle', materials: { ir
       '🌿 **Nature\'s Gift**: 15% chance to find hidden seeds',
       '🌟 **Golden Harvest**: 2% chance to yield 50x materials'
     ],
-    outputs: { base: { key: 'iron_sickle', name: 'Iron Sickle', yield: 2.5 , rarity: 'UNCOMMON' } }
+    outputs: { base: { key: 'iron_sickle', name: 'Iron Sickle', yieldMultiplier: 2.5, rarity: 'UNCOMMON', isTool: true, type: 'SICKLE' } }
   },
   'mythril_sickle': {
 name: 'Mythril Sickle', requiredBlueprint: 'blueprint_mythril_sickle', materials: { mythril: 80, elderwood: 70, demon_horn: 25 },
@@ -493,7 +493,7 @@ name: 'Mythril Sickle', requiredBlueprint: 'blueprint_mythril_sickle', materials
       '🌿 **Fae Sense**: 25% chance to find hidden seeds',
       '🌟 **Bountiful Blessing**: 5% chance to yield 50x materials'
     ],
-    outputs: { base: { key: 'mythril_sickle', name: 'Mythril Sickle', yield: 8.0 , rarity: 'EPIC' } }
+    outputs: { base: { key: 'mythril_sickle', name: 'Mythril Sickle', yieldMultiplier: 8.0, rarity: 'EPIC', isTool: true, type: 'SICKLE' } }
   },
 
   'bronze_pickaxe': {
