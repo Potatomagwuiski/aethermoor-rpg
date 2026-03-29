@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { BLUEPRINTS } from '../commands/forge';
+import { BLUEPRINTS } from '../commands/forge.js';
 
 function analyzeDrops() {
     const files = ['mine.ts', 'chop.ts', 'harvest.ts', 'fish.ts', 'hunt.ts', 'dungeon.ts'];

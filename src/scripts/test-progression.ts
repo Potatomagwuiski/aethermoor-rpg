@@ -1,4 +1,4 @@
-import { BLUEPRINTS } from '../commands/forge';
+import { BLUEPRINTS } from '../commands/forge.js';
 
 async function testAllCrafting() {
     console.log("=== STARTING FULL FORGE SIMULATION ===");

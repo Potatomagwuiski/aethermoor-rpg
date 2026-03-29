@@ -1,4 +1,4 @@
-import { BLUEPRINTS } from '../commands/forge';
+import { BLUEPRINTS } from '../commands/forge.js';
 import fs from 'fs';
 import path from 'path';
 
