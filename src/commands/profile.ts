@@ -61,8 +61,10 @@ export async function executeProfile(message: Message, args: string[]) {
               if (['epic', 'legendary'].includes(rarity) && bp.abilities.length > 3) activeAbilities.push(bp.abilities[3]);
               if (['legendary'].includes(rarity) && bp.abilities.length > 4) activeAbilities.push(bp.abilities[4]);
           }
-          const slotTag = getWeaponSlotModifierString(gear.name || '', activeAbilities);
-          if (slotTag) extra = ` ${slotTag}`;
+          
+          if (activeAbilities.length > 0) {
+              extra = '\n' + activeAbilities.map(a => `   > ${a}`).join('\n');
+          }
       }
 
       gearText += `• ${emoji} **${gear.name}** (+${gear.bonusAtk}⚔️ | +${gear.bonusDef}🛡️)${extra}\n`;
