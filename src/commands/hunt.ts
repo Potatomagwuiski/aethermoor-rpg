@@ -663,7 +663,8 @@ export async function execute(message: Message) {
     
     let eStr = '';
     if (evaded) {
-        eStr = `> 💨 The enemy pack swarmed you, but you completely **evaded** their attacks!`;
+        const evadeTxt = packSize > 1 ? 'pack swarmed you, but you completely **evaded** their' : 'enemy struck, but you effortlessly **evaded** its';
+        eStr = `> 💨 The ${evadeTxt} attacks!`;
     } else {
         let preMit = rawIncoming + mitigation;
         let pTxt = packSize > 1 ? 'The pack retaliated' : 'The enemy retaliated';
