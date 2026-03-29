@@ -768,11 +768,11 @@ export async function executeForge(message: Message, args: string[]) {
           }
           matString = matString.slice(0, -2); 
           
-          let reqHeader = '🌟 **Innate Recipe:** Discovered at Birth';
+          let reqHeader = '📜 **Recipe:** Innate (Discovered at Birth)';
           if (blueprint.requiredBlueprint) {
             const reqBp = blueprint.requiredBlueprint.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
             const reqEmoji = getEmoji(blueprint.requiredBlueprint);
-            reqHeader = `📜 **Requires:** 1x ${reqEmoji} \`${reqBp}\``;
+            reqHeader = `📜 **Recipe:** Requires 1x ${reqEmoji} \`${reqBp}\``;
           }
           
           let statString = '';
@@ -799,7 +799,7 @@ export async function executeForge(message: Message, args: string[]) {
 
           let abilityString = '';
           if (blueprint.abilities && blueprint.abilities.length > 0) {
-              abilityString = `\n✨ **Innate Abilities:**\n`;
+              abilityString = `✨ **Abilities:**\n`;
               for (let i = 0; i < displaySlice; i++) {
                  if (blueprint.abilities[i]) {
                     abilityString += `✧ \`${blueprint.abilities[i]}\`\n`;
@@ -807,7 +807,11 @@ export async function executeForge(message: Message, args: string[]) {
               }
           }
 
-          const outputStr = `**${blueprint.name}** (\`${key}\`)\n${statString}${abilityString}\n${reqHeader} \n🧱 **Materials:** ${matString}\n\n`;
+          let formattedBody = '';
+          if (statString) formattedBody += `${statString}\n`;
+          if (abilityString) formattedBody += `${abilityString}`;
+          
+          const outputStr = `**${blueprint.name}** (\`${key}\`)\n${formattedBody}${reqHeader}\n🧱 **Materials:** ${matString}\n\n`;
           
           if (isCraftable) {
               craftableCatalog += outputStr;
