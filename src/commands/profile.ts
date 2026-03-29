@@ -86,7 +86,7 @@ export async function executeProfile(message: Message, args: string[]) {
       });
   }
 
-  embed.setFooter({ text: "Tip: Upgrade Weapon/Armor Rarity via 'rpg forge' to unlock more hidden abilities!" });
+  embed.setFooter({ text: "Tip: Craft higher-tier Gear via 'rpg forge' to innately unlock deeper Ability slots!" });
 
   // Parse Tools
   let toolsText = '';
