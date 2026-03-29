@@ -639,6 +639,13 @@ export async function execute(message: Message) {
 
   if (jackpotTriggered && jackpotMessage.length > 0) abilityHighlights += `${jackpotMessage}\n`;
 
+  if (activeHot > 0 && rounds > 0) abilityHighlights += `🍵 Meal Regeneration restored **${activeHot * rounds}** HP!\n`;
+  if (activeEot > 0 && rounds > 0) {
+      const energyRegen = activeEot * rounds;
+      player.energy = Math.min(100, player.energy + energyRegen);
+      abilityHighlights += `✨ Meal Energization restored **${energyRegen}** Energy!\n`;
+  }
+
   if (abilityHighlights.length > 0) {
       const uniqueHighlights = [...new Set(abilityHighlights.split('\n').filter(s => s.trim() !== ''))];
       buildAnalysisString += `✨ **Spell/Ability Procs:**\n${uniqueHighlights.join('\n')}\n`;
@@ -856,12 +863,6 @@ export async function execute(message: Message) {
   }
   const levelsGained = currentLevel - player.level;
 
-  if (activeHot > 0 && rounds > 0) abilityHighlights += `🍵 Meal Regeneration restored **${activeHot * rounds}** HP!\n`;
-  if (activeEot > 0 && rounds > 0) {
-      const energyRegen = activeEot * rounds;
-      player.energy = Math.min(100, player.energy + energyRegen);
-      abilityHighlights += `✨ Meal Energization restored **${energyRegen}** Energy!\n`;
-  }
 
   const updateData: any = { gold: { increment: goldReward }, level: currentLevel, xp: currentXp, hp: playerHp, energy: player.energy };
   if (levelsGained > 0) {

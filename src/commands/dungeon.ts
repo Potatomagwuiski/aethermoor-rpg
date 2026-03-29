@@ -39,13 +39,33 @@ export async function executeDungeon(message: Message, args: string[]) {
   const dbOperations: any[] = [];
   
   const activePet = player.pets && player.pets.length > 0 ? player.pets[0] : null;
-  const maxHpWithPet = player.maxHp + (activePet ? activePet.bonusHp : 0);
+  let maxHpWithPet = player.maxHp + (activePet ? activePet.bonusHp : 0);
   let runningHp = player.hp;
 
-  // Mitigation Calculation Engine
   // Mitigation & Attack Engine
   let gearDef = 0;
   let gearAtk = Math.floor(player.str * 2.5) + (activePet ? activePet.bonusAtk : 0); // Base Unarmed ATK + Pet
+
+  let activeHot = 0;
+  let activeEot = 0;
+  let buffMessage = '';
+  const activeBuff = player.activeBuff;
+
+  if (activeBuff && player.buffExpiresAt && player.buffExpiresAt > new Date()) {
+    if (activeBuff === 'ATK_10_HOT_5') { gearAtk += 10; activeHot = 5; buffMessage = '✨ **Buff Active:** Roasted Trout (+10 ATK, Heals 5 HP / Stage)'; }
+    if (activeBuff === 'ATK_25_HOT_10') { gearAtk += 25; activeHot = 10; buffMessage = '✨ **Buff Active:** Golden Skewer (+25 ATK, Heals 10 HP / Stage)'; }
+    if (activeBuff === 'ATK_60_HOT_20') { gearAtk += 60; activeHot = 20; buffMessage = '✨ **Buff Active:** Glacier Stew (+60 ATK, Heals 20 HP / Stage)'; }
+    if (activeBuff === 'ATK_120_HOT_40') { gearAtk += 120; activeHot = 40; buffMessage = '✨ **Buff Active:** Lava-Seared Eel (+120 ATK, Heals 40 HP / Stage)'; }
+    if (activeBuff === 'ATK_250_HOT_80') { gearAtk += 250; activeHot = 80; buffMessage = '✨ **Buff Active:** Abyssal Feast (+250 ATK, Heals 80 HP / Stage)'; }
+    if (activeBuff === 'HP_25') { maxHpWithPet += 25; runningHp += 25; buffMessage = '✨ **Buff Active:** Koi Soup (+25 MAX HP)'; }
+    if (activeBuff === 'DEF_50') { gearDef += 50; buffMessage = '✨ **Buff Active:** Glacial Filet (+50 DEF)'; }
+    if (activeBuff === 'CRIT_15') { buffMessage = '✨ **Buff Active:** Spicy Eel (+15% CRIT)'; }
+    if (activeBuff === 'ATK_100_LS_10') { gearAtk += 100; buffMessage = '✨ **Buff Active:** Void Sashimi (+100 ATK, 10% LIFESTEAL)'; }
+    if (activeBuff === 'HOT_10') { activeHot = 10; buffMessage = '✨ **Buff Active:** Moonlight Brew (Heals 10 HP / Stage)'; }
+    if (activeBuff === 'EOT_5') { activeEot = 5; buffMessage = '✨ **Buff Active:** Starlight Infusion (+5 Energy / Stage)'; }
+  } else if (activeBuff) {
+    dbOperations.push(prisma.player.update({ where: { id: player.id }, data: { activeBuff: null, buffExpiresAt: null } }));
+  }
   if (player.equipment) {
     for (const gear of player.equipment) {
       if (gear.equipped) {
@@ -141,6 +161,19 @@ export async function executeDungeon(message: Message, args: string[]) {
             create: { playerId: player.id, itemKey: 'enhancement_stone', quantity: 1 }
           }));
       }
+      
+      if (activeHot > 0 && survived) {
+          const heal = Math.min(maxHpWithPet - runningHp, activeHot);
+          if (heal > 0) {
+              runningHp += heal;
+              logText += `> 🍵 *Meal Regeneration healed ${heal} HP!*\n`;
+          }
+      }
+      
+      if (activeEot > 0 && survived) {
+          player.energy = Math.min(100, player.energy + activeEot);
+          logText += `> ✨ *Meal Energization restored ${activeEot} Energy!*\n`;
+      }
   }
 
   // Handle Leveling if Survived Wait, if they died, they still get the XP they earned in stages 1-5?
@@ -190,11 +223,13 @@ export async function executeDungeon(message: Message, args: string[]) {
   const embedTitle = survived ? `🏰 Dungeon Cleared: The Catacombs` : `☠️ Dungeon Failed: The Catacombs`;
   const embedColor = survived ? 0x8B0000 : 0x000000;
 
-  const embed = new EmbedBuilder()
-    .setTitle(embedTitle)
-    .setColor(embedColor)
-    .setDescription(logText)
-    .setFooter({ text: `Total Haul: ${totalGold} Gold | ${totalXp} XP` });
+    const embed = new EmbedBuilder()
+      .setTitle(embedTitle)
+      .setColor(embedColor)
+      .setDescription(logText)
+      .setFooter({ text: `Total Haul: ${totalGold} Gold | ${totalXp} XP` });
+
+    if (buffMessage) embed.addFields({ name: 'Active Buff', value: buffMessage, inline: false });
 
   return message.reply({ embeds: [embed] });
 }
