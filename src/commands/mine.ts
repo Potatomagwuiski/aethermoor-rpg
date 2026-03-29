@@ -109,6 +109,10 @@ export async function executeMine(message: Message) {
   if (toolRarity === 'RARE') currentToolTier = 3; 
   if (toolRarity === 'EPIC') currentToolTier = 4; 
   if (toolRarity === 'LEGENDARY') currentToolTier = 5; 
+  
+  if (toolName.includes('Bronze') || toolName.includes('Iron')) currentToolTier = Math.max(currentToolTier, 2);
+  if (toolName.includes('Steel') || toolName.includes('Mythril')) currentToolTier = Math.max(currentToolTier, 3);
+  if (toolName.includes('Void')) currentToolTier = Math.max(currentToolTier, 4);
 
   if (currentToolTier < toolTierRequired) {
       if (redisClient.isReady) await redisClient.del(cdKey); // Refund cooldown
