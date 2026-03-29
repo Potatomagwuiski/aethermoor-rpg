@@ -1,53 +1,81 @@
+import 'dotenv/config';
 import { prisma } from './db.js';
+import { execute as executeHunt } from './commands/hunt.js';
+import { executeForge } from './commands/forge.js';
 
-async function simulateCombat(level: number, tier: number, gearDef: number, playerEnd: number, hasBuff: boolean) {
-  // 1. Calculate Player Core HP
-  const maxHp = 100 + (level * 5) + (hasBuff ? 25 : 0); // koi soup gives +25
-
-  // 2. Calculate Enemy Threat
-  const baseEnemyThreat = Math.floor(tier * 20) + Math.floor(level * 6) + 15;
+async function runTest() {
+  const discordId = 'combat_tester';
   
-  // 3. Calculate Damage Taken Bounds
-  const minRawDamage = Math.floor(baseEnemyThreat / 2);
-  const maxRawDamage = minRawDamage + baseEnemyThreat;
+  await prisma.player.deleteMany({ where: { discordId } });
 
-  // 4. Calculate Player Mitigation
-  const mitigation = Math.floor(gearDef * 0.75) + Math.floor(playerEnd * 2);
+  const player = await prisma.player.create({
+    data: {
+      discordId,
+      name: 'Combat Tester',
+      level: 10,
+      hp: 1500,
+      maxHp: 1500,
+      gold: 50000,
+      energy: 100,
+      location: 'lumina_plains'
+    }
+  });
 
-  // 5. Final Effective Damage
-  const effectiveMin = Math.max(0, minRawDamage - mitigation);
-  const effectiveMax = Math.max(0, maxRawDamage - mitigation);
+  // Give Venom Shiv explicitly
+  await prisma.equipment.create({
+      data: {
+          playerId: player.id,
+          slot: 'WEAPON',
+          name: '🟦 [Rare Venom Shiv]',
+          baseItemKey: 'rare_venom_shiv',
+          equipped: true,
+          rarity: 'RARE',
+          bonusAtk: 90,
+          bonusCrit: 15,
+      }
+  });
+
+  let messageOutput = '';
+  const mockMessage: any = {
+    author: { id: discordId, username: player.name },
+    content: '',
+    reply: async (response: any) => {
+        if (typeof response === 'string') messageOutput = response;
+        else if (response.embeds) {
+            const desc = response.embeds[0].data.description || '';
+            const fields = response.embeds[0].data.fields ? response.embeds[0].data.fields.map((f:any)=>`${f.name}: ${f.value}`).join(' | ') : '';
+            messageOutput = `[EMBED TITLE]: ${response.embeds[0].data.title}\n[DESC]: ${desc}\n[FIELDS]: ${fields}`;
+        }
+    }
+  };
+
+  console.log('=== COMBAT SIMULATION ===');
+
+  for (let i = 0; i < 5; i++) {
+     mockMessage.content = 'rpg hunt';
+     await executeHunt(mockMessage);
+     console.log(`\n--- HUNT ${i+1} ---`);
+     // console.log(messageOutput.substring(0, 300).replace(/\n/g, ' '));
+     console.log(messageOutput);
+  }
+
+  // Give Dungeon Key
+  await prisma.inventoryItem.upsert({ where: { playerId_itemKey: { playerId: player.id, itemKey: 'dungeon_key'} }, update: { quantity: 10 }, create: { playerId: player.id, itemKey: 'dungeon_key', quantity: 10} });
+
+  console.log('\n\n=== UPGRADE SIMULATION ===');
+  mockMessage.content = 'rpg forge upgrade weapon';
+  await executeForge(mockMessage, ['upgrade', 'weapon']);
+  console.log(messageOutput);
+
+  // We need stones for upgrading! Output should be "Not enough stones".
+  // Give Enhancement Stones
+  await prisma.inventoryItem.upsert({ where: { playerId_itemKey: { playerId: player.id, itemKey: 'enhancement_stone'} }, update: { quantity: 5 }, create: { playerId: player.id, itemKey: 'enhancement_stone', quantity: 5} });
   
-  // 6. Hits to Die
-  const minHitsToDie = Math.ceil(maxHp / effectiveMax);
-  const maxHitsToDie = effectiveMin === 0 ? "Infinite" : Math.ceil(maxHp / effectiveMin);
+  await executeForge(mockMessage, ['upgrade', 'weapon']);
+  console.log('\nSecond upgrade output:');
+  console.log(messageOutput);
 
-  console.log(`\n--- SIMULATION: Level ${level} Player | Tier ${tier} Zone ---`);
-  console.log(`Player Stats: ${maxHp} Max HP | ${gearDef} Armor DEF | ${playerEnd} END | Buffed: ${hasBuff}`);
-  console.log(`Monster Raw Damage: ${minRawDamage} - ${maxRawDamage}`);
-  console.log(`Player Mitigation: -${mitigation} Flat Damage`);
-  console.log(`Effective Damage Taken: ${effectiveMin} - ${effectiveMax} per hit`);
-  console.log(`🔥 SURVIVABILITY: Player dies in ${minHitsToDie} to ${maxHitsToDie} hits.`);
+  process.exit(0);
 }
 
-async function run() {
-  console.log('======= AETHERMOOR BRUTALITY AUDIT =======');
-
-  // Early Game (Level 1)
-  await simulateCombat(1, 1, 0, 5, false);  // Absolute Beginner (0 Armor)
-  await simulateCombat(1, 1, 15, 5, false); // Beginner with standard Wood Armor
-
-  // Early-Midgame (Level 10)
-  await simulateCombat(10, 1, 0, 5, false); // No armor
-  await simulateCombat(10, 1, 25, 5, false); // Bronze Armor
-
-  // Midgame Scenario
-  await simulateCombat(30, 3, 0, 15, false); // Rushing to Ironpeak naked
-  await simulateCombat(30, 3, 75, 15, true); // Prepared with Steel Armor + Koi Soup Buff
-
-  // Endgame Scenario
-  await simulateCombat(60, 5, 50, 20, false); // Undergeared
-  await simulateCombat(60, 5, 200, 30, true); // Max Mythril Armor + Buffed
-}
-
-run().catch(console.error);
+runTest().catch(console.error);

@@ -670,14 +670,28 @@ export async function executeForge(message: Message, args: string[]) {
               if (common.yieldMultiplier) statString += `⛏️ **Yield:** x${common.yieldMultiplier}   `;
           }
           
+          let baseOutput: any = null;
+          if (blueprint.outputs.common) baseOutput = blueprint.outputs.common;
+          else if (blueprint.outputs.uncommon) baseOutput = blueprint.outputs.uncommon;
+          else if (blueprint.outputs.rare) baseOutput = blueprint.outputs.rare;
+          else if (blueprint.outputs.epic) baseOutput = blueprint.outputs.epic;
+          else if (blueprint.outputs.legendary) baseOutput = blueprint.outputs.legendary;
+          else baseOutput = Object.values(blueprint.outputs)[0];
+
+          let displaySlice = 1;
+          if (baseOutput.key.includes('uncommon')) displaySlice = 2;
+          if (baseOutput.key.includes('rare')) displaySlice = 3;
+          if (baseOutput.key.includes('epic')) displaySlice = 4;
+          if (baseOutput.key.includes('legendary')) displaySlice = 5;
+
           let abilityString = '';
           if (blueprint.abilities && blueprint.abilities.length > 0) {
-              abilityString = `\n🎁 **Rarity Unlocks:**\n`;
-              if (blueprint.abilities[0]) abilityString += `⬜ \`${blueprint.abilities[0]}\`\n`;
-              if (blueprint.abilities[1]) abilityString += `🟩 \`${blueprint.abilities[1]}\`\n`;
-              if (blueprint.abilities[2]) abilityString += `🟦 \`${blueprint.abilities[2]}\`\n`;
-              if (blueprint.abilities[3]) abilityString += `🟪 \`${blueprint.abilities[3]}\`\n`;
-              if (blueprint.abilities[4]) abilityString += `🟧 \`${blueprint.abilities[4]}\`\n`;
+              abilityString = `\n✨ **Innate Abilities:**\n`;
+              for (let i = 0; i < displaySlice; i++) {
+                 if (blueprint.abilities[i]) {
+                    abilityString += `✧ \`${blueprint.abilities[i]}\`\n`;
+                 }
+              }
           }
 
           const outputStr = `**${blueprint.name}** (\`${key}\`)\n${statString}${abilityString}\n${reqHeader} \n🧱 **Materials:** ${matString}\n\n`;
@@ -983,13 +997,8 @@ export async function processForge(recipeId: string, player: any, inventory: any
   let abilityLog = '';
   if (blueprint.abilities && blueprint.abilities.length > 0) {
       const activeAbils = blueprint.abilities.slice(0, abilitySliceCount);
-      abilityLog = '\n\n**✧ Awakened Abilities:**\n' + activeAbils.map((a: string, i: number) => {
-          let rarityPrefix = '⬜';
-          if (i === 1) rarityPrefix = '🟩';
-          if (i === 2) rarityPrefix = '🟦';
-          if (i === 3) rarityPrefix = '🟪';
-          if (i === 4) rarityPrefix = '🟧';
-          return `${rarityPrefix} \`${a}\``;
+      abilityLog = '\n\n**✧ Innate Abilities:**\n' + activeAbils.map((a: string) => {
+          return `✧ \`${a}\``;
       }).join('\n');
   }
 
