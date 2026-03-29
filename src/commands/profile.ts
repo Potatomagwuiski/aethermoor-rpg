@@ -54,22 +54,21 @@ export async function executeProfile(message: Message, args: string[]) {
       const emoji = getEmoji(safeKey);
       
       let extra = '';
-      if (gear.slot === 'WEAPON') {
-          const bp = BLUEPRINTS[safeKey];
-          let activeAbilities: string[] = [];
-          
-          if (bp && bp.abilities) {
-              const rarity = gear.rarity.toLowerCase();
-              if (['common', 'uncommon', 'rare', 'epic', 'legendary'].includes(rarity) && bp.abilities.length > 0) activeAbilities.push(bp.abilities[0]);
-              if (['uncommon', 'rare', 'epic', 'legendary'].includes(rarity) && bp.abilities.length > 1) activeAbilities.push(bp.abilities[1]);
-              if (['rare', 'epic', 'legendary'].includes(rarity) && bp.abilities.length > 2) activeAbilities.push(bp.abilities[2]);
-              if (['epic', 'legendary'].includes(rarity) && bp.abilities.length > 3) activeAbilities.push(bp.abilities[3]);
-              if (['legendary'].includes(rarity) && bp.abilities.length > 4) activeAbilities.push(bp.abilities[4]);
-          }
-          
-          if (activeAbilities.length > 0) {
-              extra = '\n' + activeAbilities.map(a => `   > ${a}`).join('\n');
-          }
+      
+      const bp = BLUEPRINTS[safeKey];
+      let activeAbilities: string[] = [];
+      
+      if (bp && bp.abilities) {
+          const rarity = gear.rarity.toLowerCase();
+          if (['common', 'uncommon', 'rare', 'epic', 'legendary'].includes(rarity) && bp.abilities.length > 0) activeAbilities.push(bp.abilities[0]);
+          if (['uncommon', 'rare', 'epic', 'legendary'].includes(rarity) && bp.abilities.length > 1) activeAbilities.push(bp.abilities[1]);
+          if (['rare', 'epic', 'legendary'].includes(rarity) && bp.abilities.length > 2) activeAbilities.push(bp.abilities[2]);
+          if (['epic', 'legendary'].includes(rarity) && bp.abilities.length > 3) activeAbilities.push(bp.abilities[3]);
+          if (['legendary'].includes(rarity) && bp.abilities.length > 4) activeAbilities.push(bp.abilities[4]);
+      }
+      
+      if (activeAbilities.length > 0) {
+          extra = '\n' + activeAbilities.map(a => `   | ${a}`).join('\n');
       }
 
       gearText += `• ${emoji} **${gear.name}** (+${gear.bonusAtk} ⚔️ | +${gear.bonusDef} 🛡️)${extra}\n`;
@@ -82,10 +81,12 @@ export async function executeProfile(message: Message, args: string[]) {
 
   if (player.activeBuff && player.buffExpiresAt && player.buffExpiresAt > new Date()) {
       embed.addFields({ 
-          name: '🍺 Active Buffs', 
-          value: `> **${player.activeBuff.replace(/_/g, ' ')}**\n> Expires: <t:${Math.floor(player.buffExpiresAt.getTime() / 1000)}:R>` 
+          name: '🥩 Active Nourishment', 
+          value: `**${player.activeBuff}** (Expires <t:${Math.floor(player.buffExpiresAt.getTime() / 1000)}:R>)` 
       });
   }
+
+  embed.setFooter({ text: "Tip: Upgrade Weapon/Armor Rarity via 'rpg forge' to unlock more hidden abilities!" });
 
   // Parse Tools
   let toolsText = '';
