@@ -39,7 +39,7 @@ export async function executeInventory(message: Message, args: string[]) {
         currentBucket += `\`${uuidTail}\` ${emoji} **${item.name}** (+${item.bonusAtk}⚔️ | +${item.bonusDef}🛡️)${equipLabel}\n`;
 
         if ((i + 1) % 15 === 0 || i === player.equipment.length - 1) {
-            embed.addFields({ name: `Page ${fieldCount}`, value: currentBucket, inline: true });
+            embed.addFields({ name: `Page ${fieldCount}`, value: currentBucket, inline: false });
             currentBucket = '';
             fieldCount++;
         }
@@ -71,7 +71,7 @@ export async function executeInventory(message: Message, args: string[]) {
         currentBucket += `\`${uuidTail}\` **${item.name}** (x${item.yieldMultiplier} Yield)${equipLabel}\n`;
 
         if ((i + 1) % 15 === 0 || i === player.tools.length - 1) {
-            embed.addFields({ name: `Page ${fieldCount}`, value: currentBucket, inline: true });
+            embed.addFields({ name: `Page ${fieldCount}`, value: currentBucket, inline: false });
             currentBucket = '';
             fieldCount++;
         }
@@ -83,40 +83,79 @@ export async function executeInventory(message: Message, args: string[]) {
     return message.reply({ embeds: [embed] });
   }
 
-  // --- DEFAULT MATERIALS INVENTORY ---
-  const sortedInventory = player.inventory.sort((a, b) => b.quantity - a.quantity);
+  // --- DEFAULT MATERIALS INVENTORY (CATEGORICAL VIEW) ---
+  const validInventory = player.inventory
+    .filter(i => i.quantity > 0)
+    .sort((a, b) => b.quantity - a.quantity);
 
-  if (sortedInventory.length === 0) {
-    return message.reply('🎒 Your inventory is completely empty. Go `rpg hunt` or `rpg chop` for loot!');
+  if (validInventory.length === 0) {
+    return message.reply('🎒 Your bag is completely empty. Go `rpg hunt` or `rpg chop` for loot!');
   }
 
-  // Handle potential Discord pagination for huge inventories
-  // For now, chunk it into fields of 20 items per field
   const embed = new EmbedBuilder()
     .setTitle(`🎒 ${player.name}'s Material Inventory`)
     .setColor(0xCD853F)
-    .setDescription(`Total Unique Materials: **${sortedInventory.length}**\nGold Balance: **🪙 ${player.gold}**\n\n*Tip: Use \`rpg inv equipment\` or \`rpg inv tools\` to see non-stackables!*`);
+    .setDescription(`Total Unique Materials: **${validInventory.length}**\nGold Balance: **🪙 ${player.gold}**\n\n*Tip: Use \`rpg inv equipment\` or \`rpg inv tools\` to see non-stackables!*`);
 
-  let currentBucket = '';
-  let fieldCount = 1;
+  const categories: Record<string, string[]> = {
+    '🛠️ Blueprints': [],
+    '⛏️ Ores & Minerals': [],
+    '🪓 Flora & Organic': [],
+    '🐻 Monster Drops': [],
+    '🎣 Fishing & Food': [],
+    '✨ Relics & Consumables': [],
+    '🎒 Miscellaneous': []
+  };
 
-  for (let i = 0; i < sortedInventory.length; i++) {
-    const item = sortedInventory[i];
-    const prettyKey = item.itemKey.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-    const emoji = getEmoji(item.itemKey);
-    currentBucket += `\`x${item.quantity.toString().padEnd(4)}\` ${emoji} **${prettyKey}**\n`;
+  for (const item of validInventory) {
+      const key = item.itemKey.toLowerCase();
+      const prettyKey = item.itemKey.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      const emoji = getEmoji(item.itemKey);
+      
+      const line = `\`x${item.quantity.toString().padEnd(3)}\` ${emoji} **${prettyKey}**`;
+      
+      if (key.includes('blueprint')) categories['🛠️ Blueprints'].push(line);
+      else if (key.match(/(ore|coal|iron|copper|tin|gold|stone|ingot|metal)/)) categories['⛏️ Ores & Minerals'].push(line);
+      else if (key.match(/(wood|stick|herb|mushroom|berry|seaweed|potato|wheat|bark)/)) categories['🪓 Flora & Organic'].push(line);
+      else if (key.match(/(pelt|ear|gel|wing|bone|horn|scale)/)) categories['🐻 Monster Drops'].push(line);
+      else if (key.match(/(fish|trout|koi|eel|sashimi|stew|filet|feast|brew)/)) categories['🎣 Fishing & Food'].push(line);
+      else if (key.match(/(key|soul|egg|stone|lootbox|premium|lumina|potion)/)) categories['✨ Relics & Consumables'].push(line);
+      else categories['🎒 Miscellaneous'].push(line);
+  }
 
-    // Every 15 items, create a new Field block (Discord hard limit is 1024 chars per field value)
-    if ((i + 1) % 15 === 0 || i === sortedInventory.length - 1) {
-      embed.addFields({ name: `Page ${fieldCount}`, value: currentBucket, inline: true });
-      currentBucket = '';
-      fieldCount++;
-    }
+  let totalFields = 0;
 
-    if (fieldCount >= 20) {
-      embed.setFooter({ text: 'Inventory too large. Showing top results.' });
-      break; // Safe exit point preventing Discord API rejection on over-sized embeds
-    }
+  for (const [catName, lines] of Object.entries(categories)) {
+      if (lines.length === 0) continue;
+      
+      let chunk = '';
+      let part = 1;
+      
+      for (let i = 0; i < lines.length; i++) {
+          if (chunk.length + lines[i].length + 5 > 1000) { // Discord field max is 1024
+              embed.addFields({ name: `${catName} (Part ${part})`, value: chunk, inline: false });
+              totalFields++;
+              chunk = '';
+              part++;
+          }
+          chunk += lines[i] + '\\n';
+      }
+      
+      if (chunk.length > 0) {
+          const header = part > 1 ? `${catName} (Part ${part})` : catName;
+          if (totalFields < 24) { // Discord maxes at 25 fields
+             embed.addFields({ name: header, value: chunk, inline: false });
+             totalFields++;
+          } else {
+             break;
+          }
+      }
+      
+      if (totalFields >= 24) break;
+  }
+  
+  if (totalFields >= 24) {
+      embed.setFooter({ text: 'Inventory too large. Showing top categories/results.' });
   }
 
   return message.reply({ embeds: [embed] });
