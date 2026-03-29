@@ -805,7 +805,10 @@ export async function execute(message: Message) {
     { key: 'blueprint_venom_shiv', name: 'Venom Shiv' },
     { key: 'blueprint_mystic_robe', name: 'Mystic Robe' },
     { key: 'blueprint_iron_chestplate', name: 'Iron Chestplate' },
-    { key: 'blueprint_steel_chestplate', name: 'Steel Chestplate' }
+    { key: 'blueprint_steel_chestplate', name: 'Steel Chestplate' },
+    { key: 'blueprint_iron_spellblade', name: 'Iron Spellblade' },
+    { key: 'blueprint_steel_bulwark', name: 'Steel Bulwark' },
+    { key: 'blueprint_compound_longbow', name: 'Compound Longbow' }
   ];
   const TIER3_BPS = [
     { key: 'blueprint_mythril_pickaxe', name: 'Mythril Pickaxe' },

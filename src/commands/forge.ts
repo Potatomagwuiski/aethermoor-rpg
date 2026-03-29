@@ -65,7 +65,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { base: { key: 'iron_greatsword', name: 'Iron Greatsword', dps: 110 } }
   },
   'iron_spellblade': {
-    name: 'Iron Spellblade', materials: { iron: 45, wood: 20 },
+    name: 'Iron Spellblade', requiredBlueprint: 'blueprint_iron_spellblade', materials: { iron: 45, wood: 20 },
     abilities: [
       '🛡️ **Passive [Arcane Parry]**: 10% chance to block, restoring 5% HP on success.',
       '⚡ **Active [Spell Strike]**: 25% chance to deal 150% Magic Weapon DMG.'
@@ -97,7 +97,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { base: { key: 'steel_warhammer', name: 'Steel Warhammer', dps: 215 } }
   },
   'steel_bulwark': {
-    name: 'Steel Bulwark', materials: { steel: 45, strong_wood: 20 },
+    name: 'Steel Bulwark', requiredBlueprint: 'blueprint_steel_bulwark', materials: { steel: 45, strong_wood: 20 },
     abilities: [
       '🛡️ **Passive [Titan]**: +100 Max HP.',
       '⚡ **Active [Shield Bash]**: 20% chance to mitigate 50% of incoming damage next turn.'
@@ -173,7 +173,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { base: { key: 'hunters_bow', name: 'Hunter\'s Bow', dps: 90 } }
   },
   'compound_longbow': {
-    name: 'Compound Longbow', materials: { ashwood: 45, steel: 15 },
+    name: 'Compound Longbow', requiredBlueprint: 'blueprint_compound_longbow', materials: { ashwood: 45, steel: 15 },
     abilities: [
       '🛡️ **Passive [Heavy Draw]**: Pierce 10% of enemy Physical Defense.',
       '⚡ **Active [Piercing Shot]**: 25% chance to critically strike for 200% DMG.'
