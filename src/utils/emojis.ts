@@ -57,6 +57,9 @@ export const ITEM_EMOJIS: Record<string, string> = {
     
     // Weapons
     'copper_sword': '🗡️',
+    'tin_dagger': '🔪',
+    'tin_spear': '🔱',
+    'tin_halberd': '🪓',
     'bronze_sword': '🗡️',
     'steel_sword': '⚔️',
     'mythril_sword': '🗡️',
@@ -96,6 +99,9 @@ export const ITEM_EMOJIS: Record<string, string> = {
     'blueprint_mythril_axe': '📜',
     
     'blueprint_bronze_sword': '📜',
+    'blueprint_tin_dagger': '📜',
+    'blueprint_tin_spear': '📜',
+    'blueprint_tin_halberd': '📜',
     'blueprint_iron_greatsword': '📜',
     'blueprint_mythril_cleaver': '📜',
     'blueprint_bronze_dagger': '📜',
@@ -158,6 +164,8 @@ export const ITEM_EMOJIS: Record<string, string> = {
     'monster_core': '👿',
     'abyssal_core': '👁️',
     'void_core': '🌌',
+    
+    'premium_lootbox': '📦',
     
     // Default fallback
     'default': '📦'

@@ -283,6 +283,7 @@ export async function execute(message: Message) {
   let totalCrits = 0;
   let totalMitigated = 0;
 
+  let cleaveTriggered = false;
   let bleedStacks = 0;
   let poisonStacks = 0;
   let momentumBonus = 1.0;
@@ -460,7 +461,10 @@ export async function execute(message: Message) {
     else if (isCrit) pAttackStr = `💥 **CRITICAL HIT!** You viciously struck the **${mob.name}** for **${roundDps}** DMG`;
 
     // DoT Execution
-    if (activeAbilities.join(',').includes('Hemorrhage')) bleedStacks++;
+    const abilitiesStr = activeAbilities.join(',');
+    if (!cleaveTriggered && abilitiesStr.includes('Cleave') && Math.random() < 0.15) cleaveTriggered = true;
+    
+    if (abilitiesStr.includes('Hemorrhage') || abilitiesStr.includes('Serrated Edge')) bleedStacks++;
     if (bleedStacks > 0) {
         let tickTrueDmg = Math.floor(player.maxHp * 0.02 * bleedStacks);
         if (tickTrueDmg < 1) tickTrueDmg = 1;
@@ -478,7 +482,8 @@ export async function execute(message: Message) {
     let rawIncoming = Math.floor(Math.random() * monsterAttackPower) + Math.floor(monsterAttackPower / 2);
 
     // Debuff Logic
-    if (activeAbilities.join(',').includes('Neurotoxin') && Math.random() < 0.30) {
+    if (abilitiesStr.includes('Plague Carrier') && rounds === 0) poisonStacks += 5;
+    if ((abilitiesStr.includes('Neurotoxin') || abilitiesStr.includes('Venomous Strike')) && Math.random() < 0.30) {
         poisonStacks = Math.min(10, poisonStacks + 1); // 50% max reduction
     }
     if (poisonStacks > 0) {
@@ -678,6 +683,12 @@ export async function execute(message: Message) {
   let baseXP = Math.floor(Math.random() * 21 * tier) + (15 * tier); 
   let goldReward = baseGold * slotMultiplier;
   let xpReward = baseXP * slotMultiplier;
+
+  if (cleaveTriggered) {
+      goldReward *= 2;
+      xpReward *= 2;
+      combatLog.push('🌪️ **CLEAVE MULTI-KILL!** Your sweeping strike defeated a secondary ambient monster! (x2 XP & Gold)');
+  }
   
   if (activeAbilities.join(',').includes('Harvest')) goldReward = Math.floor(goldReward * 1.05);
   if (activeAbilities.join(',').includes('Tracker') && (mob.name.includes('Wolf') || mob.name.includes('Beast') || mob.name.includes('Bear') || mob.name.includes('Slime'))) xpReward = Math.floor(xpReward * 1.05);
@@ -758,13 +769,8 @@ export async function execute(message: Message) {
 
     if (rarityRoll > 0.95) {
       gachaLootString = '🗝️ `[Dungeon Key]`'; dropKey = 'dungeon_key';
-    } else if (rarityRoll > 0.90) {
-      if (tier === 1) { dropKey = 'lumina_lootbox'; gachaLootString = '📦 `[Lumina Lootbox]`'; }
-      else if (tier === 2) { dropKey = 'mystic_lootbox'; gachaLootString = '📦 `[Mystic Lootbox]`'; }
-      else if (tier === 3) { dropKey = 'abyssal_lootbox'; gachaLootString = '📦 `[Abyssal Lootbox]`'; }
-      else { dropKey = 'astral_lootbox'; gachaLootString = '📦 `[Astral Lootbox]`'; }
     } else if (rarityRoll > 0.85) {
-      gachaLootString = '📦 `[Mystery Loot Box]`'; dropKey = 'lootbox';
+      gachaLootString = '📦 `[Aethermoor Lootbox]`'; dropKey = 'premium_lootbox';
     } else if (BP_POOL !== null) {
       const bp = BP_POOL[Math.floor(Math.random() * BP_POOL.length)]; 
       gachaLootString = `${rankColor} \`[Blueprint: ${bp.name}]\``; 

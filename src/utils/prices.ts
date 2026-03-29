@@ -61,7 +61,13 @@ export const ITEM_SELL_PRICES: Record<string, number> = {
     'abyssal_core': 100,
     'void_core': 500,
     
+    'premium_lootbox': 500,
+
     // Forged Weapons
+    'common_tin_dagger': 50, 'uncommon_tin_dagger': 150, 'rare_tin_dagger': 400, 'epic_tin_dagger': 1000,
+    'common_tin_spear': 50, 'uncommon_tin_spear': 150, 'rare_tin_spear': 400, 'epic_tin_spear': 1000,
+    'common_tin_halberd': 50, 'uncommon_tin_halberd': 150, 'rare_tin_halberd': 400, 'epic_tin_halberd': 1000,
+
     'common_bronze_sword': 100, 'uncommon_bronze_sword': 300, 'rare_bronze_sword': 800, 'epic_bronze_sword': 2000,
     'rare_wolf_slayer': 1200, 'epic_wolf_slayer': 3500,
     'rare_void_blade': 5000, 'epic_void_blade': 15000, 'legendary_void_blade': 50000,
@@ -107,6 +113,9 @@ export const ITEM_SELL_PRICES: Record<string, number> = {
     'common_mythril_axe': 1000, 'uncommon_mythril_axe': 3000, 'rare_mythril_axe': 8000,
   
     // Blueprints
+    'blueprint_tin_dagger': 1000,
+    'blueprint_tin_spear': 1000,
+    'blueprint_tin_halberd': 1000,
     'blueprint_bronze_sword': 2000,
     'blueprint_iron_greatsword': 5000,
     'blueprint_mythril_cleaver': 15000,

@@ -63,20 +63,19 @@ export async function executeOpen(message: Message, args: string[]) {
 
   let itemName = args[0].toLowerCase();
   
-  // Allow "rpg open lumina" to map to "lumina_lootbox" or "lumina_egg"
-  const aliases = ['lumina', 'mystic', 'abyssal', 'astral'];
-  if (aliases.includes(itemName)) {
-      if (args[1] === 'egg') itemName += '_egg';
-      else itemName += '_lootbox';
+  // Backwards compatibility for eggs
+  if (['lumina', 'mystic', 'abyssal', 'astral'].includes(itemName) && args[1] === 'egg') {
+      itemName += '_egg';
+  } else if (itemName === 'lootbox' || itemName === 'aethermoor') {
+      itemName = 'premium_lootbox';
   }
 
   const validItems = [
     'lumina_egg', 'mystic_egg', 'abyssal_egg', 'astral_egg', 
-    'lootbox', 
-    'lumina_lootbox', 'mystic_lootbox', 'abyssal_lootbox', 'astral_lootbox'
+    'premium_lootbox'
   ];
   if (!validItems.includes(itemName)) {
-      return message.reply(`Invalid item to open. Available: \`lootbox\`, \`lumina\`, \`mystic\`, \`abyssal\`, \`astral\`.`);
+      return message.reply(`Invalid item to open. Available: \`lootbox\`, \`lumina egg\`, \`mystic egg\`, \`abyssal egg\`, \`astral egg\`.`);
   }
 
   // Check for the Item in Inventory
@@ -139,34 +138,46 @@ export async function executeOpen(message: Message, args: string[]) {
   }
 
   // 2) TIERED LOOTBOX LOGIC
-  else if (itemName.includes('_lootbox')) {
-      const droppedEggKey = itemName.replace('_lootbox', '_egg');
-      giveItem(droppedEggKey, 1);
-      
-      title = `📦 Opening ${itemName.split('_')[0].toUpperCase()} Lootbox...`;
+  else if (itemName === 'premium_lootbox') {
+      title = `📦 Opening Aethermoor Lootbox...`;
       color = 0xF1C40F;
       descriptionOutput = `You pry open the locked crate, discovering hidden riches! And... there's a Pet Egg tucked safely inside!\n\n**Rewards Dropped:**\n`;
 
-      // Resource Scaling based on Tier
-      if (itemName === 'lumina_lootbox') {
+      const loc = player.location || 'lumina_meadows';
+
+      if (loc === 'lumina_meadows') {
           rewardedGold = Math.floor(Math.random() * 50) + 25;
           giveItem('wood', Math.floor(Math.random() * 5) + 2);
           giveItem('copper_ore', Math.floor(Math.random() * 3) + 1);
-      } else if (itemName === 'mystic_lootbox') {
+          const eggRoll = Math.random();
+          if (eggRoll > 0.85) giveItem('mystic_egg', 1);
+          else giveItem('lumina_egg', 1);
+      } else if (loc === 'mystic_forest') {
           rewardedGold = Math.floor(Math.random() * 150) + 50;
           giveItem('oakwood', Math.floor(Math.random() * 10) + 5);
           giveItem('iron_ore', Math.floor(Math.random() * 5) + 2);
-          giveItem('silver_ore', Math.floor(Math.random() * 2) + 1);
-      } else if (itemName === 'abyssal_lootbox') {
+          const eggRoll = Math.random();
+          if (eggRoll > 0.90) giveItem('abyssal_egg', 1);
+          else if (eggRoll > 0.70) giveItem('lumina_egg', 1);
+          else giveItem('mystic_egg', 1);
+      } else if (loc === 'abyssal_depths') {
           rewardedGold = Math.floor(Math.random() * 500) + 200;
           giveItem('ashwood', Math.floor(Math.random() * 15) + 8);
-          giveItem('mithril_ore', Math.floor(Math.random() * 8) + 3);
-          giveItem('gold_ore', Math.floor(Math.random() * 3) + 1);
-      } else if (itemName === 'astral_lootbox') {
+          giveItem('obsidian', Math.floor(Math.random() * 8) + 3);
+          const eggRoll = Math.random();
+          if (eggRoll > 0.95) giveItem('astral_egg', 1);
+          else if (eggRoll > 0.85) giveItem('lumina_egg', 1);
+          else if (eggRoll > 0.60) giveItem('mystic_egg', 1);
+          else giveItem('abyssal_egg', 1);
+      } else { // Astral Void
           rewardedGold = Math.floor(Math.random() * 1000) + 500;
           giveItem('elderwood', Math.floor(Math.random() * 20) + 10);
-          giveItem('steel_ore', Math.floor(Math.random() * 10) + 5);
-          giveItem('diamond', Math.floor(Math.random() * 3) + 1);
+          giveItem('voidstone', Math.floor(Math.random() * 10) + 5);
+          const eggRoll = Math.random();
+          if (eggRoll > 0.95) giveItem('lumina_egg', 1);
+          else if (eggRoll > 0.80) giveItem('mystic_egg', 1);
+          else if (eggRoll > 0.50) giveItem('abyssal_egg', 1);
+          else giveItem('astral_egg', 1);
       }
   }
 

@@ -21,6 +21,21 @@ export const BLUEPRINTS: Record<string, any> = {
       epic: { key: 'epic_bronze_sword', name: '🟪 [Epic Bronze Sword]', dps: 75 }
     }
   },
+  'tin_halberd': {
+    name: 'Tin Sweeping Halberd', requiredBlueprint: 'blueprint_tin_halberd', materials: { tin: 30, wood: 20 },
+    abilities: [
+      '✨ **Long Reach**: +2% Hit Chance',
+      '✨ **Sweeping Strike**: +5% Base Damage',
+      '🌪️ **Cleave**: 15% chance to cleave a secondary target, granting 2x Gold and 2x XP if victorious.',
+      '🌟 **Whirlwind**: 5% chance to double all damage this round'
+    ],
+    outputs: {
+      common: { key: 'common_tin_halberd', name: '⬜ [Common Tin Sweeping Halberd]', dps: 20 },
+      uncommon: { key: 'uncommon_tin_halberd', name: '🟩 [Uncommon Tin Sweeping Halberd]', dps: 35 },
+      rare: { key: 'rare_tin_halberd', name: '🟦 [Rare Tin Sweeping Halberd]', dps: 50 },
+      epic: { key: 'epic_tin_halberd', name: '🟪 [Epic Tin Sweeping Halberd]', dps: 80 }
+    }
+  },
   'iron_greatsword': {
     name: 'Iron Greatsword', requiredBlueprint: 'blueprint_iron_greatsword', materials: { iron: 45, ashwood: 12, golem_rubble: 5 },
     abilities: [
@@ -72,6 +87,37 @@ export const BLUEPRINTS: Record<string, any> = {
   },
 
   // --- ROGUE ---
+  'tin_dagger': {
+    name: 'Tin Serrated Dagger', requiredBlueprint: 'blueprint_tin_dagger', materials: { tin: 25, wood: 10 },
+    abilities: [
+      '✨ **Light Edge**: +2% Evasion',
+      '✨ **Jagged**: +5% Base Damage',
+      '🔪 **Deep Wounds**: Deals heavy precision damage',
+      '🩸 **Serrated Edge**: Attacks apply Bleed Stacks (True Damage)',
+      '🌟 **Exsanguinate**: 10% chance to double Bleed stacks'
+    ],
+    outputs: {
+      common: { key: 'common_tin_dagger', name: '⬜ [Common Tin Serrated Dagger]', dps: 15 },
+      uncommon: { key: 'uncommon_tin_dagger', name: '🟩 [Uncommon Tin Serrated Dagger]', dps: 25 },
+      rare: { key: 'rare_tin_dagger', name: '🟦 [Rare Tin Serrated Dagger]', dps: 40 },
+      epic: { key: 'epic_tin_dagger', name: '🟪 [Epic Tin Serrated Dagger]', dps: 65 }
+    }
+  },
+  'tin_spear': {
+    name: 'Tin Toxic Spear', requiredBlueprint: 'blueprint_tin_spear', materials: { tin: 35, wood: 25, basic_herb: 5 },
+    abilities: [
+      '✨ **Lethal Point**: +5% Critical Hit Chance',
+      '🧪 **Venomous Strike**: 30% chance on hit to apply a Poison Stack',
+      '☠️ **Toxic Coating**: Deals Poison damage over time',
+      '🌟 **Plague Carrier**: 5% chance to instantly apply 5 Poison Stacks'
+    ],
+    outputs: {
+      common: { key: 'common_tin_spear', name: '⬜ [Common Tin Toxic Spear]', dps: 18 },
+      uncommon: { key: 'uncommon_tin_spear', name: '🟩 [Uncommon Tin Toxic Spear]', dps: 30 },
+      rare: { key: 'rare_tin_spear', name: '🟦 [Rare Tin Toxic Spear]', dps: 45 },
+      epic: { key: 'epic_tin_spear', name: '🟪 [Epic Tin Toxic Spear]', dps: 70 }
+    }
+  },
   'bronze_dagger': {
     name: 'Bronze Dagger', materials: { copper: 20, wood: 5, bat_wing: 5 },
     abilities: [
