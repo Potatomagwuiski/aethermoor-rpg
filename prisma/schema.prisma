@@ -112,7 +112,6 @@ model Equipment {
   bonusCrit       Int @default(0)
   bonusLifesteal  Int @default(0)
   bonusEvasion    Int @default(0)
-  upgradeLevel    Int @default(0)
 
   player    Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
 }
