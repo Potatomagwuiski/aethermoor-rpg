@@ -4,247 +4,246 @@ import { getEmoji } from '../utils/emojis.js';
 
 // Define the blueprint requirements and outputs
 export const BLUEPRINTS: Record<string, any> = {
-  // --- WARRIOR ---
-  'bronze_sword': {
-    name: 'Bronze Sword', materials: { copper: 30, wood: 8, wolf_pelt: 2 },
-    abilities: [
-      '✨ **Balanced**: +5% Critical Hit Chance',
-      '✨ **Sharpened**: +5% Base Damage',
-      '🛡️ **Parry**: 5% chance to negate a physical attack',
-      '⚔️ **Cleave**: Deals 10% splash damage to subsequent enemies',
-      '🌟 **Heroic Legacy**: 5% chance to double all damage this round'
-    ],
-    outputs: {
-      common: { key: 'common_bronze_sword', name: '⬜ [Common Bronze Sword]', dps: 15 },
-      uncommon: { key: 'uncommon_bronze_sword', name: '🟩 [Uncommon Bronze Sword]', dps: 25 },
-      rare: { key: 'rare_bronze_sword', name: '🟦 [Rare Bronze Sword]', dps: 40 },
-      epic: { key: 'epic_bronze_sword', name: '🟪 [Epic Bronze Sword]', dps: 75 }
-    }
-  },
-  'tin_halberd': {
-    name: 'Tin Sweeping Halberd', requiredBlueprint: 'blueprint_tin_halberd', materials: { tin: 30, wood: 20 },
-    abilities: [
-      '✨ **Long Reach**: +2% Hit Chance',
-      '✨ **Sweeping Strike**: +5% Base Damage',
-      '🌪️ **Cleave**: 15% chance to cleave a secondary target, granting 2x Gold and 2x XP if victorious.',
-      '🌟 **Whirlwind**: 5% chance to double all damage this round'
-    ],
-    outputs: {
-      common: { key: 'common_tin_halberd', name: '⬜ [Common Tin Sweeping Halberd]', dps: 20 },
-      uncommon: { key: 'uncommon_tin_halberd', name: '🟩 [Uncommon Tin Sweeping Halberd]', dps: 35 },
-      rare: { key: 'rare_tin_halberd', name: '🟦 [Rare Tin Sweeping Halberd]', dps: 50 },
-      epic: { key: 'epic_tin_halberd', name: '🟪 [Epic Tin Sweeping Halberd]', dps: 80 }
-    }
-  },
-  'iron_greatsword': {
-    name: 'Iron Greatsword', requiredBlueprint: 'blueprint_iron_greatsword', materials: { iron: 45, ashwood: 12, golem_rubble: 5 },
-    abilities: [
-      '✨ **Hefty**: +2% Base Damage',
-      '✨ **Heavy Strike**: +10% Damage on first turn',
-      '🛡️ **Stalwart**: Grants 5 bonus DEF',
-      '🩸 **Hemorrhage**: Attacks apply a Bleed stack (2% Player Max HP True Dmg/stack)',
-      '🌟 **Earthquake**: 10% chance to stun enemy and deal 200% DMG'
-    ],
-    outputs: {
-      common: { key: 'common_iron_greatsword', name: '⬜ [Common Iron Greatsword]', dps: 30 },
-      uncommon: { key: 'uncommon_iron_greatsword', name: '🟩 [Uncommon Iron Greatsword]', dps: 60 },
-      rare: { key: 'rare_iron_greatsword', name: '🟦 [Rare Iron Greatsword]', dps: 100 },
-      epic: { key: 'epic_iron_greatsword', name: '🟪 [Epic Iron Greatsword]', dps: 160 }
-    }
-  },
-  'wolf_slayer': {
-    name: 'Wolf Slayer Sword', requiredBlueprint: 'blueprint_wolf_slayer', materials: { iron: 50, ashwood: 15, wolf_pelt: 15 },
-    abilities: [
-      '🐺 **Tracker**: +5% XP from Beasts',
-      '✨ **Beastbane**: Deals +50% Damage to Beasts & Wolves',
-      '🩸 **Bloodlust**: Heals for 5% of damage dealt',
-      '📈 **Relentless**: Every round increases Base Damage by 10%',
-      '🌟 **Alpha Predator**: Grants +10% ALL Stats when fighting Beasts'
-    ],
-    outputs: { rare: { key: 'rare_wolf_slayer', name: '🟦 [Rare Wolf Slayer]', dps: 85 }, epic: { key: 'epic_wolf_slayer', name: '🟪 [Epic Wolf Slayer]', dps: 150 } }
-  },
-  'mythril_cleaver': {
-    name: 'Mythril Cleaver', requiredBlueprint: 'blueprint_mythril_cleaver', materials: { mythril: 80, gold_ore: 20, behemoth_bone: 3 },
-    abilities: [
-      '✨ **Light Edge**: +5% Evasion',
-      '✨ **Mythril Edge**: Ignores 10% of enemy DEF',
-      '🩸 **Hemorrhage**: Attacks apply a Bleed stack (2% Player Max HP True Dmg/stack)',
-      '⚡ **Thunderous Blow**: 5% chance to stun enemy for 1 turn',
-      '🌟 **Armor Breaker**: Permanently reduces enemy DEF to 0 on first hit'
-    ],
-    outputs: { rare: { key: 'rare_mythril_cleaver', name: '🟦 [Rare Mythril Cleaver]', dps: 250 }, epic: { key: 'epic_mythril_cleaver', name: '🟪 [Epic Mythril Cleaver]', dps: 400 } }
-  },
-  'void_blade': {
-    name: 'Void Blade', requiredBlueprint: 'blueprint_void_blade', materials: { voidstone: 90, rare_meteorite_ingot: 30, mythic_dragon_scale: 2 },
-    abilities: [
-      '🌌 **Void Touched**: +5% Lifesteal',
-      '✨ **Void Strike**: 15% chance to ignore 50% of monster DEF',
-      '🌌 **Abyssal Echo**: 25% chance to attack a second time',
-      '🧪 **Neurotoxin**: 30% chance on hit to apply a Poison Stack (-5% Monster DMG/stack)',
-      '🌟 **Singularity**: 10% chance to absorb all incoming damage and reflect it 3x'
-    ],
-    outputs: { rare: { key: 'rare_void_blade', name: '🟦 [Rare Void Blade]', dps: 100 }, epic: { key: 'epic_void_blade', name: '🟪 [Epic Void Blade]', dps: 200 }, legendary: { key: 'legendary_void_blade', name: '🟧 [✨ LEGENDARY VOID BLADE ✨]', dps: 500 } }
-  },
-
-  // --- ROGUE ---
-  'tin_dagger': {
-    name: 'Tin Serrated Dagger', requiredBlueprint: 'blueprint_tin_dagger', materials: { tin: 25, wood: 10 },
-    abilities: [
-      '✨ **Light Edge**: +2% Evasion',
-      '✨ **Jagged**: +5% Base Damage',
-      '🔪 **Deep Wounds**: Deals heavy precision damage',
-      '🩸 **Serrated Edge**: Attacks apply Bleed Stacks (True Damage)',
-      '🌟 **Exsanguinate**: 10% chance to double Bleed stacks'
-    ],
-    outputs: {
-      common: { key: 'common_tin_dagger', name: '⬜ [Common Tin Serrated Dagger]', dps: 15 },
-      uncommon: { key: 'uncommon_tin_dagger', name: '🟩 [Uncommon Tin Serrated Dagger]', dps: 25 },
-      rare: { key: 'rare_tin_dagger', name: '🟦 [Rare Tin Serrated Dagger]', dps: 40 },
-      epic: { key: 'epic_tin_dagger', name: '🟪 [Epic Tin Serrated Dagger]', dps: 65 }
-    }
-  },
-  'tin_spear': {
-    name: 'Tin Toxic Spear', requiredBlueprint: 'blueprint_tin_spear', materials: { tin: 35, wood: 25, basic_herb: 5 },
-    abilities: [
-      '✨ **Lethal Point**: +5% Critical Hit Chance',
-      '🧪 **Venomous Strike**: 30% chance on hit to apply a Poison Stack',
-      '☠️ **Toxic Coating**: Deals Poison damage over time',
-      '🌟 **Plague Carrier**: 5% chance to instantly apply 5 Poison Stacks'
-    ],
-    outputs: {
-      common: { key: 'common_tin_spear', name: '⬜ [Common Tin Toxic Spear]', dps: 18 },
-      uncommon: { key: 'uncommon_tin_spear', name: '🟩 [Uncommon Tin Toxic Spear]', dps: 30 },
-      rare: { key: 'rare_tin_spear', name: '🟦 [Rare Tin Toxic Spear]', dps: 45 },
-      epic: { key: 'epic_tin_spear', name: '🟪 [Epic Tin Toxic Spear]', dps: 70 }
-    }
-  },
+  // --- WEAPONS ---
+// ----- DAGGERS (FINESSE) -----
   'bronze_dagger': {
-    name: 'Bronze Dagger', materials: { copper: 20, wood: 5, bat_wing: 5 },
+    name: 'Bronze Dagger', materials: { copper: 20, sticks: 5 },
     abilities: [
-      '✨ **Concealed**: +2% Evasion',
-      '✨ **Lightweight**: +5% Evasion',
-      '🔪 **Backstab**: First attack deals +25% DMG',
-      '🩸 **Serrated Edge**: Attacks apply a 5 DMG bleeding effect',
-      '🌟 **Shadow Flurry**: 15% chance to attack 3 times in one turn'
+      '🛡️ **Passive [Lightweight]**: +5% Evasion',
+      '⚡ **Active [Serrated Edge]**: 20% chance to apply a 5 DMG Bleed'
     ],
-    outputs: {
-      common: { key: 'common_bronze_dagger', name: '⬜ [Common Bronze Dagger]', dps: 12 },
-      uncommon: { key: 'uncommon_bronze_dagger', name: '🟩 [Uncommon Bronze Dagger]', dps: 20 },
-      rare: { key: 'rare_bronze_dagger', name: '🟦 [Rare Bronze Dagger]', dps: 35 },
-      epic: { key: 'epic_bronze_dagger', name: '🟪 [Epic Bronze Dagger]', dps: 60 }
-    }
+    outputs: { base: { key: 'bronze_dagger', name: 'Bronze Dagger', dps: 15 } }
   },
   'venom_shiv': {
-    name: 'Venom Shiv', requiredBlueprint: 'blueprint_venom_shiv', materials: { iron: 30, ashwood: 8, brittle_bone: 8 },
+    name: 'Venom Shiv', requiredBlueprint: 'blueprint_venom_shiv', materials: { iron: 30, ashwood: 8, brittle_bone: 8, slime_gel: 4 },
     abilities: [
-      '✨ **Toxin**: +5 Poison DMG per round',
-      '✨ **Poison**: Deals 50 DMG every combat round',
-      '💨 **Swiftness**: +15% Base Evasion',
-      '☠️ **Lethal Dose**: Poison damage doubles when monster is below 50% HP',
-      '🧪 **Neurotoxin**: 30% chance on hit to apply a Poison Stack (-5% Monster DMG/stack)'
+      '🛡️ **Passive [Swiftness]**: +15% Base Evasion',
+      '⚡ **Active [Neurotoxin]**: 30% chance on hit to apply a Poison Stack (-5% Monster DMG/stack)'
     ],
-    outputs: { rare: { key: 'rare_venom_shiv', name: '🟦 [Rare Venom Shiv]', dps: 90 }, epic: { key: 'epic_venom_shiv', name: '🟪 [Epic Venom Shiv]', dps: 160 } }
+    outputs: { base: { key: 'venom_shiv', name: 'Venom Shiv', dps: 90 } }
+  },
+  'phantom_dirk': {
+    name: 'Phantom Dirk', requiredBlueprint: 'blueprint_phantom_dirk', materials: { steel: 40, strong_wood: 12, shadow_dust: 5 },
+    abilities: [
+      '🛡️ **Passive [Unseen]**: Become untargetable to all enemies during Round 1.',
+      '⚡ **Active [Phantom Strike]**: 25% chance to hit a second time instantly.'
+    ],
+    outputs: { base: { key: 'phantom_dirk', name: 'Phantom Dirk', dps: 200 } }
   },
   'shadow_blade': {
-    name: 'Shadow Blade', requiredBlueprint: 'blueprint_shadow_blade', materials: { mythril: 65, gold_ore: 25, shadow_dust: 5 },
+    name: 'Shadow Blade', requiredBlueprint: 'blueprint_shadow_blade', materials: { mythril: 65, ebony_wood: 15, gold_ore: 25, shadow_dust: 15 },
     abilities: [
-      '🌑 **Dim**: +5% Evasion in low light',
-      '📈 **Relentless**: Every round increases Base Damage by 10%',
-      '💨 **Phantom Strike**: +10% Base Evasion',
-      '🔪 **Deep Wounds**: Deals 50 bleeding damage every round',
-      '🌟 **True Death**: Execution threshold increased to 40% HP'
+      '🛡️ **Passive [Relentless]**: Every round increases Base Damage by 10%',
+      '⚡ **Active [Assassinate]**: 15% chance to instantly execute a non-boss enemy!'
     ],
-    outputs: { rare: { key: 'rare_shadow_blade', name: '🟦 [Rare Shadow Blade]', dps: 220 }, epic: { key: 'epic_shadow_blade', name: '🟪 [Epic Shadow Blade]', dps: 380 }, legendary: { key: 'legendary_shadow_blade', name: '🟧 [✨ LEGENDARY SHADOW BLADE ✨]', dps: 600 } }
+    outputs: { base: { key: 'shadow_blade', name: 'Shadow Blade', dps: 380 } }
+  },
+  'void_fang': {
+    name: 'Void Fang', requiredBlueprint: 'blueprint_void_fang', materials: { abyssal_steel: 80, eternal_wood: 20, lich_phylactery: 1 },
+    abilities: [
+      '🛡️ **Passive [Plague Carrier]**: Applies 5 massive stacks of Plague instantly, reducing enemy ATK power by 10%.',
+      '⚡ **Active [Parasitic Siphon]**: Leeches 1% Max HP per active Poison Stack on the enemy every round.'
+    ],
+    outputs: { base: { key: 'void_fang', name: 'Void Fang', dps: 550 } }
   },
 
-  // --- MAGE ---
-  'wood_staff': {
-    name: 'Wood Staff', materials: { copper: 10, wood: 35, slime_gel: 4 },
+// ----- SWORDS (HEAVY) -----
+  'bronze_sword': {
+    name: 'Bronze Sword', materials: { copper: 25, sticks: 10 },
     abilities: [
-      '✨ **Attuned**: +5 Max Mana',
-      '✨ **Focus**: +5% Critical Hit Chance',
-      '💧 **Mana Tap**: Restores 2 Energy per hit',
-      '🔥 **Ember**: 5% chance to cast a 25 DMG fireball on attack',
-      '🌟 **Arcane Overflow**: 10% chance to cast Ember 5 times instantly'
+      '🛡️ **Passive [Heavy Blade]**: Reduces incoming damage by flat 2',
+      '⚡ **Active [Cleave]**: 20% chance to hit a second target for 50% DMG'
     ],
-    outputs: {
-      common: { key: 'common_wood_staff', name: '⬜ [Common Wood Staff]', dps: 15 },
-      uncommon: { key: 'uncommon_wood_staff', name: '🟩 [Uncommon Wood Staff]', dps: 25 },
-      rare: { key: 'rare_wood_staff', name: '🟦 [Rare Wood Staff]', dps: 45 },
-      epic: { key: 'epic_wood_staff', name: '🟪 [Epic Wood Staff]', dps: 80 }
-    }
+    outputs: { base: { key: 'bronze_sword', name: 'Bronze Sword', dps: 18 } }
+  },
+  'iron_greatsword': {
+    name: 'Iron Greatsword', materials: { iron: 40, ashwood: 15 },
+    abilities: [
+      '🛡️ **Passive [Parry]**: 10% chance to completely block an attack.',
+      '⚡ **Active [Wide Cleave]**: 35% chance to hit a second target for 50% DMG'
+    ],
+    outputs: { base: { key: 'iron_greatsword', name: 'Iron Greatsword', dps: 110 } }
+  },
+  'iron_spellblade': {
+    name: 'Iron Spellblade', materials: { iron: 45, wood: 20 },
+    abilities: [
+      '🛡️ **Passive [Arcane Parry]**: 10% chance to block, restoring 5% HP on success.',
+      '⚡ **Active [Spell Strike]**: 25% chance to deal 150% Magic Weapon DMG.'
+    ],
+    outputs: { base: { key: 'iron_spellblade', name: 'Iron Spellblade', dps: 100 } }
+  },
+  'steel_claymore': {
+    name: 'Steel Claymore', materials: { steel: 50, strong_wood: 20, golem_rubble: 10 },
+    abilities: [
+      '🛡️ **Passive [Juggernaut]**: Increases Max HP by 50',
+      '⚡ **Active [Whirlwind]**: 15% chance to deal 75% AoE Damage to the whole pack!'
+    ],
+    outputs: { base: { key: 'steel_claymore', name: 'Steel Claymore', dps: 240 } }
+  },
+  'mythril_cleaver': {
+    name: 'Mythril Cleaver', requiredBlueprint: 'blueprint_mythril_cleaver', materials: { mythril: 70, ebony_wood: 20, demon_horn: 15 },
+    abilities: [
+      '🛡️ **Passive [Master Parry]**: 25% chance to completely block an attack.',
+      '⚡ **Active [Guaranteed Cleave]**: 100% chance to hit a second target for 50% DMG (Every hit cleaves!)'
+    ],
+    outputs: { base: { key: 'mythril_cleaver', name: 'Mythril Cleaver', dps: 420 } }
+  },
+  'steel_warhammer': {
+    name: 'Steel Warhammer', requiredBlueprint: 'blueprint_steel_warhammer', materials: { steel: 40, strong_wood: 15, brittle_bone: 10 },
+    abilities: [
+      '🛡️ **Passive [Colossal]**: Flat +5% Damage Bonus to all attacks.',
+      '⚡ **Active [Earthquake]**: 15% chance to Stun the entire enemy group for 1 turn.'
+    ],
+    outputs: { base: { key: 'steel_warhammer', name: 'Steel Warhammer', dps: 215 } }
+  },
+  'steel_bulwark': {
+    name: 'Steel Bulwark', materials: { steel: 45, strong_wood: 20 },
+    abilities: [
+      '🛡️ **Passive [Titan]**: +100 Max HP.',
+      '⚡ **Active [Shield Bash]**: 20% chance to mitigate 50% of incoming damage next turn.'
+    ],
+    outputs: { base: { key: 'steel_bulwark', name: 'Steel Bulwark', dps: 180 } }
+  },
+  'colossal_slayer': {
+    name: 'Colossal Slayer', requiredBlueprint: 'blueprint_colossal_slayer', materials: { abyssal_steel: 100, eternal_wood: 30, drake_scale: 5 },
+    abilities: [
+      '🛡️ **Passive [Colossal]**: Deals +100% damage to Bosses and Elites.',
+      '⚡ **Active [Earthquake]**: 20% chance to deal 100% AoE Damage to all enemies and Stun them for 1 turn.'
+    ],
+    outputs: { base: { key: 'colossal_slayer', name: 'Colossal Slayer', dps: 600 } }
+  },
+
+// ----- STAFFS (MAGIC) -----
+  'wood_staff': {
+    name: 'Wood Staff', materials: { copper: 10, sticks: 35, slime_gel: 4 },
+    abilities: [
+      '🛡️ **Passive [Attuned]**: +5 Max Mana',
+      '⚡ **Active [Ember]**: 15% chance to cast a 25 DMG fireball on attack'
+    ],
+    outputs: { base: { key: 'wood_staff', name: 'Wood Staff', dps: 15 } }
+  },
+  'bone_staff': {
+    name: 'Bone Staff', materials: { iron: 15, ashwood: 30, brittle_bone: 15 },
+    abilities: [
+      '🛡️ **Passive [Necromancy]**: Restores 5 HP directly upon slaying an enemy.',
+      '⚡ **Active [Drain Life]**: 25% chance to steal 20 HP from the enemy.'
+    ],
+    outputs: { base: { key: 'bone_staff', name: 'Bone Staff', dps: 85 } }
   },
   'moonlight_staff': {
-    name: 'Moonlight Staff', requiredBlueprint: 'blueprint_moonlight_staff', materials: { mythril: 30, elderwood: 90, shadow_dust: 4 },
+    name: 'Moonlight Staff', materials: { steel: 20, strong_wood: 40, shadow_dust: 10 },
     abilities: [
-      '🌙 **Glimmer**: +5 Max HP',
-      '✨ **Nightshade**: +10% Dodge Chance',
-      '💧 **Serenity**: Heals 10 HP per combat round',
-      '🌙 **Eclipse**: 10% chance to blind the enemy, halving their accuracy',
-      '🌟 **Full Moon**: 100% Critical Hit chance on the first 3 turns'
+      '🛡️ **Passive [Lunar Grace]**: +10 Max Mana and heals 5 HP per round.',
+      '⚡ **Active [Moonbeam]**: 20% chance to strike all enemies with Moonlight for 50% true DMG.'
     ],
-    outputs: { rare: { key: 'rare_moonlight_staff', name: '🟦 [Rare Moonlight Staff]', dps: 120 }, epic: { key: 'epic_moonlight_staff', name: '🟪 [Epic Moonlight Staff]', dps: 210 } }
+    outputs: { base: { key: 'moonlight_staff', name: 'Moonlight Staff', dps: 210 } }
   },
   'meteor_staff': {
-    name: 'Meteor Staff', requiredBlueprint: 'blueprint_meteor_staff', materials: { mythril: 50, elderwood: 60, demon_horn: 5 },
+    name: 'Meteor Staff', requiredBlueprint: 'blueprint_meteor_staff', materials: { mythril: 30, ebony_wood: 50, gold_ore: 15, demon_horn: 20 },
     abilities: [
-      '🔥 **Molten Core**: 10% chance to cast a 25 DMG fireball on attack',
-      '✨ **Meteor**: 10% chance to cast a massive 1500 DMG AoE',
-      '🔥 **Ignite**: Burns monster for 100 DMG per round',
-      '🌋 **Apocalypse**: Meteor chance increases to 30% against Bosses',
-      '🌟 **Armageddon**: Meteor now deals 5000 DMG and hits twice'
+      '🛡️ **Passive [Arcane Master]**: Max Mana increases by 20.',
+      '⚡ **Active [Meteor Swarm]**: 15% chance to drop 3 Meteors dealing massive AoE damage to the entire pack!'
     ],
-    outputs: { rare: { key: 'rare_meteor_staff', name: '🟦 [Rare Meteor Staff]', dps: 300 }, epic: { key: 'epic_meteor_staff', name: '🟪 [Epic Meteor Staff]', dps: 500 }, legendary: { key: 'legendary_meteor_staff', name: '🟧 [✨ LEGENDARY METEOR STAFF ✨]', dps: 800 } }
+    outputs: { base: { key: 'meteor_staff', name: 'Meteor Staff', dps: 390 } }
+  },
+  'event_horizon': {
+    name: 'Event Horizon', requiredBlueprint: 'blueprint_event_horizon', materials: { abyssal_steel: 45, eternal_wood: 60, lich_phylactery: 2 },
+    abilities: [
+      '🛡️ **Passive [Black Hole]**: Enemies cannot Dodge or Evade your attacks.',
+      '⚡ **Active [Supernova]**: 10% chance to instantly delete all non-boss enemies in the room!'
+    ],
+    outputs: { base: { key: 'event_horizon', name: 'Event Horizon', dps: 580 } }
   },
 
-  // --- NECROMANCER ---
-  'bronze_scythe': {
-    name: 'Bronze Scythe', materials: { copper: 25, wood: 20, goblin_ear: 3 },
+// ----- BOWS (FINESSE) -----
+  'shortbow': {
+    name: 'Shortbow', materials: { sticks: 25, copper: 5 },
     abilities: [
-      '🌾 **Reaper**: +2% Base Damage',
-      '✨ **Harvest**: +5% bonus Gold on kills',
-      '💀 **Soul Siphon**: Heals 2 HP upon killing an enemy',
-      '💥 **Executioner**: Critical strikes deal 3.5x damage instead of 2.0x',
-      '🌟 **Grim Memento**: +50% XP from Undead'
+      '🛡️ **Passive [Hawk Eye]**: +5% Critical Hit Chance.',
+      '⚡ **Active [Quick Shot]**: 15% chance to fire a second arrow instantly.'
     ],
-    outputs: {
-      common: { key: 'common_bronze_scythe', name: '⬜ [Common Bronze Scythe]', dps: 20 },
-      uncommon: { key: 'uncommon_bronze_scythe', name: '🟩 [Uncommon Bronze Scythe]', dps: 35 },
-      rare: { key: 'rare_bronze_scythe', name: '🟦 [Rare Bronze Scythe]', dps: 60 },
-      epic: { key: 'epic_bronze_scythe', name: '🟪 [Epic Bronze Scythe]', dps: 110 }
-    }
+    outputs: { base: { key: 'shortbow', name: 'Shortbow', dps: 16 } }
   },
-  'bone_scythe': {
-    name: 'Legacy Bone Scythe',
-    outputs: { common: { key: 'common_bone_scythe', name: '⬜ [Common Bone Scythe]', dps: 20 } }
-  },
-  'soul_reaper': {
-    name: 'Soul Reaper', requiredBlueprint: 'blueprint_soul_reaper', materials: { mythril: 40, elderwood: 50, behemoth_bone: 6 },
+  'hunters_bow': {
+    name: 'Hunters Bow', materials: { ashwood: 35, iron: 10, wolf_pelt: 2 },
     abilities: [
-      '👻 **Ethereal**: +5% Evasion against physical attacks',
-      '✨ **Reap**: Heals for 10% of damage dealt',
-      '💀 **Grave Digger**: +25% DMG against Undead',
-      '💥 **Executioner**: Critical strikes deal 3.5x damage instead of 2.0x',
-      '🌟 **Necromancy**: 20% chance to survive a fatal blow via Undying'
+      '🛡️ **Passive [Camouflage]**: +15% Base Evasion',
+      '⚡ **Active [Volley]**: 20% chance to fire a second arrow.'
     ],
-    outputs: { rare: { key: 'rare_soul_reaper', name: '🟦 [Rare Soul Reaper]', dps: 150 }, epic: { key: 'epic_soul_reaper', name: '🟪 [Epic Soul Reaper]', dps: 260 } }
+    outputs: { base: { key: 'hunters_bow', name: 'Hunter\'s Bow', dps: 90 } }
   },
-  'lich_tome': {
-    name: 'Lich Tome', requiredBlueprint: 'blueprint_lich_tome', materials: { mythril: 50, elderwood: 30, lich_soul: 4 },
+  'compound_longbow': {
+    name: 'Compound Longbow', materials: { ashwood: 45, steel: 15 },
     abilities: [
-      '💀 **Dark Whisper**: +5 INT',
-      '✨ **Soul Devourer**: Converts 15% of damage dealt into healing',
-      '🛡️ **Bone Armor**: Converts 50% of INT into DEF',
-      '💀 **Phylactery**: Revive exactly once per battle with 50% HP',
-      '🌟 **Deathless King**: Revive with 100% HP and double damage'
+      '🛡️ **Passive [Heavy Draw]**: Pierce 10% of enemy Physical Defense.',
+      '⚡ **Active [Piercing Shot]**: 25% chance to critically strike for 200% DMG.'
     ],
-    outputs: { rare: { key: 'rare_lich_tome', name: '🟦 [Rare Lich Tome]', dps: 350 }, epic: { key: 'epic_lich_tome', name: '🟪 [Epic Lich Tome]', dps: 600 }, legendary: { key: 'legendary_lich_tome', name: '🟧 [✨ LEGENDARY LICH TOME ✨]', dps: 1000 } }
+    outputs: { base: { key: 'compound_longbow', name: 'Compound Longbow', dps: 120 } }
+  },
+  'recurve_bow': {
+    name: 'Recurve Bow', materials: { strong_wood: 50, steel: 15, golem_rubble: 5 },
+    abilities: [
+      '🛡️ **Passive [Deadly Aim]**: Critical Hits deal 200% damage instead of 150%.',
+      '⚡ **Active [Volley]**: 25% chance to fire 3 arrows at random enemies.'
+    ],
+    outputs: { base: { key: 'recurve_bow', name: 'Recurve Bow', dps: 230 } }
+  },
+  'stormcaller': {
+    name: 'Stormcaller', requiredBlueprint: 'blueprint_stormcaller', materials: { ebony_wood: 60, mythril: 20, demon_horn: 10 },
+    abilities: [
+      '🛡️ **Passive [Lightning Reflexes]**: +20% Evasion.',
+      '⚡ **Active [Chain Lightning]**: 30% chance to chain 100% damage to all enemies.'
+    ],
+    outputs: { base: { key: 'stormcaller', name: 'Stormcaller', dps: 410 } }
+  },
+  'celestial_bow': {
+    name: 'Celestial Bow', requiredBlueprint: 'blueprint_celestial_bow', materials: { eternal_wood: 80, abyssal_steel: 30, drake_scale: 3 },
+    abilities: [
+      '🛡️ **Passive [Star-struck]**: Every shot adds a stack of Starlight (+10% Crit Chance).',
+      '⚡ **Active [Shooting Star]**: 100% Critical Hit chance if targeting a Boss.'
+    ],
+    outputs: { base: { key: 'celestial_bow', name: 'Celestial Bow', dps: 590 } }
   },
 
-  // --- HEAVY ARMOR (WARRIORS) ---
+// ----- HAMMERS (HEAVY) -----
+  'wooden_club': {
+    name: 'Wooden Club', materials: { sticks: 40 },
+    abilities: [
+      '🛡️ **Passive [Blunt Force]**: Ignores 10% of enemy Armor.',
+      '⚡ **Active [Concussive Blow]**: 15% chance to reduce enemy ATK by 5.'
+    ],
+    outputs: { base: { key: 'wooden_club', name: 'Wooden Club', dps: 14 } }
+  },
+  'iron_mace': {
+    name: 'Iron Mace', materials: { iron: 50, ashwood: 10 },
+    abilities: [
+      '🛡️ **Passive [Shatter]**: Ignores 20% of enemy Armor.',
+      '⚡ **Active [Stagger]**: 20% chance to prevent the enemy from attacking this round!'
+    ],
+    outputs: { base: { key: 'iron_mace', name: 'Iron Mace', dps: 95 } }
+  },
+
+  'titan_maul': {
+    name: 'Titan Maul', requiredBlueprint: 'blueprint_titan_maul', materials: { mythril: 80, ebony_wood: 25, golem_rubble: 30 },
+    abilities: [
+      '🛡️ **Passive [Unstoppable Force]**: You cannot be Evaded or Mitigation-blocked.',
+      '⚡ **Active [Tremor]**: 30% chance to stun the entire enemy pack for 1 round!'
+    ],
+    outputs: { base: { key: 'titan_maul', name: 'Titan Maul', dps: 400 } }
+  },
+  'earthshaker': {
+    name: 'Earthshaker', requiredBlueprint: 'blueprint_earthshaker', materials: { abyssal_steel: 120, eternal_wood: 40, drake_scale: 10 },
+    abilities: [
+      '🛡️ **Passive [Tectonic]**: Base Damage scales directly with your missing HP (+1% DMG per 1% HP missing).',
+      '⚡ **Active [Fissure]**: 20% chance to instantly execute any armored target.'
+    ],
+    outputs: { base: { key: 'earthshaker', name: 'Earthshaker', dps: 620 } }
+  },
+
+// --- HEAVY ARMOR (WARRIORS) ---
 
   'bronze_chestplate': {
-    name: 'Bronze Chestplate', materials: { copper: 120, potato: 10, seaweed: 5 },
+name: 'Bronze Chestplate', materials: { copper: 120, potato: 10, seaweed: 5 },
     abilities: [
       '✨ **Reinforced**: +1 DEF',
       '✨ **Plated**: Reduces physical damage taken by 2%',
@@ -252,10 +251,10 @@ export const BLUEPRINTS: Record<string, any> = {
       '🔥 **Heat Resistance**: -10% damage from Magical Fire',
       '🌟 **Bulwark**: 5% chance to reduce incoming damage to 0'
     ],
-    outputs: { common: { key: 'common_bronze_chestplate', name: '⬜ [Common Bronze Chestplate]', defense: 10 }, uncommon: { key: 'uncommon_bronze_chestplate', name: '🟩 [Uncommon Bronze Chestplate]', defense: 20 }, rare: { key: 'rare_bronze_chestplate', name: '🟦 [Rare Bronze Chestplate]', defense: 40 }, epic: { key: 'epic_bronze_chestplate', name: '🟪 [Epic Bronze Chestplate]', defense: 80 } }
+    outputs: { base: { key: 'bronze_chestplate', name: 'Bronze Chestplate', defense: 10 } }
   },
   'iron_chestplate': {
-    name: 'Iron Chestplate', requiredBlueprint: 'blueprint_iron_chestplate', materials: { iron: 150, river_trout: 20, moon_herb: 8 },
+name: 'Iron Chestplate', requiredBlueprint: 'blueprint_iron_chestplate', materials: { iron: 150, river_trout: 20, moon_herb: 8 },
     abilities: [
       '✨ **Layered**: +2 DEF',
       '✨ **Hardened**: Reduces physical damage taken by 3%',
@@ -263,10 +262,10 @@ export const BLUEPRINTS: Record<string, any> = {
       '🤕 **Iron Will**: Grants immunity to bleeding effects',
       '🌟 **Unbreakable**: Gain 50 DEF when below 25% HP'
     ],
-    outputs: { common: { key: 'common_iron_chestplate', name: '⬜ [Common Iron Chestplate]', defense: 25 }, uncommon: { key: 'uncommon_iron_chestplate', name: '🟩 [Uncommon Iron Chestplate]', defense: 45 }, rare: { key: 'rare_iron_chestplate', name: '🟦 [Rare Iron Chestplate]', defense: 80 }, epic: { key: 'epic_iron_chestplate', name: '🟪 [Epic Iron Chestplate]', defense: 150 } }
+    outputs: { base: { key: 'iron_chestplate', name: 'Iron Chestplate', defense: 45 } }
   },
   'steel_chestplate': {
-    name: 'Steel Chestplate', requiredBlueprint: 'blueprint_steel_chestplate', materials: { steel_ore: 220, golden_koi: 40, stone_core: 15 },
+name: 'Steel Chestplate', requiredBlueprint: 'blueprint_steel_chestplate', materials: { steel_ore: 220, golden_koi: 40, stone_core: 15 },
     abilities: [
       '✨ **Polished**: +5 DEF',
       '✨ **Alloyed Armor**: Reduces physical damage taken by 5%',
@@ -274,13 +273,13 @@ export const BLUEPRINTS: Record<string, any> = {
       '⚡ **Reflective Coating**: Reflects 5% of melee damage back to the attacker',
       '🌟 **Steel Resolve**: Reduces incoming damage by 15%'
     ],
-    outputs: { common: { key: 'common_steel_chestplate', name: '⬜ [Common Steel Chestplate]', defense: 65 }, uncommon: { key: 'uncommon_steel_chestplate', name: '🟩 [Uncommon Steel Chestplate]', defense: 120 }, rare: { key: 'rare_steel_chestplate', name: '🟦 [Rare Steel Chestplate]', defense: 240 }, epic: { key: 'epic_steel_chestplate', name: '🟪 [Epic Steel Chestplate]', defense: 450 } }
+    outputs: { base: { key: 'steel_chestplate', name: 'Steel Chestplate', defense: 240 } }
   },
 
 
   // --- CLOTH ARMOR (MAGES) ---
   'apprentice_robe': {
-    name: 'Apprentice Robe', materials: { copper: 10, wood: 30, basic_herb: 5 },
+name: 'Apprentice Robe', materials: { copper: 10, wood: 30, basic_herb: 5 },
     abilities: [
       '✨ **Light Fabric**: +1 Max Energy',
       '✨ **Mana Shield**: Reduces incoming damage by 10%',
@@ -288,10 +287,10 @@ export const BLUEPRINTS: Record<string, any> = {
       '🔮 **Arcane Focus**: Spells cost 10% less Mana',
       '🌟 **Archmage**: +15 Max Energy'
     ],
-    outputs: { common: { key: 'common_apprentice_robe', name: '⬜ [Common Apprentice Robe]', defense: 4 }, uncommon: { key: 'uncommon_apprentice_robe', name: '🟩 [Uncommon Apprentice Robe]', defense: 8 }, rare: { key: 'rare_apprentice_robe', name: '🟦 [Rare Apprentice Robe]', defense: 16 }, epic: { key: 'epic_apprentice_robe', name: '🟪 [Epic Apprentice Robe]', defense: 32 } }
+    outputs: { base: { key: 'apprentice_robe', name: 'Apprentice Robe', defense: 8 } }
   },
   'mystic_robe': {
-    name: 'Mystic Robe', requiredBlueprint: 'blueprint_mystic_robe', materials: { iron: 30, ashwood: 60, moon_herb: 10 },
+name: 'Mystic Robe', requiredBlueprint: 'blueprint_mystic_robe', materials: { iron: 30, ashwood: 60, moon_herb: 10 },
     abilities: [
       '✨ **Woven Magic**: +5 Max Mana',
       '✨ **Arcane Recovery**: Heals 5% Max HP after combat',
@@ -299,10 +298,10 @@ export const BLUEPRINTS: Record<string, any> = {
       '🌙 **Lunar Blessing**: +20% ALL Stats during Nightime Cycles',
       '🌟 **Invulnerability**: The first attack received each combat deals 0 DMG'
     ],
-    outputs: { common: { key: 'common_mystic_robe', name: '⬜ [Common Mystic Robe]', defense: 12 }, uncommon: { key: 'uncommon_mystic_robe', name: '🟩 [Uncommon Mystic Robe]', defense: 22 }, rare: { key: 'rare_mystic_robe', name: '🟦 [Rare Mystic Robe]', defense: 40 }, epic: { key: 'epic_mystic_robe', name: '🟪 [Epic Mystic Robe]', defense: 75 } }
+    outputs: { base: { key: 'mystic_robe', name: 'Mystic Robe', defense: 40 } }
   },
   'lich_mantle': {
-    name: 'Lich Mantle', requiredBlueprint: 'blueprint_lich_mantle', materials: { mythril: 50, gold_ore: 20, lich_soul: 3 },
+name: 'Lich Mantle', requiredBlueprint: 'blueprint_lich_mantle', materials: { mythril: 50, gold_ore: 20, lich_phylactery: 3, living_bark: 5, lumina_berry: 15 },
     abilities: [
       '💀 **Dread**: Enemies have -1% Hit Chance',
       '✨ **Undying**: 5% chance to revive with 1 HP on death',
@@ -310,12 +309,12 @@ export const BLUEPRINTS: Record<string, any> = {
       '👑 **Lich King**: Undead monsters will occasionally flee instead of fighting',
       '🌟 **Lord of Death**: Summons a skeletal minion to absorb 100 DMG each combat'
     ],
-    outputs: { common: { key: 'common_lich_mantle', name: '⬜ [Common Lich Mantle]', defense: 45 }, uncommon: { key: 'uncommon_lich_mantle', name: '🟩 [Uncommon Lich Mantle]', defense: 85 }, rare: { key: 'rare_lich_mantle', name: '🟦 [Rare Lich Mantle]', defense: 160 }, epic: { key: 'epic_lich_mantle', name: '🟪 [Epic Lich Mantle]', defense: 300 } }
+    outputs: { base: { key: 'lich_mantle', name: 'Lich Mantle', defense: 300 } }
   },
 
   // --- LIGHT ARMOR (ROGUES) ---
   'leather_tunic': {
-    name: 'Leather Tunic', materials: { copper: 15, wood: 10, seaweed: 8 },
+name: 'Leather Tunic', materials: { copper: 15, wood: 10, seaweed: 8 },
     abilities: [
       '✨ **Snug**: +1% Dodge Chance',
       '✨ **Evasion**: +5% Dodge Chance',
@@ -323,10 +322,10 @@ export const BLUEPRINTS: Record<string, any> = {
       '🗡️ **Assassin**: +10% DMG when using Daggers or Shivs',
       '🌟 **Ghost**: Evasion cap increased by 15%'
     ],
-    outputs: { common: { key: 'common_leather_tunic', name: '⬜ [Common Leather Tunic]', defense: 8 }, uncommon: { key: 'uncommon_leather_tunic', name: '🟩 [Uncommon Leather Tunic]', defense: 16 }, rare: { key: 'rare_leather_tunic', name: '🟦 [Rare Leather Tunic]', defense: 32 }, epic: { key: 'epic_leather_tunic', name: '🟪 [Epic Leather Tunic]', defense: 60 } }
+    outputs: { base: { key: 'leather_tunic', name: 'Leather Tunic', defense: 8 } }
   },
   'scout_cloak': {
-    name: 'Scout Cloak', requiredBlueprint: 'blueprint_scout_cloak', materials: { copper: 20, wood: 20, seaweed: 15 },
+name: 'Scout Cloak', requiredBlueprint: 'blueprint_scout_cloak', materials: { copper: 20, wood: 20, seaweed: 15 },
     abilities: [
       '✨ **Camouflage**: +2% Dodge Chance',
       '✨ **Shadow Step**: 100% Dodge First Attack',
@@ -334,10 +333,10 @@ export const BLUEPRINTS: Record<string, any> = {
       '🗡️ **Ambush**: First attack always lands as a Critical Hit',
       '🌟 **Unseen Predator**: Stealth cannot be broken on the first attack'
     ],
-    outputs: { common: { key: 'common_scout_cloak', name: '⬜ [Common Scout Cloak]', defense: 18 }, uncommon: { key: 'uncommon_scout_cloak', name: '🟩 [Uncommon Scout Cloak]', defense: 35 }, rare: { key: 'rare_scout_cloak', name: '🟦 [Rare Scout Cloak]', defense: 65 }, epic: { key: 'epic_scout_cloak', name: '🟪 [Epic Scout Cloak]', defense: 120 } }
+    outputs: { base: { key: 'scout_cloak', name: 'Scout Cloak', defense: 35 } }
   },
   'shadow_tunic': {
-    name: 'Shadow Tunic', requiredBlueprint: 'blueprint_shadow_tunic', materials: { mythril: 40, elderwood: 80, hellfire_essence: 5 },
+name: 'Shadow Tunic', requiredBlueprint: 'blueprint_shadow_tunic', materials: { mythril: 40, elderwood: 80, hellfire_essence: 5, golden_pearl: 2, frost_lotus: 10 },
     abilities: [
       '🌑 **Dark Dye**: +3% Evasion at Night',
       '✨ **Smoke Bomb**: 15% chance to completely negate an attack',
@@ -345,12 +344,12 @@ export const BLUEPRINTS: Record<string, any> = {
       '🥷 **Executioner Form**: Double damage when hitting from Stealth',
       '🌟 **Shadow Realm**: 5% chance to dodge ALL attacks for 1 round'
     ],
-    outputs: { common: { key: 'common_shadow_tunic', name: '⬜ [Common Shadow Tunic]', defense: 60 }, uncommon: { key: 'uncommon_shadow_tunic', name: '🟩 [Uncommon Shadow Tunic]', defense: 110 }, rare: { key: 'rare_shadow_tunic', name: '🟦 [Rare Shadow Tunic]', defense: 220 }, epic: { key: 'epic_shadow_tunic', name: '🟪 [Epic Shadow Tunic]', defense: 400 } }
+    outputs: { base: { key: 'shadow_tunic', name: 'Shadow Tunic', defense: 400 } }
   },
   // --- TOOLS ---
 
   'bronze_sickle': {
-    name: 'Bronze Sickle', materials: { copper: 30, wood: 20, slime_gel: 10 },
+name: 'Bronze Sickle', materials: { copper: 30, sticks: 20, slime_gel: 10 },
     abilities: [
       '🌾 **Reap**: 5% chance for double herbs',
       '🌱 **Harvester**: +1 Base Yield',
@@ -358,10 +357,10 @@ export const BLUEPRINTS: Record<string, any> = {
       '🌿 **Earth Sense**: 10% chance to find hidden seeds',
       '🌟 **Mother Lode**: 1% chance to yield 50x materials'
     ],
-    outputs: { common: { key: 'common_bronze_sickle', name: '⬜ [Common Bronze Sickle]', yield: 1.25 }, uncommon: { key: 'uncommon_bronze_sickle', name: '🟩 [Uncommon Bronze Sickle]', yield: 1.5 }, rare: { key: 'rare_bronze_sickle', name: '🟦 [Rare Bronze Sickle]', yield: 2.0 }, epic: { key: 'epic_bronze_sickle', name: '🟪 [Epic Bronze Sickle]', yield: 3.0 } }
+    outputs: { base: { key: 'bronze_sickle', name: 'Bronze Sickle', yield: 1.25 } }
   },
   'iron_sickle': {
-    name: 'Iron Sickle', requiredBlueprint: 'blueprint_iron_sickle', materials: { iron: 50, ashwood: 40, bat_wing: 15 },
+name: 'Iron Sickle', requiredBlueprint: 'blueprint_iron_sickle', materials: { iron: 50, ashwood: 40, bat_wing: 15 },
     abilities: [
       '🌾 **Efficient Reap**: 10% chance for double herbs',
       '🌱 **Expert Harvester**: +2 Base Yield',
@@ -369,10 +368,10 @@ export const BLUEPRINTS: Record<string, any> = {
       '🌿 **Nature\'s Gift**: 15% chance to find hidden seeds',
       '🌟 **Golden Harvest**: 2% chance to yield 50x materials'
     ],
-    outputs: { common: { key: 'common_iron_sickle', name: '⬜ [Common Iron Sickle]', yield: 2.0 }, uncommon: { key: 'uncommon_iron_sickle', name: '🟩 [Uncommon Iron Sickle]', yield: 2.5 }, rare: { key: 'rare_iron_sickle', name: '🟦 [Rare Iron Sickle]', yield: 3.5 }, epic: { key: 'epic_iron_sickle', name: '🟪 [Epic Iron Sickle]', yield: 5.0 } }
+    outputs: { base: { key: 'iron_sickle', name: 'Iron Sickle', yield: 2.5 } }
   },
   'mythril_sickle': {
-    name: 'Mythril Sickle', requiredBlueprint: 'blueprint_mythril_sickle', materials: { mythril: 80, elderwood: 70, demon_horn: 25 },
+name: 'Mythril Sickle', requiredBlueprint: 'blueprint_mythril_sickle', materials: { mythril: 80, elderwood: 70, demon_horn: 25 },
     abilities: [
       '🌾 **Master Reap**: 20% chance for double herbs',
       '🌱 **Grand Harvester**: +3 Base Yield',
@@ -380,11 +379,11 @@ export const BLUEPRINTS: Record<string, any> = {
       '🌿 **Fae Sense**: 25% chance to find hidden seeds',
       '🌟 **Bountiful Blessing**: 5% chance to yield 50x materials'
     ],
-    outputs: { common: { key: 'common_mythril_sickle', name: '⬜ [Common Mythril Sickle]', yield: 3.5 }, uncommon: { key: 'uncommon_mythril_sickle', name: '🟩 [Uncommon Mythril Sickle]', yield: 4.5 }, rare: { key: 'rare_mythril_sickle', name: '🟦 [Rare Mythril Sickle]', yield: 6.0 }, epic: { key: 'epic_mythril_sickle', name: '🟪 [Epic Mythril Sickle]', yield: 8.0 } }
+    outputs: { base: { key: 'mythril_sickle', name: 'Mythril Sickle', yield: 8.0 } }
   },
 
   'bronze_pickaxe': {
-    name: 'Bronze Pickaxe', materials: { copper: 25, wood: 50, basic_herb: 1 },
+name: 'Bronze Pickaxe', materials: { copper: 25, sticks: 50, basic_herb: 1 },
     abilities: [
       '⛏️ **Prospect**: 5% chance for double ore',
       '⛏️ **Miner**: +1 Base Yield',
@@ -392,10 +391,10 @@ export const BLUEPRINTS: Record<string, any> = {
       '🪨 **Earth Sense**: 10% chance to find hidden gems',
       '🌟 **Mother Lode**: 1% chance to yield 50x ore'
     ],
-    outputs: { common: { key: 'common_bronze_pickaxe', name: '⬜ [Common Bronze Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'COMMON', yieldMultiplier: 1.25 }, uncommon: { key: 'uncommon_bronze_pickaxe', name: '🟩 [Uncommon Bronze Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'UNCOMMON', yieldMultiplier: 1.75 }, rare: { key: 'rare_bronze_pickaxe', name: '🟦 [Rare Bronze Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'RARE', yieldMultiplier: 2.5 } }
+    outputs: { base: { key: 'bronze_pickaxe', name: 'Bronze Pickaxe', isTool: true, type: 'PICKAXE', rarity: 'COMMON', yieldMultiplier: 1.25 } }
   },
   'iron_pickaxe': {
-    name: 'Iron Pickaxe', requiredBlueprint: 'blueprint_iron_pickaxe', materials: { iron: 40, ashwood: 60, basic_herb: 3 },
+name: 'Iron Pickaxe', requiredBlueprint: 'blueprint_iron_pickaxe', materials: { iron: 40, ashwood: 60, basic_herb: 3 },
     abilities: [
       '⛏️ **Heavy Swing**: 10% chance for double ore',
       '⛏️ **Miner**: +1 Base Yield',
@@ -403,10 +402,10 @@ export const BLUEPRINTS: Record<string, any> = {
       '🪨 **Deep Strike**: 5% chance for quadruple yield',
       '🌟 **Core Drill**: 2% chance to yield 100x ore'
     ],
-    outputs: { common: { key: 'common_iron_pickaxe', name: '⬜ [Common Iron Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'COMMON', yieldMultiplier: 2.0 }, uncommon: { key: 'uncommon_iron_pickaxe', name: '🟩 [Uncommon Iron Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'UNCOMMON', yieldMultiplier: 2.75 }, rare: { key: 'rare_iron_pickaxe', name: '🟦 [Rare Iron Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'RARE', yieldMultiplier: 4.0 } }
+    outputs: { base: { key: 'iron_pickaxe', name: 'Iron Pickaxe', isTool: true, type: 'PICKAXE', rarity: 'UNCOMMON', yieldMultiplier: 2.75 } }
   },
   'mythril_pickaxe': {
-    name: 'Mythril Pickaxe', requiredBlueprint: 'blueprint_mythril_pickaxe', materials: { mythril: 80, elderwood: 120, hellfire_essence: 2 },
+name: 'Mythril Pickaxe', requiredBlueprint: 'blueprint_mythril_pickaxe', materials: { mythril: 80, elderwood: 120, hellfire_essence: 2 },
     abilities: [
       '⛏️ **Pristine Swing**: 15% chance for double ore',
       '⛏️ **Miner**: +1 Base Yield',
@@ -414,10 +413,10 @@ export const BLUEPRINTS: Record<string, any> = {
       '🌟 **Overload**: 5% chance to 10x all gathered resources',
       '🌟 **Planet Cracker**: 5% chance to yield 500x ore instantly'
     ],
-    outputs: { common: { key: 'common_mythril_pickaxe', name: '⬜ [Common Mythril Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'COMMON', yieldMultiplier: 3.5 }, uncommon: { key: 'uncommon_mythril_pickaxe', name: '🟩 [Uncommon Mythril Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'UNCOMMON', yieldMultiplier: 5.0 }, rare: { key: 'rare_mythril_pickaxe', name: '🟦 [Rare Mythril Pickaxe]', isTool: true, type: 'PICKAXE', rarity: 'RARE', yieldMultiplier: 8.0 } }
+    outputs: { base: { key: 'mythril_pickaxe', name: 'Mythril Pickaxe', isTool: true, type: 'PICKAXE', rarity: 'EPIC', yieldMultiplier: 8.0 } }
   },
   'bronze_axe': {
-    name: 'Bronze Axe', materials: { copper: 15, wood: 80, seaweed: 2 },
+name: 'Bronze Axe', materials: { copper: 15, sticks: 80, seaweed: 2 },
     abilities: [
       '🪓 **Chop**: 5% chance for double wood',
       '🪓 **Lumberjack**: +1 Base Yield',
@@ -425,10 +424,10 @@ export const BLUEPRINTS: Record<string, any> = {
       '🍃 **Natures Bounty**: 10% chance to find hidden seeds',
       '🌟 **Timber!**: 1% chance to yield 50x wood'
     ],
-    outputs: { common: { key: 'common_bronze_axe', name: '⬜ [Common Bronze Axe]', isTool: true, type: 'AXE', rarity: 'COMMON', yieldMultiplier: 1.25 }, uncommon: { key: 'uncommon_bronze_axe', name: '🟩 [Uncommon Bronze Axe]', isTool: true, type: 'AXE', rarity: 'UNCOMMON', yieldMultiplier: 1.75 }, rare: { key: 'rare_bronze_axe', name: '🟦 [Rare Bronze Axe]', isTool: true, type: 'AXE', rarity: 'RARE', yieldMultiplier: 2.5 } }
+    outputs: { base: { key: 'bronze_axe', name: 'Bronze Axe', isTool: true, type: 'AXE', rarity: 'COMMON', yieldMultiplier: 1.25 } }
   },
   'iron_axe': {
-    name: 'Iron Axe', requiredBlueprint: 'blueprint_iron_axe', materials: { iron: 20, ashwood: 100, moon_herb: 1 },
+name: 'Iron Axe', requiredBlueprint: 'blueprint_iron_axe', materials: { iron: 20, ashwood: 100, moon_herb: 1 },
     abilities: [
       '🪓 **Heavy Chop**: 10% chance for double wood',
       '🪓 **Lumberjack**: +1 Base Yield',
@@ -436,10 +435,10 @@ export const BLUEPRINTS: Record<string, any> = {
       '🍃 **Clearcut**: 5% chance for quadruple yield',
       '🌟 **Deforestation**: 2% chance to yield 100x wood'
     ],
-    outputs: { common: { key: 'common_iron_axe', name: '⬜ [Common Iron Axe]', isTool: true, type: 'AXE', rarity: 'COMMON', yieldMultiplier: 2.0 }, uncommon: { key: 'uncommon_iron_axe', name: '🟩 [Uncommon Iron Axe]', isTool: true, type: 'AXE', rarity: 'UNCOMMON', yieldMultiplier: 2.75 }, rare: { key: 'rare_iron_axe', name: '🟦 [Rare Iron Axe]', isTool: true, type: 'AXE', rarity: 'RARE', yieldMultiplier: 4.0 } }
+    outputs: { base: { key: 'iron_axe', name: 'Iron Axe', isTool: true, type: 'AXE', rarity: 'UNCOMMON', yieldMultiplier: 2.75 } }
   },
   'mythril_axe': {
-    name: 'Mythril Axe', requiredBlueprint: 'blueprint_mythril_axe', materials: { mythril: 50, elderwood: 180, cinderbloom: 5 },
+name: 'Mythril Axe', requiredBlueprint: 'blueprint_mythril_axe', materials: { mythril: 50, elderwood: 180, cinderbloom: 5 },
     abilities: [
       '🪓 **Pristine Chop**: 15% chance for double wood',
       '🪓 **Lumberjack**: +1 Base Yield',
@@ -447,10 +446,10 @@ export const BLUEPRINTS: Record<string, any> = {
       '🌟 **Overload**: 5% chance to 10x all gathered resources',
       '🌟 **World Tree Bane**: 5% chance to yield 500x wood instantly'
     ],
-    outputs: { common: { key: 'common_mythril_axe', name: '⬜ [Common Mythril Axe]', isTool: true, type: 'AXE', rarity: 'COMMON', yieldMultiplier: 3.5 }, uncommon: { key: 'uncommon_mythril_axe', name: '🟩 [Uncommon Mythril Axe]', isTool: true, type: 'AXE', rarity: 'UNCOMMON', yieldMultiplier: 5.0 }, rare: { key: 'rare_mythril_axe', name: '🟦 [Rare Mythril Axe]', isTool: true, type: 'AXE', rarity: 'RARE', yieldMultiplier: 8.0 } }
+    outputs: { base: { key: 'mythril_axe', name: 'Mythril Axe', isTool: true, type: 'AXE', rarity: 'EPIC', yieldMultiplier: 8.0 } }
   },
   'bronze_fishing_rod': {
-    name: 'Bronze Fishing Rod', materials: { copper: 20, wood: 40, seaweed: 15 },
+name: 'Bronze Fishing Rod', materials: { copper: 20, sticks: 40, seaweed: 15 },
     abilities: [
       '🎣 **Reel In**: 10% chance for double fish',
       '🐟 **Angler**: +1 Base Yield',
@@ -458,10 +457,10 @@ export const BLUEPRINTS: Record<string, any> = {
       '🌊 **Earth Sense**: 10% chance to find hidden treasure',
       '🌟 **Tidal Wave**: 1% chance to yield 50x fish'
     ],
-    outputs: { common: { key: 'common_bronze_fishing_rod', name: '⬜ [Common Bronze Fishing Rod]', isTool: true, type: 'FISHING_ROD', rarity: 'COMMON', yieldMultiplier: 1.25 }, uncommon: { key: 'uncommon_bronze_fishing_rod', name: '🟩 [Uncommon Bronze Fishing Rod]', isTool: true, type: 'FISHING_ROD', rarity: 'UNCOMMON', yieldMultiplier: 1.75 }, rare: { key: 'rare_bronze_fishing_rod', name: '🟦 [Rare Bronze Fishing Rod]', isTool: true, type: 'FISHING_ROD', rarity: 'RARE', yieldMultiplier: 2.5 } }
+    outputs: { base: { key: 'bronze_fishing_rod', name: 'Bronze Fishing Rod', isTool: true, type: 'FISHING_ROD', rarity: 'COMMON', yieldMultiplier: 1.25 } }
   },
   'iron_fishing_rod': {
-    name: 'Iron Fishing Rod', requiredBlueprint: 'blueprint_iron_fishing_rod', materials: { iron: 35, ashwood: 60, river_trout: 20 },
+name: 'Iron Fishing Rod', requiredBlueprint: 'blueprint_iron_fishing_rod', materials: { iron: 35, ashwood: 60, river_trout: 20 },
     abilities: [
       '🎣 **Heavy Reel**: 10% chance for double fish',
       '🐟 **Expert Angler**: +2 Base Yield',
@@ -469,10 +468,10 @@ export const BLUEPRINTS: Record<string, any> = {
       '🌊 **Deep Sea Catch**: 5% chance for quadruple yield',
       '🌟 **Leviathans Bounty**: 2% chance to yield 100x fish'
     ],
-    outputs: { common: { key: 'common_iron_fishing_rod', name: '⬜ [Common Iron Fishing Rod]', isTool: true, type: 'FISHING_ROD', rarity: 'COMMON', yieldMultiplier: 2.0 }, uncommon: { key: 'uncommon_iron_fishing_rod', name: '🟩 [Uncommon Iron Fishing Rod]', isTool: true, type: 'FISHING_ROD', rarity: 'UNCOMMON', yieldMultiplier: 2.75 }, rare: { key: 'rare_iron_fishing_rod', name: '🟦 [Rare Iron Fishing Rod]', isTool: true, type: 'FISHING_ROD', rarity: 'RARE', yieldMultiplier: 4.0 } }
+    outputs: { base: { key: 'iron_fishing_rod', name: 'Iron Fishing Rod', isTool: true, type: 'FISHING_ROD', rarity: 'UNCOMMON', yieldMultiplier: 2.75 } }
   },
   'mythril_fishing_rod': {
-    name: 'Mythril Fishing Rod', requiredBlueprint: 'blueprint_mythril_fishing_rod', materials: { mythril: 70, elderwood: 110, golden_koi: 25 },
+name: 'Mythril Fishing Rod', requiredBlueprint: 'blueprint_mythril_fishing_rod', materials: { mythril: 70, elderwood: 110, golden_koi: 25 },
     abilities: [
       '🎣 **Pristine Cast**: 15% chance for double fish',
       '🐟 **Master Angler**: +3 Base Yield',
@@ -480,7 +479,7 @@ export const BLUEPRINTS: Record<string, any> = {
       '🌟 **Overload**: 5% chance to 10x all gathered resources',
       '🌟 **Poseidons Wrath**: 5% chance to yield 500x fish instantly'
     ],
-    outputs: { common: { key: 'common_mythril_fishing_rod', name: '⬜ [Common Mythril Fishing Rod]', isTool: true, type: 'FISHING_ROD', rarity: 'COMMON', yieldMultiplier: 3.5 }, uncommon: { key: 'uncommon_mythril_fishing_rod', name: '🟩 [Uncommon Mythril Fishing Rod]', isTool: true, type: 'FISHING_ROD', rarity: 'UNCOMMON', yieldMultiplier: 5.0 }, rare: { key: 'rare_mythril_fishing_rod', name: '🟦 [Rare Mythril Fishing Rod]', isTool: true, type: 'FISHING_ROD', rarity: 'RARE', yieldMultiplier: 8.0 } }
+    outputs: { base: { key: 'mythril_fishing_rod', name: 'Mythril Fishing Rod', isTool: true, type: 'FISHING_ROD', rarity: 'EPIC', yieldMultiplier: 8.0 } }
   }
 };
 
@@ -855,17 +854,26 @@ export async function processForge(recipeId: string, player: any, inventory: any
       
       bAtk += resultOutput.dps;
       
-      let r: any = 'COMMON';
-      if (resultOutput.key.includes('legendary')) r = 'LEGENDARY';
-      else if (resultOutput.key.includes('epic')) r = 'EPIC';
-      else if (resultOutput.key.includes('rare')) r = 'RARE';
-      else if (resultOutput.key.includes('uncommon')) r = 'UNCOMMON';
+      let r: any = resultOutput.rarity || 'COMMON';
+      if (!resultOutput.rarity) {
+          if (finalName.includes('Void') || finalName.includes('Earthshaker') || finalName.includes('Celestial') || finalName.includes('Event Horizon') || finalName.includes('Colossal')) r = 'LEGENDARY';
+          else if (finalName.includes('Mythril') || finalName.includes('Shadow') || finalName.includes('Titan') || finalName.includes('Stormcaller') || finalName.includes('Meteor')) r = 'EPIC';
+          else if (finalName.includes('Steel') || finalName.includes('Phantom') || finalName.includes('Recurve') || finalName.includes('Moonlight')) r = 'RARE';
+          else if (finalName.includes('Iron') || finalName.includes('Venom') || finalName.includes('Hunter') || finalName.includes('Bone')) r = 'UNCOMMON';
+      }
 
       let eClass: any = 'ANY';
       const keyStr = resultOutput.key.toLowerCase();
-      if (keyStr.includes('sword') || keyStr.includes('axe') || keyStr.includes('cleaver') || keyStr.includes('blade') || keyStr.includes('mace')) eClass = 'HEAVY_WEAPON';
-      else if (keyStr.includes('dagger') || keyStr.includes('bow') || keyStr.includes('shiv') || keyStr.includes('rapier')) eClass = 'FINESSE_WEAPON';
-      else if (keyStr.includes('staff') || keyStr.includes('wand') || keyStr.includes('tome') || keyStr.includes('grimoire')) eClass = 'MAGIC_WEAPON';
+      
+      // Strict Hybrid Override Check First
+      if (keyStr.includes('spellblade')) eClass = 'SPELLBLADE_WEAPON';
+      else if (keyStr.includes('longbow')) eClass = 'HUNTER_WEAPON';
+      else if (keyStr.includes('bulwark')) eClass = 'VANGUARD_WEAPON';
+      
+      // Standard Classes
+      else if (keyStr.includes('sword') || keyStr.includes('axe') || keyStr.includes('cleaver') || keyStr.includes('blade') || keyStr.includes('mace') || keyStr.includes('club') || keyStr.includes('maul') || keyStr.includes('earthshaker') || keyStr.includes('slayer') || keyStr.includes('warhammer')) eClass = 'HEAVY_WEAPON';
+      else if (keyStr.includes('dagger') || keyStr.includes('bow') || keyStr.includes('shiv') || keyStr.includes('rapier') || keyStr.includes('dirk') || keyStr.includes('fang') || keyStr.includes('stormcaller')) eClass = 'FINESSE_WEAPON';
+      else if (keyStr.includes('staff') || keyStr.includes('wand') || keyStr.includes('tome') || keyStr.includes('grimoire') || keyStr.includes('event_horizon')) eClass = 'MAGIC_WEAPON';
 
       dbOperations.push(prisma.equipment.updateMany({
           where: { playerId: player.id, slot: 'WEAPON', equipped: true },
@@ -898,11 +906,13 @@ export async function processForge(recipeId: string, player: any, inventory: any
 
       bDef += resultOutput.defense;
       
-      let r: any = 'COMMON';
-      if (resultOutput.key.includes('legendary')) r = 'LEGENDARY';
-      else if (resultOutput.key.includes('epic')) r = 'EPIC';
-      else if (resultOutput.key.includes('rare')) r = 'RARE';
-      else if (resultOutput.key.includes('uncommon')) r = 'UNCOMMON';
+      let r: any = resultOutput.rarity || 'COMMON';
+      if (!resultOutput.rarity) {
+          if (finalName.includes('Void') || finalName.includes('Demon')) r = 'LEGENDARY';
+          else if (finalName.includes('Mythril') || finalName.includes('Shadow') || finalName.includes('Lich') || finalName.includes('Meteor') || finalName.includes('Soul Reaper') || finalName.includes('Wolf Slayer')) r = 'EPIC';
+          else if (finalName.includes('Steel') || finalName.includes('Mystic') || finalName.includes('Bone')) r = 'RARE';
+          else if (finalName.includes('Iron') || finalName.includes('Apprentice') || finalName.includes('Scout')) r = 'UNCOMMON';
+      }
 
       let eClass: any = 'ANY';
       const keyStr = resultOutput.key.toLowerCase();
@@ -939,11 +949,13 @@ export async function processForge(recipeId: string, player: any, inventory: any
       statLog = statArray.join(' | ');
   }
   else if (resultOutput.isTool) { // TOOLS
-      let r: any = 'COMMON';
-      if (resultOutput.key.includes('legendary')) r = 'LEGENDARY';
-      else if (resultOutput.key.includes('epic')) r = 'EPIC';
-      else if (resultOutput.key.includes('rare')) r = 'RARE';
-      else if (resultOutput.key.includes('uncommon')) r = 'UNCOMMON';
+      let r: any = resultOutput.rarity || 'COMMON';
+      if (!resultOutput.rarity) {
+          if (finalName.includes('Void') || finalName.includes('Demon')) r = 'LEGENDARY';
+          else if (finalName.includes('Mythril') || finalName.includes('Shadow') || finalName.includes('Lich') || finalName.includes('Meteor') || finalName.includes('Soul Reaper') || finalName.includes('Wolf Slayer')) r = 'EPIC';
+          else if (finalName.includes('Steel') || finalName.includes('Mystic') || finalName.includes('Bone')) r = 'RARE';
+          else if (finalName.includes('Iron') || finalName.includes('Apprentice') || finalName.includes('Scout')) r = 'UNCOMMON';
+      }
 
       dbOperations.push(prisma.tool.updateMany({
           where: { playerId: player.id, type: resultOutput.type, equipped: true },

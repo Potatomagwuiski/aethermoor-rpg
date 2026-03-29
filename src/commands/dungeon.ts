@@ -44,7 +44,8 @@ export async function executeDungeon(message: Message, args: string[]) {
 
   // Mitigation & Attack Engine
   let gearDef = 0;
-  let gearAtk = Math.floor(player.str * 2.5) + (activePet ? activePet.bonusAtk : 0); // Base Unarmed ATK + Pet
+  let gearEvasion = 0;
+  let gearAtk = (activePet ? activePet.bonusAtk : 0);
 
   let activeHot = 0;
   let activeEot = 0;
@@ -57,23 +58,36 @@ export async function executeDungeon(message: Message, args: string[]) {
     if (activeBuff === 'ATK_60_HOT_20') { gearAtk += 60; activeHot = 20; buffMessage = '✨ **Buff Active:** Glacier Stew (+60 ATK, Heals 20 HP / Stage)'; }
     if (activeBuff === 'ATK_120_HOT_40') { gearAtk += 120; activeHot = 40; buffMessage = '✨ **Buff Active:** Lava-Seared Eel (+120 ATK, Heals 40 HP / Stage)'; }
     if (activeBuff === 'ATK_250_HOT_80') { gearAtk += 250; activeHot = 80; buffMessage = '✨ **Buff Active:** Abyssal Feast (+250 ATK, Heals 80 HP / Stage)'; }
-    if (activeBuff === 'HP_25') { maxHpWithPet += 25; runningHp += 25; buffMessage = '✨ **Buff Active:** Koi Soup (+25 MAX HP)'; }
-    if (activeBuff === 'DEF_50') { gearDef += 50; buffMessage = '✨ **Buff Active:** Glacial Filet (+50 DEF)'; }
+    if (activeBuff === 'HP_150') { maxHpWithPet += 150; runningHp += 150; buffMessage = '✨ **Buff Active:** Koi Soup (+150 MAX HP)'; }
+    if (activeBuff === 'DEF_120') { gearDef += 120; buffMessage = '✨ **Buff Active:** Glacial Filet (+120 DEF)'; }
     if (activeBuff === 'CRIT_15') { buffMessage = '✨ **Buff Active:** Spicy Eel (+15% CRIT)'; }
     if (activeBuff === 'ATK_100_LS_10') { gearAtk += 100; buffMessage = '✨ **Buff Active:** Void Sashimi (+100 ATK, 10% LIFESTEAL)'; }
-    if (activeBuff === 'HOT_10') { activeHot = 10; buffMessage = '✨ **Buff Active:** Moonlight Brew (Heals 10 HP / Stage)'; }
-    if (activeBuff === 'EOT_5') { activeEot = 5; buffMessage = '✨ **Buff Active:** Starlight Infusion (+5 Energy / Stage)'; }
+    if (activeBuff === 'HOT_75') { activeHot = 75; buffMessage = '✨ **Buff Active:** Moonlight Brew (Heals 75 HP / Stage)'; }
+    if (activeBuff === 'EVASION_35') { gearEvasion += 35; buffMessage = '✨ **Buff Active:** Starlight Infusion (+35% Evasion)'; }
   } else if (activeBuff) {
     dbOperations.push(prisma.player.update({ where: { id: player.id }, data: { activeBuff: null, buffExpiresAt: null } }));
   }
+  let weaponClass = 'NONE';
   if (player.equipment) {
     for (const gear of player.equipment) {
       if (gear.equipped) {
           gearDef += Number(gear.bonusDef || 0);
           gearAtk += Number(gear.bonusAtk || 0);
+          if (gear.slot === 'WEAPON') weaponClass = gear.equipmentClass || 'NONE';
       }
     }
   }
+
+  let baseScaling = Math.floor(player.level * 2);
+  if (weaponClass === 'FINESSE_WEAPON') baseScaling += Math.floor(player.agi * 1.5);
+  else if (weaponClass === 'HEAVY_WEAPON') baseScaling += Math.floor(player.str * 2.0);
+  else if (weaponClass === 'MAGIC_WEAPON') baseScaling += Math.floor(player.int * 2.5);
+  else if (weaponClass === 'HUNTER_WEAPON') baseScaling += Math.floor((player.str * 1.25) + (player.agi * 1.25));
+  else if (weaponClass === 'SPELLBLADE_WEAPON') baseScaling += Math.floor((player.str * 1.5) + (player.int * 1.0));
+  else if (weaponClass === 'VANGUARD_WEAPON') baseScaling += Math.floor((player.str * 1.5) + (player.end * 1.0));
+  else baseScaling += Math.floor(player.str * 2.5); // Unarmed
+  
+  gearAtk += baseScaling;
   let mitigation = Math.floor(gearDef * 0.75) + Math.floor(player.end * 1);
 
   let survived = true;
@@ -96,6 +110,11 @@ export async function executeDungeon(message: Message, args: string[]) {
     let rawStageDamage = Math.floor(Math.random() * (player.level * 4 + 8)) + 2; 
     let stageDamage = Math.floor(rawStageDamage * packSize) - mitigation;
     if (stageDamage < 1) stageDamage = 1; // Minimum 1 damage taken
+    
+    // EVASION CHECK
+    if (gearEvasion > 0 && Math.random() < (gearEvasion / 100)) {
+        stageDamage = 0;
+    }
     
     let earnedGold = goldFound * packSize;
     let earnedXp = xpFound * packSize;
@@ -126,6 +145,11 @@ export async function executeDungeon(message: Message, args: string[]) {
       let rawBossDamage = Math.floor(player.level * 15) + 40;
       let bossDamage = rawBossDamage - mitigation;
       if (bossDamage < 5) bossDamage = 5; // Bosses always hit for at least 5
+      
+      // EVASION CHECK
+      if (gearEvasion > 0 && Math.random() < (gearEvasion / 100)) {
+          bossDamage = 0;
+      }
 
       totalDamageTaken += bossDamage;
       runningHp -= bossDamage;

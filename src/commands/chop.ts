@@ -37,7 +37,7 @@ export async function executeChop(message: Message) {
     const tool = player.tools[0];
     yieldMultiplier = tool.yieldMultiplier;
     hasAxe = true;
-    toolName = `${tool.rarity} AXE (x${yieldMultiplier} Yield)`;
+    toolName = `${tool.name} (x${yieldMultiplier} Yield)`;
   }
 
   // --- THE ADRENALINE SLOT MACHINE (RARITY LOADED) ---

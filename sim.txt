@@ -1,0 +1,6 @@
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+=== COMBAT TEST START ===
+Running Hunt for skyris6678...
+
+>>> DISCORD REPLY:
+⏳ **Exhausted!** You are still recovering from your last hunt. Wait 9 seconds!

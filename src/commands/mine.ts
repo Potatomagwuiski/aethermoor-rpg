@@ -42,7 +42,7 @@ export async function executeMine(message: Message) {
     const tool = player.tools[0];
     yieldMultiplier = tool.yieldMultiplier;
     hasPickaxe = true;
-    toolName = `${tool.rarity} PICKAXE (x${yieldMultiplier} Yield)`;
+    toolName = `${tool.name} (x${yieldMultiplier} Yield)`;
   }
 
   // --- THE ADRENALINE SLOT MACHINE (RARITY LOADED) ---

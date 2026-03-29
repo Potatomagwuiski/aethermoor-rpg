@@ -72,8 +72,8 @@ export async function execute(message: Message) {
 
     if (BLUEPRINTS[baseKey]) {
         const bp = BLUEPRINTS[baseKey];
-        if (bp.outputs[rarityLabel]) {
-            const baseStats = bp.outputs[rarityLabel];
+        if (bp.outputs.base) {
+            const baseStats = bp.outputs.base;
             if (baseStats.dps) gearAtk += baseStats.dps;
             if (baseStats.defense) gearDef += baseStats.defense;
         }
@@ -142,25 +142,25 @@ export async function execute(message: Message) {
   // --- MONSTER GENERATION HOIST ---
   const ZONED_MOBS: Record<string, any[]> = {
     lumina_plains: [
-      { name: 'Acid Slime', emoji: '💧', loot: [{ key: 'slime_gel', name: 'Slime Gel', chance: 0.5 }] },
-      { name: 'Goblin Scout', emoji: '👺', loot: [{ key: 'goblin_ear', name: 'Goblin Ear', chance: 0.4 }] },
-      { name: 'Cave Bat', emoji: '🦇', loot: [{ key: 'bat_wing', name: 'Bat Wing', chance: 0.4 }] }
+      { name: 'Acid Slime', emoji: '💧', affixes: ['ACIDIC'], loot: [{ key: 'slime_gel', name: 'Slime Gel', chance: 0.5 }] },
+      { name: 'Goblin Scout', emoji: '👺', affixes: ['PACK_TACTICS'], loot: [{ key: 'goblin_ear', name: 'Goblin Ear', chance: 0.4 }] },
+      { name: 'Cave Bat', emoji: '🦇', affixes: ['EVASIVE'], loot: [{ key: 'bat_wing', name: 'Bat Wing', chance: 0.4 }] }
     ],
     whispering_woods: [
-      { name: 'Dire Wolf', emoji: '🐺', loot: [{ key: 'wolf_pelt', name: 'Wolf Pelt', chance: 0.4 }] },
-      { name: 'Forest Treant', emoji: '🌳', loot: [{ key: 'living_bark', name: 'Living Bark', chance: 0.3 }] }
+      { name: 'Dire Wolf', emoji: '🐺', affixes: ['PACK_TACTICS'], loot: [{ key: 'wolf_pelt', name: 'Wolf Pelt', chance: 0.4 }] },
+      { name: 'Forest Treant', emoji: '🌳', affixes: ['REGENERATING'], loot: [{ key: 'living_bark', name: 'Living Bark', chance: 0.3 }] }
     ],
     ironpeak_mountains: [
-      { name: 'Skeleton Warrior', emoji: '💀', loot: [{ key: 'brittle_bone', name: 'Brittle Bone', chance: 0.5 }] },
-      { name: 'Rock Golem', emoji: '🪨', loot: [{ key: 'golem_rubble', name: 'Golem Rubble', chance: 0.3 }] }
+      { name: 'Skeleton Warrior', emoji: '💀', affixes: ['ARMORED'], loot: [{ key: 'brittle_bone', name: 'Brittle Bone', chance: 0.5 }] },
+      { name: 'Rock Golem', emoji: '🪨', affixes: ['ARMORED', 'ENRAGED'], loot: [{ key: 'golem_rubble', name: 'Golem Rubble', chance: 0.3 }] }
     ],
     ashen_wastes: [
-      { name: 'Lesser Demon', emoji: '👿', loot: [{ key: 'demon_horn', name: 'Demon Horn', chance: 0.4 }] },
-      { name: 'Shadow Stalker', emoji: '🌑', loot: [{ key: 'shadow_dust', name: 'Shadow Dust', chance: 0.3 }] }
+      { name: 'Lesser Demon', emoji: '👿', affixes: ['ENRAGED'], loot: [{ key: 'demon_horn', name: 'Demon Horn', chance: 0.4 }] },
+      { name: 'Shadow Stalker', emoji: '🌑', affixes: ['EVASIVE'], loot: [{ key: 'shadow_dust', name: 'Shadow Dust', chance: 0.3 }] }
     ],
     abyssal_depths: [
-      { name: 'Mythic Drake', emoji: '🐉', loot: [{ key: 'drake_scale', name: 'Drake Scale', chance: 0.5 }] },
-      { name: 'Abyssal Lich', emoji: '🧙‍♂️', loot: [{ key: 'lich_phylactery', name: 'Lich Phylactery', chance: 0.4 }] }
+      { name: 'Mythic Drake', emoji: '🐉', affixes: ['ARMORED', 'ENRAGED'], loot: [{ key: 'drake_scale', name: 'Drake Scale', chance: 0.5 }] },
+      { name: 'Abyssal Lich', emoji: '🧙‍♂️', affixes: ['REGENERATING', 'EVASIVE'], loot: [{ key: 'lich_phylactery', name: 'Lich Phylactery', chance: 0.4 }] }
     ]
   };
 
@@ -168,14 +168,20 @@ export async function execute(message: Message) {
   const baseMob = monsters[Math.floor(Math.random() * monsters.length)];
   const mob = { ...baseMob };
 
+  if (Math.random() > 0.85) {
+      const eliteMods = ['VAMPIRIC', 'JUGGERNAUT', 'EXPLOSIVE'];
+      const chosen = eliteMods[Math.floor(Math.random() * eliteMods.length)];
+      mob.affixes = [...(mob.affixes || []), chosen];
+      mob.name = `${chosen === 'VAMPIRIC' ? 'Vampiric' : chosen === 'JUGGERNAUT' ? 'Juggernaut' : 'Explosive'} ${mob.name}`;
+      mob.emoji = '🌟';
+  }
+
   let packSize = 1;
   const packRoll = Math.random();
   if (packRoll > 0.95) packSize = 3;
   else if (packRoll > 0.85) packSize = 2;
   
-  if (packSize > 1) {
-      mob.name = `Pack of ${packSize} ${mob.name}s`;
-  }
+// pack name mapping moved to entity initialization
 
 
   // --- PRE-COMBAT CULINARY BUFF PARSING ---
@@ -189,26 +195,35 @@ export async function execute(message: Message) {
     if (activeBuff === 'ATK_60_HOT_20') { gearAtk += 60; activeHot = 20; buffMessage = '✨ **Buff Active:** Glacier Stew (+60 ATK, Heals 20 HP / Round)'; }
     if (activeBuff === 'ATK_120_HOT_40') { gearAtk += 120; activeHot = 40; buffMessage = '✨ **Buff Active:** Lava-Seared Eel (+120 ATK, Heals 40 HP / Round)'; }
     if (activeBuff === 'ATK_250_HOT_80') { gearAtk += 250; activeHot = 80; buffMessage = '✨ **Buff Active:** Abyssal Feast (+250 ATK, Heals 80 HP / Round)'; }
-    if (activeBuff === 'HP_25') { player.maxHp += 25; player.hp += 25; buffMessage = '✨ **Buff Active:** Koi Soup (+25 MAX HP)'; }
-    if (activeBuff === 'DEF_50') { gearDef += 50; buffMessage = '✨ **Buff Active:** Glacial Filet (+50 DEF)'; }
+    if (activeBuff === 'HP_150') { player.maxHp += 150; player.hp += 150; buffMessage = '✨ **Buff Active:** Koi Soup (+150 MAX HP)'; }
+    if (activeBuff === 'DEF_120') { gearDef += 120; buffMessage = '✨ **Buff Active:** Glacial Filet (+120 DEF)'; }
     if (activeBuff === 'CRIT_15') { gearCrit += 15; buffMessage = '✨ **Buff Active:** Spicy Eel (+15% CRIT)'; }
     if (activeBuff === 'ATK_100_LS_10') { gearAtk += 100; gearLifesteal += 10; buffMessage = '✨ **Buff Active:** Void Sashimi (+100 ATK, 10% LIFESTEAL)'; }
-    if (activeBuff === 'HOT_10') { activeHot = 10; buffMessage = '✨ **Buff Active:** Moonlight Brew (Heals 10 HP / Round)'; }
-    if (activeBuff === 'EOT_5') { activeEot = 5; buffMessage = '✨ **Buff Active:** Starlight Infusion (+5 Energy / Round)'; }
+    if (activeBuff === 'HOT_75') { activeHot = 75; buffMessage = '✨ **Buff Active:** Moonlight Brew (Heals 75 HP / Round)'; }
+    if (activeBuff === 'EVASION_35') { gearEvasion += 35; buffMessage = '✨ **Buff Active:** Starlight Infusion (+35% Evasion)'; }
   } else if (activeBuff) {
     await prisma.player.update({ where: { id: player.id }, data: { activeBuff: null, buffExpiresAt: null } });
     activeBuff = null;
   }
 
-  // --- THE AUTO-BATTLER PHYSICS LOOP ---
-  // Phase 27 Early-Game Rebalance: Removed massive baseline bloating.
-  // Phase 35 Late-Game Rebalance: Monsters now scale exponentially with their Tier.
-  let monsterMaxHp = Math.floor((tier * 25) + (player.level * 10 * tier));
-  if (packSize > 1) monsterMaxHp = Math.floor(monsterMaxHp * (packSize * 0.8));
-  let monsterHp = monsterMaxHp;
-  // Attack Power also scales logarithmically by geographic region.
-  let monsterAttackPower = Math.floor((tier * 5) + (player.level * 2 * tier));
-  if (packSize > 1) monsterAttackPower = Math.floor(monsterAttackPower * (packSize * 0.8));
+  // --- THE AUTO-BATTLER PHYSICS LOOP (V2 MULTI-TARGET ENGINE) ---
+  let baseHp = Math.floor((tier * 25) + (player.level * 10 * tier));
+  if (packSize > 1) baseHp = Math.floor(baseHp * 0.8);
+  
+  let baseAtk = Math.floor((tier * 5) + (player.level * 2 * tier));
+  if (packSize > 1) baseAtk = Math.floor(baseAtk * 0.8);
+
+  let activeEnemies = Array.from({length: packSize}).map((_, i) => ({
+      id: i + 1,
+      name: packSize > 1 ? `${mob.name} #${i+1}` : mob.name,
+      hp: baseHp,
+      maxHp: baseHp,
+      atk: baseAtk,
+      affixes: mob.affixes || [],
+      isDead: false,
+      poisonStacks: 0,
+      bleedStacks: 0
+  }));
 
   let playerHp = player.hp;
   if (playerHp <= 0) playerHp = 1;
@@ -217,15 +232,17 @@ export async function execute(message: Message) {
 
   let jackpotTriggered = false;
   let jackpotMessage = '';
-  let craftingItemDrop: string | null = null;
+  let craftingItemDrop = null;
   
-  // Base Damage Injection via Class Type + Pet
   let playerBaseOutput = Math.floor(player.level * 2) + (activePet ? activePet.bonusAtk : 0);
   if (weaponClass === 'FINESSE_WEAPON') playerBaseOutput += Math.floor(player.agi * 1.5);
   if (weaponClass === 'HEAVY_WEAPON') playerBaseOutput += Math.floor(player.str * 2);
   if (weaponClass === 'MAGIC_WEAPON') playerBaseOutput += Math.floor(player.int * 2.5);
+  
+  if (weaponClass === 'HUNTER_WEAPON') playerBaseOutput += Math.floor((player.str * 1.25) + (player.agi * 1.25));
+  if (weaponClass === 'SPELLBLADE_WEAPON') playerBaseOutput += Math.floor((player.str * 1.5) + (player.int * 1.0));
+  if (weaponClass === 'VANGUARD_WEAPON') playerBaseOutput += Math.floor((player.str * 1.5) + (player.end * 1.0));
 
-  // --- ABILITY INJECTION (PRE-COMBAT) ---
   let bonusCrit = 0;
   let bonusEvasion = 0;
   let bonusDefPerc = 0;
@@ -241,7 +258,6 @@ export async function execute(message: Message) {
 
   for (const ab of activeAbilities) {
       if (!ab) continue;
-      
       const pctMatch = ab.match(/[+\s]?(\d+)%/);
       if (pctMatch) {
           const val = parseInt(pctMatch[1]);
@@ -261,8 +277,6 @@ export async function execute(message: Message) {
 
       if (ab.includes('Undying') || ab.includes('Phylactery')) hasUndying = true;
       if (ab.includes('Lich King')) hasLichKing = true;
-      
-      // New Pre-Combat Abilities
       if (ab.includes('Bloodlust')) gearLifesteal += 5;
       if (ab.includes('Void Touched')) gearLifesteal += 5;
       if (ab.includes('Reap')) gearLifesteal += 10;
@@ -280,13 +294,16 @@ export async function execute(message: Message) {
       }
   }
 
-  // Class Passives prep
   if (armorClass === 'LIGHT_ARMOR') gearEvasion += 15;
   
-  // Base Stat Natural Scaling
-  gearCrit += bonusCrit + Math.floor(player.int * 0.5); // Every 2 INT = 1% Crit
-  gearEvasion += bonusEvasion + Math.floor(player.agi * 0.5); // Every 2 AGI = 1% Dodge
-  let baseMitigation = Math.floor(gearDef * 0.75) + Math.floor(player.end * 1); // Natural block
+  gearCrit += bonusCrit + Math.floor(player.int * 0.5); 
+  gearEvasion += bonusEvasion + Math.floor(player.agi * 0.5);
+  const abilitiesStrPre = activeAbilities.join(',');
+  if (abilitiesStrPre.includes('Lightweight')) gearEvasion += 5;
+  if (abilitiesStrPre.includes('Swiftness')) gearEvasion += 15;
+  if (abilitiesStrPre.includes('Lightning Reflexes')) gearEvasion += 20;
+  if (abilitiesStrPre.includes('Hawk Eye')) gearCrit += 5; 
+  let baseMitigation = Math.floor(gearDef * 0.75) + Math.floor(player.end * 1); 
 
   let rounds = 0;
   let totalDamageDealt = 0;
@@ -297,8 +314,6 @@ export async function execute(message: Message) {
   let totalMitigated = 0;
 
   let cleaveTriggered = false;
-  let bleedStacks = 0;
-  let poisonStacks = 0;
   let momentumBonus = 1.0;
   let totalPoisonMitigated = 0;
   let totalExecutionerBurst = 0;
@@ -306,222 +321,241 @@ export async function execute(message: Message) {
   const MAX_ROUNDS = 20;
   let combatLog: string[] = [];
 
-  while (playerHp > 0 && monsterHp > 0 && rounds < MAX_ROUNDS) {
+  while (playerHp > 0 && activeEnemies.some(e => !e.isDead) && rounds < MAX_ROUNDS) {
     rounds++;
     let roundTitle = `**Round ${rounds}**`;
     let roundActions: string[] = [];
 
-    // 1. Player Attacks!
+    // --- PLAYER PHASE ---
     let roundDps = playerBaseOutput + gearAtk;
-    
-    // Ramp-up Build
     if (activeAbilities.join(',').includes('Relentless')) {
         momentumBonus += 0.10;
         roundDps = Math.floor(roundDps * momentumBonus);
     }
     
-    // Process Active Weapon Abilities!
-    let abilityMsg = '';
-    for (const ab of activeAbilities) {
-        if (!ab) continue;
-        if (ab.includes('Sharpened') || ab.includes('Base Damage')) roundDps += Math.floor(roundDps * 0.05);
-        if (ab.includes('Heavy Strike') && rounds === 1) roundDps += Math.floor(roundDps * 0.10);
-        if (ab.includes('Fleetfoot') && rounds === 1) { monsterHp -= 5; totalDamageDealt += 5; }
-        if (ab.includes('Lone Wolf')) roundDps += Math.floor(roundDps * 0.15);
-        if (ab.includes('Backstab') && rounds === 1) roundDps += Math.floor(roundDps * 0.25);
-        
-        if (ab.includes('Assassin') && weaponClass === 'FINESSE_WEAPON') {
-            const pctMatch = ab.match(/(\d+)%/);
-            const amt = pctMatch ? parseInt(pctMatch[1]) / 100 : 0.10;
-            roundDps += Math.floor(roundDps * amt);
-        }
-        
-        if (ab.includes('Poison') || ab.includes('Venom')) {
-            const p = ab.includes('Lethal Dose') && monsterHp < (monsterMaxHp * 0.5) ? 100 : 50;
-            roundDps += p; totalPoisonDamage += p;
-        }
-        if (ab.includes('Ignite') || ab.includes('Burn')) {
-            const b = 100; roundDps += b; totalBurnDamage += b;
-        }
-        if (ab.includes('Serrated Edge') || ab.includes('Rend') || ab.includes('Bleed') || ab.includes('Deep Wounds') || ab.includes('Grievous')) {
-            const dmgMatch = ab.match(/(\d+) DMG/);
-            const bl = dmgMatch ? parseInt(dmgMatch[1]) : 25;
-            roundDps += bl; totalBleedDamage += bl;
-        }
-        
-        // --- NEW WEAPON ABILITIES ---
-        if (ab.includes('Cleave') && !mob.name.includes('Boss')) {
-            roundDps += Math.floor(roundDps * 0.10);
-        }
-        if (ab.includes('Beastbane') && (mob.name.includes('Wolf') || mob.name.includes('Beast') || mob.name.includes('Bear'))) {
-            roundDps += Math.floor(roundDps * 0.50);
-        }
-        if (ab.includes('Grave Digger') && (mob.name.includes('Lich') || mob.name.includes('Skeleton') || mob.name.includes('Ghoul'))) {
-            roundDps += Math.floor(roundDps * 0.25);
-        }
-        if (ab.includes('Mythril Edge') || ab.includes('Spectral Edge')) {
-            roundDps += Math.floor(roundDps * 0.10);
-        }
-        if (ab.includes('Armor Breaker') && rounds === 1) {
-            roundDps = Math.floor(roundDps * 1.50);
-            abilityMsg += '🌟 `Armor Breaker` shattered enemy defenses!';
-        }
-        if (ab.includes('Alpha Predator') && (mob.name.includes('Wolf') || mob.name.includes('Beast') || mob.name.includes('Bear'))) {
-            roundDps += Math.floor(roundDps * 0.25);
-        }
-        if (ab.includes('Mana Tap') || ab.includes('Serenity')) {
-            playerHp = Math.min(player.maxHp, playerHp + 10);
-        }
-        if (ab.includes('Ember') || ab.includes('Molten Core')) {
-            roundDps += 25;
-        }
-        if (ab.includes('Arcane Overflow') && Math.random() > 0.90) {
-            roundDps += 125;
-            abilityMsg += '🌟 `Arcane Overflow` triggered 5x Embers!';
-        }
-        if (ab.includes('Plague')) {
-            monsterAttackPower = Math.floor(monsterAttackPower * 0.90);
-        }
-        if (ab.includes('Eclipse') && Math.random() > 0.90) {
-            monsterAttackPower = Math.floor(monsterAttackPower * 0.50);
-        }
-        
-        let meteorChance = ab.includes('Apocalypse') && (mob.name.includes('Drake') || mob.name.includes('Lich')) ? 0.70 : 0.90;
-        if (ab.includes('Meteor') && Math.random() > meteorChance) {
-            roundDps += 1500;
-            if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '🌋 **METEOR IMPACT!** (1500 DMG)'; }
-        }
-        let executeThreshold = ab.includes('True Death') ? 0.40 : 0.30;
-        if (ab.includes('Execute') && monsterHp < (monsterMaxHp * executeThreshold) && Math.random() > 0.90) {
-            roundDps += 9999;
-            if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '💀 **EXECUTED!**'; }
-        }
-        if (ab.includes('Event Horizon') && Math.random() > 0.95 && !mob.name.includes('Boss')) {
-            monsterHp = 0;
-            if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '🌑 **EVENT HORIZON!** (Banished)'; }
-        }
-        if (ab.includes('Assassinate') && Math.random() > 0.85) {
-            roundDps += 9999;
-            if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '🔪 **ASSASSINATED!**'; }
-        }
-        if (ab.includes('Void Strike') && Math.random() > 0.85) {
-            roundDps += Math.floor(roundDps * 0.50);
-        }
-        if (ab.includes('Heroic Legacy') && Math.random() > 0.95) {
-            roundDps *= 2;
-            if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '🌟 **HEROIC LEGACY!** (Damage Doubled!)'; }
-        }
-        if (ab.includes('Earthquake') && Math.random() > 0.90) {
-            roundDps *= 2;
-            if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '🌟 **EARTHQUAKE STUN!** (Massive Damage)'; }
-        }
-        if (ab.includes('Shadow Flurry') && Math.random() > 0.85) {
-            roundDps *= 3;
-            if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '🌟 **SHADOW FLURRY!** (Attacked 3x)'; }
-        }
-        if (ab.includes('Abyssal Echo') && Math.random() > 0.75) {
-            roundDps *= 2;
-        }
-        if (ab.includes('Windrunner') && Math.random() > 0.85) {
-            roundDps *= 2;
-            if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '🌟 **WINDRUNNER!** (Attacked Twice!)'; }
-        }
-    }
+    let target = activeEnemies.find(e => !e.isDead);
+    if (!target) break;
 
-    if (activeAbilities.join(',').includes('Armageddon') && Math.random() > 0.80) {
-        roundDps += 10000;
-        if (!jackpotTriggered) { jackpotTriggered = true; jackpotMessage = '☄️ **ARMAGEDDON!** (10,000 DMG)'; }
-    }
-
-    if (abilityMsg && !jackpotTriggered) {
-        jackpotTriggered = true;
-        jackpotMessage = abilityMsg;
-    }
-
-    if (rounds <= 3 && activeAbilities.join(',').includes('Full Moon')) gearCrit = 100;
-    if (rounds === 1 && activeAbilities.join(',').includes('Ambush')) gearCrit = 100;
-    
+    let isStun = false;
+    let isAoE = false;
+    let aoeDamage = 0;
+    let isCleave = false;
     let isCrit = false;
     let isExecute = false;
+
     if (Math.random() * 100 < gearCrit) {
       isCrit = true;
-      if (activeAbilities.join(',').includes('Executioner')) {
-          const baseCrit = Math.floor(roundDps * 2);
-          const executionerCrit = Math.floor(roundDps * 3.5);
-          roundDps = executionerCrit;
-          totalExecutionerBurst += (executionerCrit - baseCrit);
-          isExecute = true;
-      } else {
-          roundDps = Math.floor(roundDps * 2);
-      }
+      roundDps = Math.floor(roundDps * 2);
       totalCrits++;
     }
 
-    // Lifesteal calculation
+    const abilitiesStr = activeAbilities.join(',');
+        
+    // --- Passives ---
+    if (abilitiesStr.includes('First Strike') && rounds === 1) roundDps = Math.floor(roundDps * 1.5);
+    if (abilitiesStr.includes('Relentless')) roundDps = Math.floor(roundDps * (1 + (rounds * 0.1)));
+    if (abilitiesStr.includes('Momentum')) roundDps += (rounds * 5);
+    if (abilitiesStr.includes('Colossal') && mob.name.includes('🌟')) roundDps *= 2; 
+    if (abilitiesStr.includes('Tectonic')) {
+        const missingPct = 1 - (playerHp / maxHpWithPet);
+        roundDps = Math.floor(roundDps * (1 + missingPct));
+    }
+    if (abilitiesStr.includes('Deadly Aim') && isCrit) roundDps = Math.floor(roundDps * (2.0 / 1.5)); 
+    
+    // De-Armor
+    if (target.affixes) {
+        if (abilitiesStr.includes('Piercing Arrow')) target.affixes = target.affixes.filter((a: string) => a !== 'ARMORED');
+        if (abilitiesStr.includes('Blunt Force') || abilitiesStr.includes('Shatter')) {
+             if (Math.random() < (abilitiesStr.includes('Shatter') ? 0.2 : 0.1)) target.affixes = target.affixes.filter((a: string) => a !== 'ARMORED');
+        }
+        if (abilitiesStr.includes('Black Hole')) {
+             target.affixes = target.affixes.filter((a: string) => a !== 'EVASIVE');
+        }
+    }
+
+    // --- Actives (Procs) ---
+    if (abilitiesStr.includes('Assassinate') && Math.random() < 0.15 && !mob.name.includes('Boss')) {
+        isExecute = true; roundDps = 9999;
+    }
+    if (abilitiesStr.includes('Fissure') && Math.random() < 0.20 && target.affixes.includes('ARMORED')) {
+        isExecute = true; roundDps = 9999;
+    }
+    if (abilitiesStr.includes('Ember') && Math.random() < 0.15) roundDps += 25; 
+    
+    if (abilitiesStr.includes('Drain Life') && Math.random() < 0.25) playerHp = Math.min(maxHpWithPet, playerHp + 20);
+    
+    // AoE Block
+    if (abilitiesStr.includes('Moonbeam') && Math.random() < 0.20) { isAoE = true; aoeDamage = Math.floor(roundDps * 0.5); }
+    if (abilitiesStr.includes('Meteor Swarm') && Math.random() < 0.15) { isAoE = true; aoeDamage = roundDps * 1.5; jackpotTriggered = true; jackpotMessage = '🌋 **METEOR SWARM!**'; }
+    if (abilitiesStr.includes('Supernova') && Math.random() < 0.10) { isAoE = true; aoeDamage = 9999; jackpotTriggered = true; jackpotMessage = '🌑 **SUPERNOVA!**'; }
+    if (abilitiesStr.includes('Whirlwind') && Math.random() < 0.15) { isAoE = true; aoeDamage = Math.floor(roundDps * 0.75); }
+    if (abilitiesStr.includes('Volley') && Math.random() < 0.25) { isAoE = true; aoeDamage = Math.floor(roundDps * 1.0); }
+    if (abilitiesStr.includes('Chain Lightning') && Math.random() < 0.30) { isAoE = true; aoeDamage = roundDps; }
+    
+    // Cleave Block
+    let cleaveMod = 0.50;
+    if (abilitiesStr.includes('Heavy Blade')) cleaveMod = 0.75;
+    if (abilitiesStr.includes('Cleave') && Math.random() < 0.20) isCleave = true;
+    if (abilitiesStr.includes('Wide Cleave') && Math.random() < 0.35) isCleave = true;
+    if (abilitiesStr.includes('Guaranteed Cleave')) isCleave = true;
+    
+    // Stun Block
+    if (abilitiesStr.includes('Earthquake') && Math.random() < 0.20) { isAoE = true; aoeDamage = roundDps; isStun = true; }
+    if (abilitiesStr.includes('Tremor') && Math.random() < 0.30) isStun = true;
+    if (abilitiesStr.includes('Stagger') && Math.random() < 0.20) isStun = true;
+    
+    // Multi-attack or Crit overrides
+    if (abilitiesStr.includes('Quick Shot') && Math.random() < 0.15) roundDps *= 2; 
+    if (abilitiesStr.includes('Phantom Strike') && Math.random() < 0.25) roundDps *= 2;
+    if (abilitiesStr.includes('Shooting Star') && target.name.includes('🌟')) {
+         if (!isCrit) { roundDps = Math.floor(roundDps * 1.5); isCrit = true; }
+    }
+    if (abilitiesStr.includes('Skull Crusher') && Math.random() < 0.25) {
+         roundDps *= 3;
+         isCrit = true;
+    }
+
     if (gearLifesteal > 0) {
       const heal = Math.floor(roundDps * (gearLifesteal / 100));
       playerHp = Math.min(player.maxHp, playerHp + heal);
       totalLifesteal += heal;
     }
 
-    monsterHp -= roundDps;
-    totalDamageDealt += roundDps;
-
-    const attackVerbs = ['slashed', 'struck', 'hit', 'bashed', 'hammered', 'smote', 'cleaved', 'battered'];
-    const pVerb = attackVerbs[Math.floor(Math.random() * attackVerbs.length)];
-    let pAttackStr = `🗡️ You ${pVerb} the **${mob.name}** for **${roundDps}** DMG`;
-    if (isExecute) pAttackStr = `💥 **CRITICAL EXECUTION!** You obliterated the **${mob.name}** for **${roundDps}** DMG`;
-    else if (isCrit) pAttackStr = `💥 **CRITICAL HIT!** You viciously struck the **${mob.name}** for **${roundDps}** DMG`;
-
-    // DoT Execution
-    const abilitiesStr = activeAbilities.join(',');
-    if (!cleaveTriggered && abilitiesStr.includes('Cleave') && Math.random() < 0.15) cleaveTriggered = true;
+    // Apply AoE / Cleave / Single Target Damage
+    let damageString = '';
+    const wName = weaponName || 'Bare Hands';
     
-    if (abilitiesStr.includes('Hemorrhage') || abilitiesStr.includes('Serrated Edge')) bleedStacks++;
-    if (bleedStacks > 0) {
-        let tickTrueDmg = Math.floor(player.maxHp * 0.02 * bleedStacks);
-        if (tickTrueDmg < 1) tickTrueDmg = 1;
-        monsterHp -= tickTrueDmg;
-        totalBleedDamage += tickTrueDmg;
-        pAttackStr += `, profoundly bleeding it for ${tickTrueDmg} true DMG`;
-    }
-
-    if (monsterHp <= 0) {
-        combatLog.push(roundTitle + '\n' + `> ${pAttackStr}, instantly **SLAYING** it! 💀`);
-        break; // Monster SLAIN!
-    }
-
-    // 2. Monster Counter-Attacks!
-    let rawIncoming = Math.floor(Math.random() * monsterAttackPower) + Math.floor(monsterAttackPower / 2);
-
-    // Debuff Logic
-    if (abilitiesStr.includes('Plague Carrier') && rounds === 0) poisonStacks += 5;
-    if ((abilitiesStr.includes('Neurotoxin') || abilitiesStr.includes('Venomous Strike')) && Math.random() < 0.30) {
-        poisonStacks = Math.min(10, poisonStacks + 1); // 50% max reduction
-    }
-    if (poisonStacks > 0) {
-        if (abilitiesStr.includes('Venom Pop') && poisonStacks >= 5) {
-            const burst = Math.floor(player.maxHp * 0.15 * poisonStacks);
-            monsterHp -= burst;
-            poisonStacks = 0; // Consume the stacks
-            pAttackStr += `\n💥 **VENOM POP DETONATION!** All poison stacks erupted for ${burst} True DMG!`;
+    if (isAoE) {
+        activeEnemies.forEach(e => {
+           if (!e.isDead) { e.hp -= aoeDamage; totalDamageDealt += aoeDamage; if(e.hp <= 0) e.isDead = true; }
+        });
+        damageString = `☄️ You unleashed your **${wName}** dealing **${aoeDamage} AoE DMG** to all enemies!`;
+    } else {
+        if (target.affixes.includes('EVASIVE') && Math.random() < 0.25) {
+            damageString = `💨 The **${target.name}** effortlessly evaded your attack!`;
         } else {
-            const poisonMitigation = Math.floor(rawIncoming * (0.05 * poisonStacks));
-            rawIncoming -= poisonMitigation;
-            totalPoisonMitigated += poisonMitigation;
+            if (target.affixes.includes('ARMORED')) {
+                roundDps = Math.floor(roundDps * 0.70);
+            }
+            target.hp -= roundDps;
+            totalDamageDealt += roundDps;
+            
+            let modStr = target.affixes.includes('ARMORED') ? ` (🛡️ Armored)` : '';
+            if (isExecute) damageString = `💥 **CRITICAL EXECUTION!** You obliterated the **${target.name}** with your **${wName}** for **${roundDps}** DMG${modStr}`;
+            else if (isCrit) damageString = `💥 **CRITICAL HIT!** You viciously struck the **${target.name}** with your **${wName}** for **${roundDps}** DMG${modStr}`;
+            else damageString = `🗡️ You swung your **${wName}** at the **${target.name}** for **${roundDps}** DMG${modStr}`;
+            
+            if (target.affixes.includes('ACIDIC')) {
+                 const recoil = Math.floor(roundDps * 0.15) || 1;
+                 if (recoil > 0) { playerHp -= recoil; damageString += `\n↳ 🧪 Acidic Recoil burned you for ${recoil} DMG!`; }
+            }
+        
+        if (target.hp <= 0) {
+            target.isDead = true;
+            damageString += `, instantly **SLAYING** it! 💀`;
+        }
+
+            if (isCleave && activeEnemies.filter(e => !e.isDead).length > 0) {
+                let nextTarget = activeEnemies.find(e => !e.isDead);
+                if (nextTarget) {
+                    let cleaveMod = abilitiesStr.includes('Heavy Blade') ? 0.75 : 0.50;
+                    let cleaveDmg = Math.floor(roundDps * cleaveMod);
+                    if (nextTarget.affixes.includes('ARMORED')) cleaveDmg = Math.floor(cleaveDmg * 0.70);
+                    nextTarget.hp -= cleaveDmg;
+                    totalDamageDealt += cleaveDmg;
+                    cleaveTriggered = true;
+                    damageString += `\n↳ 🌪️ Your cleave hit **${nextTarget.name}** for **${cleaveDmg}** DMG!`;
+                    if (nextTarget.hp <= 0) { nextTarget.isDead = true; damageString += ` 💀`; }
+                }
+            }
         }
     }
 
-    if (abilitiesStr.includes('Parasitic Siphon') && poisonStacks > 0) {
-        const leech = Math.floor(player.maxHp * 0.01 * poisonStacks);
-        playerHp = Math.min(player.maxHp, playerHp + leech);
-        pAttackStr += `\n🧛 **Siphon:** Recovered ${leech} HP from poison`;
+    // Apply DoTs
+    if (abilitiesStr.includes('Hemorrhage') || abilitiesStr.includes('Serrated Edge')) {
+        activeEnemies.forEach(e => { if (!e.isDead) e.bleedStacks++; });
+    }
+    
+    // Apply Plague Carrier
+    if (abilitiesStr.includes('Plague Carrier') && rounds === 0) {
+        activeEnemies.forEach(e => { if (!e.isDead) e.poisonStacks += 5; });
+    }
+    if ((abilitiesStr.includes('Neurotoxin') || abilitiesStr.includes('Venomous Strike')) && Math.random() < 0.30) {
+        activeEnemies.forEach(e => { if (!e.isDead) e.poisonStacks = Math.min(10, e.poisonStacks + 1); });
     }
 
-    // Mitigation Engine (END multiplier halved from x2 to x1 to prevent immortality)
-    let mitigation = baseMitigation;
+    let dotString = '';
+    activeEnemies.forEach(e => {
+        if (e.isDead) return;
+        if (e.bleedStacks > 0) {
+            let tick = Math.floor(player.maxHp * 0.02 * e.bleedStacks) || 1;
+            e.hp -= tick; totalBleedDamage += tick;
+            dotString += `\n↳ 🩸 **${e.name}** bled for ${tick} True DMG`;
+            if (e.hp <= 0) e.isDead = true;
+        }
+        if (e.poisonStacks > 0 && abilitiesStr.includes('Venom Pop') && e.poisonStacks >= 5) {
+            const burst = Math.floor(player.maxHp * 0.15 * e.poisonStacks);
+            e.hp -= burst; e.poisonStacks = 0;
+            dotString += `\n↳ 💥 **VENOM POP!** ${e.name} detonated for ${burst} True DMG`;
+            if (e.hp <= 0) e.isDead = true;
+        }
+    });
+
+    if (dotString !== '') damageString += dotString;
+    combatLog.push(roundTitle + '\n' + `> ${damageString}`);
+
+    // Check if all enemies are dead
+    if (activeEnemies.every(e => e.isDead)) break;
+
+    // --- ENEMY PHASE (Multi-Target Incoming) ---
+    let rawIncoming = 0;
+    let poisonMitigatedThisRound = 0;
+
+    for (const em of activeEnemies) {
+        if (em.isDead) continue;
+        
+        let emAtk = em.atk;
+        if (em.affixes.includes('ENRAGED')) emAtk = Math.floor(emAtk * (1.0 + (rounds * 0.10)));
+        if (em.affixes.includes('PACK_TACTICS')) emAtk = Math.floor(emAtk * (1.0 + (activeEnemies.filter(x => !x.isDead).length * 0.3)));
+        if (abilitiesStr.includes('Plague')) emAtk = Math.floor(emAtk * 0.90);
+        if (abilitiesStr.includes('Eclipse') && Math.random() > 0.90) emAtk = Math.floor(emAtk * 0.50);
+        
+        let swing = Math.floor(Math.random() * emAtk) + Math.floor(emAtk / 2);
+        if (em.affixes.includes('EXPLOSIVE') && rounds === 1) swing *= 2;
+        
+        if (em.affixes.includes('VAMPIRIC') && swing > 0) {
+             const leech = Math.floor(swing * 0.2);
+             em.hp += leech;
+        }
+        if (em.affixes.includes('REGENERATING')) {
+             const regen = Math.floor(em.maxHp * 0.1);
+             em.hp = Math.min(em.maxHp, em.hp + regen);
+        }
+        
+        if (em.poisonStacks > 0 && !abilitiesStr.includes('Venom Pop')) {
+             const reduction = Math.floor(swing * (0.05 * em.poisonStacks));
+             swing -= reduction;
+             poisonMitigatedThisRound += reduction;
+        }
+        rawIncoming += swing;
+    }
     
-    // Armor Abilities!
+    totalPoisonMitigated += poisonMitigatedThisRound;
+
+    if (abilitiesStr.includes('Lunar Grace')) {
+        playerHp = Math.min(maxHpWithPet, playerHp + 5);
+        roundActions.push(`🌙 Lunar Grace healed 5 HP`);
+    }
+    if (abilitiesStr.includes('Parasitic Siphon')) {
+        let totalStacks = activeEnemies.reduce((acc, e) => acc + e.poisonStacks, 0);
+        if (totalStacks > 0) {
+            const leech = Math.floor(player.maxHp * 0.01 * totalStacks);
+            playerHp = Math.min(player.maxHp, playerHp + leech);
+            roundActions.push(`🧛 Siphoned ${leech} HP from poisoned enemies`);
+        }
+    }
+
+    let mitigation = baseMitigation;
     for (const ab of activeAbilities) {
         if (!ab) continue;
         if (ab.includes('Mana Shield')) rawIncoming = Math.floor(rawIncoming * 0.90);
@@ -542,11 +576,8 @@ export async function execute(message: Message) {
         if (ab.includes('Steel Resolve')) rawIncoming = Math.floor(rawIncoming * 0.85);
     }
 
-    if (bonusDefPerc > 0) {
-        rawIncoming = Math.floor(rawIncoming * (1 - (bonusDefPerc / 100)));
-    }
-
-    if (armorClass === 'HEAVY_ARMOR') rawIncoming = Math.floor(rawIncoming * 0.9); // flat 10% Legacy mitigation
+    if (bonusDefPerc > 0) rawIncoming = Math.floor(rawIncoming * (1 - (bonusDefPerc / 100)));
+    if (armorClass === 'HEAVY_ARMOR') rawIncoming = Math.floor(rawIncoming * 0.9); 
 
     let evaded = false;
     if (Math.random() * 100 < gearEvasion || (activeAbilities.join(',').includes('Shadow Realm') && Math.random() > 0.95)) {
@@ -558,8 +589,8 @@ export async function execute(message: Message) {
       rawIncoming -= mitigation;
     }
 
-    if (activeAbilities.join(',').includes('Juggernaut') && Math.random() > 0.90) {
-      roundDps += rawIncoming; 
+    if (activeAbilities.join(',').includes('Juggernaut') && Math.random() > 0.90 && rawIncoming > 0) {
+      if (activeEnemies[0] && !activeEnemies[0].isDead) activeEnemies[0].hp -= rawIncoming; 
       abilityHighlights += `🌟 \`Juggernaut\` reflected ${rawIncoming} DMG back! 🔄\n`;
       rawIncoming = 0;
     }
@@ -567,22 +598,17 @@ export async function execute(message: Message) {
     if (rawIncoming < 0) rawIncoming = 0;
 
     if (playerHp - rawIncoming <= 0 && hasUndying && !undyingTriggered) {
-        undyingTriggered = true;
-        playerHp += 100;
-        rawIncoming = 0; // Negate the fatal blow
+        undyingTriggered = true; playerHp += 100; rawIncoming = 0; 
         abilityHighlights += `✨ \`Undying\` saved you from a fatal blow!\n`;
     }
     
     if (playerHp - rawIncoming <= 0 && activeAbilities.join(',').includes('Deathless King') && !undyingTriggered) {
-        undyingTriggered = true;
-        playerHp += player.maxHp;
-        rawIncoming = 0; 
-        playerBaseOutput *= 2; 
-        abilityHighlights += `🌟 \`Deathless King\` revived you at FULL HP and Doubled your ATK for the rest of battle!\n`;
+        undyingTriggered = true; playerHp += player.maxHp; rawIncoming = 0; playerBaseOutput *= 2; 
+        abilityHighlights += `🌟 \`Deathless King\` revived you at FULL HP and Doubled your ATK!\n`;
     }
 
-    if (activeAbilities.join(',').includes('Singularity') && Math.random() > 0.90) {
-        roundDps += rawIncoming * 3;
+    if (activeAbilities.join(',').includes('Singularity') && Math.random() > 0.90 && rawIncoming > 0) {
+        if (activeEnemies[0] && !activeEnemies[0].isDead) activeEnemies[0].hp -= (rawIncoming * 3);
         abilityHighlights += `🌟 \`Singularity\` absorbed ${rawIncoming} DMG and reflected it! 🔄\n`;
         rawIncoming = 0;
     }
@@ -590,31 +616,35 @@ export async function execute(message: Message) {
     playerHp -= rawIncoming;
     totalDamageTaken += rawIncoming;
     
-    const mobVerbs = ['clawed', 'bit', 'struck', 'bashed', 'slapped', 'gashed', 'rammed'];
-    const mVerb = mobVerbs[Math.floor(Math.random() * mobVerbs.length)];
-
     let eStr = '';
     if (evaded) {
-        eStr = `, and you effortlessly **evaded** its counter-attack! 💨`;
+        eStr = `> 💨 The enemy pack swarmed you, but you completely **evaded** their attacks!`;
     } else {
         let preMit = rawIncoming + mitigation;
-        eStr = `, before it retaliated and ${mVerb} you for **${rawIncoming}** DMG`;
+        let pTxt = packSize > 1 ? 'The pack retaliated' : 'The enemy retaliated';
+        eStr = `> 🛡️ ${pTxt} dealing **${rawIncoming}** DMG to you.`;
         
         let tags = [];
         if (mitigation > 0) tags.push(`🛡️ ${Math.min(mitigation, preMit)} Blocked`);
-        if (poisonStacks > 0) tags.push(`🧪 Poison Weakened`);
-        
-        if (tags.length > 0) {
-            eStr += ` *[${tags.join(' | ')}]*`;
-        }
+        if (poisonMitigatedThisRound > 0) tags.push(`🧪 Poison Weakened`);
+        if (tags.length > 0) eStr += ` *[${tags.join(' | ')}]*`;
     }
     
     if (activeHot > 0 && playerHp > 0) {
         playerHp = Math.min(maxHpWithPet, playerHp + activeHot);
     }
     
-    combatLog.push(roundTitle + '\n' + `> ${pAttackStr}${eStr}.`);
+    // Add enemy counter-attack log below player log
+    combatLog[combatLog.length - 1] += '\n' + eStr;
+    
+    if (roundActions.length > 0) {
+       combatLog[combatLog.length - 1] += '\n' + roundActions.join('\n');
+    }
   }
+  
+  // Calculate remaining monster HP for failure states
+  let monsterHp = activeEnemies.reduce((acc, e) => acc + e.hp, 0);
+  let monsterMaxHp = activeEnemies.reduce((acc, e) => acc + e.maxHp, 0);
 
   // --- UNIFIED COMBAT AGGREGATOR ---
   let buildAnalysisString = '';

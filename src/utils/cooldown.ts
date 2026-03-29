@@ -42,6 +42,7 @@ export async function checkCooldownOnly(key: string): Promise<CooldownResponse> 
  */
 export async function enforceCooldown(key: string, seconds: number): Promise<CooldownResponse> {
     try {
+        if (process.env.NO_COOLDOWNS) return { onCooldown: false, remainingMs: 0 };
         if (redisClient.isReady) {
             const ttl = await redisClient.ttl(key);
             if (ttl > 0) return { onCooldown: true, remainingMs: ttl * 1000 };

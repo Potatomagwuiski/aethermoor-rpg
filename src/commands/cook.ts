@@ -30,10 +30,10 @@ const RECIPES: Record<string, any> = {
     name: 'Golden Harvest Pie', materials: { golden_koi: 1, frost_lotus: 1, sticks: 10 }, buffName: '+10 to Slot Machine Jackpots', buffKey: 'GATHER_SLOT_10', color: 0xF1C40F
   },
   'koi_soup': {
-    name: 'Koi Soup', materials: { golden_koi: 1, mooncap_mushroom: 1, sticks: 2 }, buffName: '+25 MAX HP', buffKey: 'HP_25', color: 0xF1C40F
+    name: 'Koi Soup', materials: { golden_koi: 1, mooncap_mushroom: 1, sticks: 2 }, buffName: '+150 MAX HP', buffKey: 'HP_150', color: 0xF1C40F
   },
   'glacial_filet': {
-    name: 'Glacial Filet', materials: { glacier_cod: 1, frost_lotus: 1, sticks: 2 }, buffName: '+50 DEF', buffKey: 'DEF_50', color: 0x3498DB
+    name: 'Glacial Filet', materials: { glacier_cod: 1, frost_lotus: 1, sticks: 2 }, buffName: '+120 DEF', buffKey: 'DEF_120', color: 0x3498DB
   },
   'spicy_eel': {
     name: 'Spicy Eel', materials: { lava_eel: 1, cinderbloom: 1, sticks: 2 }, buffName: '+15% CRIT', buffKey: 'CRIT_15', color: 0xE74C3C
@@ -42,10 +42,10 @@ const RECIPES: Record<string, any> = {
     name: 'Void Sashimi', materials: { void_bass: 1, nightmare_kelp: 1, sticks: 2 }, buffName: '+100 ATK, +10% LIFESTEAL', buffKey: 'ATK_100_LS_10', color: 0x9B59B6
   },
   'moonlight_brew': {
-    name: 'Moonlight Brew', materials: { frost_lotus: 1, wood: 1, sticks: 2 }, buffName: 'Heal 10 HP / Round', buffKey: 'HOT_10', color: 0x2ECC71
+    name: 'Moonlight Brew', materials: { frost_lotus: 1, wood: 1, sticks: 2 }, buffName: 'Heal 75 HP / Round', buffKey: 'HOT_75', color: 0x2ECC71
   },
   'starlight_infusion': {
-    name: 'Starlight Infusion', materials: { nightmare_kelp: 1, living_bark: 1, sticks: 2 }, buffName: 'Restore 5 Energy / Round', buffKey: 'EOT_5', color: 0x8E44AD
+    name: 'Starlight Infusion', materials: { nightmare_kelp: 1, living_bark: 1, sticks: 2 }, buffName: '+35% Evasion', buffKey: 'EVASION_35', color: 0x8E44AD
   }
 };
 
