@@ -47,12 +47,14 @@ export async function executeProfile(message: Message, args: string[]) {
   if (player.equipment.length === 0) gearText = '*No weapons or armor equipped.*';
   else {
     player.equipment.forEach(gear => {
-      const emoji = getEmoji(gear.baseItemKey);
+      const safeKey = gear.baseItemKey.toLowerCase();
+      const emoji = getEmoji(safeKey);
       
       let extra = '';
       if (gear.slot === 'WEAPON') {
-          const bp = BLUEPRINTS[gear.baseItemKey];
+          const bp = BLUEPRINTS[safeKey];
           let activeAbilities: string[] = [];
+          
           if (bp && bp.abilities) {
               const rarity = gear.rarity.toLowerCase();
               if (['common', 'uncommon', 'rare', 'epic', 'legendary'].includes(rarity) && bp.abilities.length > 0) activeAbilities.push(bp.abilities[0]);
@@ -67,7 +69,7 @@ export async function executeProfile(message: Message, args: string[]) {
           }
       }
 
-      gearText += `• ${emoji} **${gear.name}** (+${gear.bonusAtk}⚔️ | +${gear.bonusDef}🛡️)${extra}\n`;
+      gearText += `• ${emoji} **${gear.name}** (+${gear.bonusAtk} ⚔️ | +${gear.bonusDef} 🛡️)${extra}\n`;
     });
   }
   embed.addFields({ name: '⚔️ Equipped Gear', value: gearText });
