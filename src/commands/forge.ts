@@ -64,7 +64,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { rare: { key: 'rare_wolf_slayer', name: '🟦 [Rare Wolf Slayer]', dps: 85 }, epic: { key: 'epic_wolf_slayer', name: '🟪 [Epic Wolf Slayer]', dps: 150 } }
   },
   'mythril_cleaver': {
-    name: 'Mythril Cleaver', requiredBlueprint: 'blueprint_mythril_cleaver', materials: { mythril: 80, gold_ore: 20, demon_horn: 3 },
+    name: 'Mythril Cleaver', requiredBlueprint: 'blueprint_mythril_cleaver', materials: { mythril: 80, gold_ore: 20, behemoth_bone: 3 },
     abilities: [
       '✨ **Light Edge**: +5% Evasion',
       '✨ **Mythril Edge**: Ignores 10% of enemy DEF',
@@ -75,7 +75,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { rare: { key: 'rare_mythril_cleaver', name: '🟦 [Rare Mythril Cleaver]', dps: 250 }, epic: { key: 'epic_mythril_cleaver', name: '🟪 [Epic Mythril Cleaver]', dps: 400 } }
   },
   'void_blade': {
-    name: 'Void Blade', requiredBlueprint: 'blueprint_void_blade', materials: { voidstone: 90, rare_meteorite_ingot: 30, drake_scale: 4 },
+    name: 'Void Blade', requiredBlueprint: 'blueprint_void_blade', materials: { voidstone: 90, rare_meteorite_ingot: 30, mythic_dragon_scale: 2 },
     abilities: [
       '🌌 **Void Touched**: +5% Lifesteal',
       '✨ **Void Strike**: 15% chance to ignore 50% of monster DEF',
@@ -219,7 +219,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { common: { key: 'common_bone_scythe', name: '⬜ [Common Bone Scythe]', dps: 20 } }
   },
   'soul_reaper': {
-    name: 'Soul Reaper', requiredBlueprint: 'blueprint_soul_reaper', materials: { mythril: 40, elderwood: 50, brittle_bone: 20 },
+    name: 'Soul Reaper', requiredBlueprint: 'blueprint_soul_reaper', materials: { mythril: 40, elderwood: 50, behemoth_bone: 6 },
     abilities: [
       '👻 **Ethereal**: +5% Evasion against physical attacks',
       '✨ **Reap**: Heals for 10% of damage dealt',
@@ -230,7 +230,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { rare: { key: 'rare_soul_reaper', name: '🟦 [Rare Soul Reaper]', dps: 150 }, epic: { key: 'epic_soul_reaper', name: '🟪 [Epic Soul Reaper]', dps: 260 } }
   },
   'lich_tome': {
-    name: 'Lich Tome', requiredBlueprint: 'blueprint_lich_tome', materials: { mythril: 50, elderwood: 30, shadow_dust: 10 },
+    name: 'Lich Tome', requiredBlueprint: 'blueprint_lich_tome', materials: { mythril: 50, elderwood: 30, lich_soul: 4 },
     abilities: [
       '💀 **Dark Whisper**: +5 INT',
       '✨ **Soul Devourer**: Converts 15% of damage dealt into healing',
@@ -302,7 +302,7 @@ export const BLUEPRINTS: Record<string, any> = {
     outputs: { common: { key: 'common_mystic_robe', name: '⬜ [Common Mystic Robe]', defense: 12 }, uncommon: { key: 'uncommon_mystic_robe', name: '🟩 [Uncommon Mystic Robe]', defense: 22 }, rare: { key: 'rare_mystic_robe', name: '🟦 [Rare Mystic Robe]', defense: 40 }, epic: { key: 'epic_mystic_robe', name: '🟪 [Epic Mystic Robe]', defense: 75 } }
   },
   'lich_mantle': {
-    name: 'Lich Mantle', requiredBlueprint: 'blueprint_lich_mantle', materials: { mythril: 50, gold_ore: 20, hellfire_essence: 15 },
+    name: 'Lich Mantle', requiredBlueprint: 'blueprint_lich_mantle', materials: { mythril: 50, gold_ore: 20, lich_soul: 3 },
     abilities: [
       '💀 **Dread**: Enemies have -1% Hit Chance',
       '✨ **Undying**: 5% chance to revive with 1 HP on death',

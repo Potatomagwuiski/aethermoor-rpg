@@ -71,24 +71,24 @@ export async function executeHarvest(message: Message, args: string[]) {
 
   let primaryDropKey = 'basic_herb';
   let secondaryDropKey = 'potato';
-  let epicDropKey = 'moon_herb';
+  let epicDropKey = 'lumina_berry';
 
   if (zone === 'whispering_woods') {
       primaryDropKey = 'mooncap_mushroom';
-      secondaryDropKey = 'wheat';
-      epicDropKey = 'living_wood';
+      secondaryDropKey = 'lumina_berry';
+      epicDropKey = 'moon_herb';
   } else if (zone === 'ironpeak_mountains') {
       primaryDropKey = 'frost_lotus';
       secondaryDropKey = 'potato';
-      epicDropKey = 'stone_core';
+      epicDropKey = 'cinderbloom';
   } else if (zone === 'ashen_wastes') {
       primaryDropKey = 'cinderbloom';
-      secondaryDropKey = 'wheat';
+      secondaryDropKey = 'mooncap_mushroom';
       epicDropKey = 'hellfire_essence';
   } else if (zone === 'abyssal_depths') {
       primaryDropKey = 'nightmare_kelp';
-      secondaryDropKey = 'potato';
-      epicDropKey = 'void_fragment';
+      secondaryDropKey = 'frost_lotus';
+      epicDropKey = 'demon_horn';
   }
 
   const finalPrimary = Math.floor((Math.random() * 3) + 1) * slotMultiplier;

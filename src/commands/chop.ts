@@ -71,30 +71,30 @@ export async function executeChop(message: Message) {
   const zone = player.location || 'lumina_plains';
 
   let primaryDropKey = 'wood';
-  let secondaryDropKey = 'basic_herb';
+  let secondaryDropKey = 'sticks';
   let epicDropKey = 'ashwood';
   let toolTierRequired = 1;
 
   if (zone === 'whispering_woods') {
       primaryDropKey = 'ashwood';
-      secondaryDropKey = 'mooncap_mushroom';
+      secondaryDropKey = 'wood';
       epicDropKey = 'elderwood';
       toolTierRequired = 2; // Needs Iron Tool
   } else if (zone === 'ironpeak_mountains') {
       primaryDropKey = 'oakwood';
-      secondaryDropKey = 'frost_lotus';
-      epicDropKey = 'moon_herb';
-      toolTierRequired = 3; // Needs Steel Tool
+      secondaryDropKey = 'elderwood';
+      epicDropKey = 'ebony_wood';
+      toolTierRequired = 3; // Needs Mythril Tool / Steel
   } else if (zone === 'ashen_wastes') {
       primaryDropKey = 'elderwood';
-      secondaryDropKey = 'cinderbloom';
-      epicDropKey = 'aether_wood';
-      toolTierRequired = 4; // Needs Mythril Tool
+      secondaryDropKey = 'ebony_wood';
+      epicDropKey = 'hellfire_essence';
+      toolTierRequired = 4; // Needs Epic
   } else if (zone === 'abyssal_depths') {
-      primaryDropKey = 'aether_wood';
-      secondaryDropKey = 'nightmare_kelp';
-      epicDropKey = 'lich_soul';
-      toolTierRequired = 5; // Needs Demonic Tool
+      primaryDropKey = 'ebony_wood';
+      secondaryDropKey = 'elderwood';
+      epicDropKey = 'rare_meteorite_ingot';
+      toolTierRequired = 5; // Needs Legendary Tool
   }
 
   // Enforce Tool Rarity Constraint

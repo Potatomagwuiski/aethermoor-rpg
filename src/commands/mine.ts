@@ -77,29 +77,29 @@ export async function executeMine(message: Message) {
 
   let primaryDropKey = 'copper';
   let secondaryDropKey = 'tin';
-  let epicDropKey = 'iron_ore';
+  let epicDropKey = 'iron';
   let toolTierRequired = 1;
 
   if (zone === 'whispering_woods') {
       primaryDropKey = 'iron';
-      secondaryDropKey = 'coal';
-      epicDropKey = 'copper_ingot';
+      secondaryDropKey = 'stone_core';
+      epicDropKey = 'steel_ore';
       toolTierRequired = 2; // Needs Iron Tool
   } else if (zone === 'ironpeak_mountains') {
       primaryDropKey = 'steel_ore';
-      secondaryDropKey = 'silver';
-      epicDropKey = 'gold_ore';
-      toolTierRequired = 3; // Needs Steel Tool
-  } else if (zone === 'ashen_wastes') {
-      primaryDropKey = 'obsidian';
       secondaryDropKey = 'gold_ore';
       epicDropKey = 'mythril';
-      toolTierRequired = 4; // Needs Mythril Tool
+      toolTierRequired = 3; // Needs Mythril Tool
+  } else if (zone === 'ashen_wastes') {
+      primaryDropKey = 'mythril';
+      secondaryDropKey = 'hellfire_essence';
+      epicDropKey = 'rare_meteorite_ingot';
+      toolTierRequired = 4; // Needs Epic Tool
   } else if (zone === 'abyssal_depths') {
       primaryDropKey = 'voidstone';
-      secondaryDropKey = 'mythril';
-      epicDropKey = 'rare_meteorite_ingot';
-      toolTierRequired = 5; // Needs Demonic Tool
+      secondaryDropKey = 'rare_meteorite_ingot';
+      epicDropKey = 'mythic_dragon_scale';
+      toolTierRequired = 5; // Needs Legendary Tool
   }
 
   // Enforce Tool Rarity Constraint
