@@ -243,6 +243,31 @@ export async function execute(message: Message) {
   if (weaponClass === 'SPELLBLADE_WEAPON') playerBaseOutput += Math.floor((player.str * 1.5) + (player.int * 1.0));
   if (weaponClass === 'VANGUARD_WEAPON') playerBaseOutput += Math.floor((player.str * 1.5) + (player.end * 1.0));
 
+  let hasGaleStrike = false;
+  let hasExecutioner = false;
+  let hasSniper = false;
+  let hasVampire = false;
+
+  for (const ab of activeAbilities) {
+      if (!ab) continue;
+      // Armors
+      if (ab.includes('[Spellweaver]') && (weaponClass === 'SPELLBLADE_WEAPON' || weaponClass === 'MAGIC_WEAPON')) playerBaseOutput = Math.floor(playerBaseOutput * 1.15);
+      if (ab.includes('[Swift Draw]') && (weaponClass === 'HUNTER_WEAPON' || weaponClass === 'FINESSE_WEAPON')) {
+          playerBaseOutput = Math.floor(playerBaseOutput * 1.15);
+      }
+      if (ab.includes('Assassin:') && weaponClass === 'FINESSE_WEAPON') playerBaseOutput = Math.floor(playerBaseOutput * 1.15);
+      
+      // Weapons
+      if (ab.includes('[Jagged Edge]')) playerBaseOutput = Math.floor(playerBaseOutput * 1.05);
+      if (ab.includes('[Heavy Blade]')) playerBaseOutput = Math.floor(playerBaseOutput * 1.10);
+
+      // Flags for active loop triggers
+      if (ab.includes('[Gale Strike]')) hasGaleStrike = true;
+      if (ab.includes('[Execute]') || ab.includes('[Decapitate]')) hasExecutioner = true;
+      if (ab.includes('[Headshot]')) hasSniper = true;
+      if (ab.includes('[Feast]') || ab.includes('[Vampire]')) hasVampire = true;
+  }
+
   let bonusCrit = 0;
   let bonusEvasion = 0;
   let bonusDefPerc = 0;
@@ -415,8 +440,28 @@ export async function execute(message: Message) {
          isCrit = true;
     }
 
-    if (gearLifesteal > 0) {
-      const heal = Math.floor(roundDps * (gearLifesteal / 100));
+    // --- LATERAL NEW WEAPON HOOKS ---
+    if (abilitiesStr.includes('Execute') && target.hp < target.maxHp * 0.3) {
+         roundDps *= 3;
+         isCrit = true;
+    }
+    if (abilitiesStr.includes('Decapitate') && target.hp < target.maxHp * 0.20 && !target.name.includes('Boss')) {
+         roundDps *= 10;
+         isCrit = true;
+         isExecute = true;
+    }
+    if (abilitiesStr.includes('Headshot') && Math.random() < 0.15) {
+         roundDps *= 2;
+         isCrit = true;
+    }
+    if (abilitiesStr.includes('Gale Strike') && Math.random() < 0.20) roundDps *= 2;
+    if (abilitiesStr.includes('Hemorrhage') && Math.random() < 0.25) {
+         target.bleedStacks = (target.bleedStacks || 0) + 3;
+    }
+
+    if (gearLifesteal > 0 || (abilitiesStr.includes('Vampire') && Math.random() < 0.15)) {
+      const l_scale = abilitiesStr.includes('Vampire') ? 1.0 : (gearLifesteal / 100);
+      const heal = Math.floor(roundDps * l_scale);
       playerHp = Math.min(player.maxHp, playerHp + heal);
       totalLifesteal += heal;
     }
@@ -808,7 +853,9 @@ export async function execute(message: Message) {
     { key: 'blueprint_steel_chestplate', name: 'Steel Chestplate' },
     { key: 'blueprint_iron_spellblade', name: 'Iron Spellblade' },
     { key: 'blueprint_steel_bulwark', name: 'Steel Bulwark' },
-    { key: 'blueprint_compound_longbow', name: 'Compound Longbow' }
+    { key: 'blueprint_compound_longbow', name: 'Compound Longbow' },
+    { key: 'blueprint_serrated_dirk', name: 'Serrated Dirk' },
+    { key: 'blueprint_broadsword', name: 'Broadsword' }
   ];
   const TIER3_BPS = [
     { key: 'blueprint_mythril_pickaxe', name: 'Mythril Pickaxe' },
@@ -821,10 +868,21 @@ export async function execute(message: Message) {
     { key: 'blueprint_soul_reaper', name: 'Soul Reaper' },
     { key: 'blueprint_lich_tome', name: 'Lich Tome' },
     { key: 'blueprint_lich_mantle', name: 'Lich Mantle' },
-    { key: 'blueprint_shadow_tunic', name: 'Shadow Tunic' }
+    { key: 'blueprint_shadow_tunic', name: 'Shadow Tunic' },
+    { key: 'blueprint_bloodthirster_kukri', name: 'Bloodthirster Kukri' },
+    { key: 'blueprint_windrunner_shiv', name: 'Windrunner Shiv' },
+    { key: 'blueprint_flamberge', name: 'Flamberge' },
+    { key: 'blueprint_executioners_axe', name: 'Executioner\'s Axe' },
+    { key: 'blueprint_recurve_bow', name: 'Recurve Bow' },
+    { key: 'blueprint_spellweaver_robe', name: 'Spellweaver Robe' },
+    { key: 'blueprint_ranger_hauberk', name: 'Ranger Hauberk' }
   ];
   const TIER4_BPS = [
-    { key: 'blueprint_void_blade', name: 'Void Blade' }
+    { key: 'blueprint_void_blade', name: 'Void Blade' },
+    { key: 'blueprint_heartseeker', name: 'Heartseeker' },
+    { key: 'blueprint_titan_mace', name: 'Titan Mace' },
+    { key: 'blueprint_snipers_crossbow', name: 'Sniper\'s Crossbow' },
+    { key: 'blueprint_juggernaut_plate', name: 'Juggernaut Plate' }
   ];
   
   let gachaLootString = '';

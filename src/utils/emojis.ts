@@ -83,6 +83,20 @@ export const ITEM_EMOJIS: Record<string, string> = {
     'steel_chestplate': '👕',
     'bronze_boots': '👞',
     
+    
+    'serrated_dirk': '🔪',
+    'bloodthirster_kukri': '🗡️',
+    'windrunner_shiv': '🦂',
+    'heartseeker': '🩸',
+    'broadsword': '🗡️',
+    'flamberge': '🔥',
+    'executioners_axe': '🪓',
+    'titan_mace': '🔨',
+    'snipers_crossbow': '🏹',
+    'spellweaver_robe': '🥋',
+    'ranger_hauberk': '🦺',
+    'juggernaut_plate': '👕',
+
     'leather_tunic': '🦺',
     'apprentice_robe': '🥋',
     'scout_cloak': '🧥',
@@ -173,5 +187,6 @@ export const ITEM_EMOJIS: Record<string, string> = {
 };
 
 export function getEmoji(itemKey: string): string {
+    if (itemKey.startsWith('blueprint_')) return '📜';
     return ITEM_EMOJIS[itemKey] || ITEM_EMOJIS['default'];
 }
