@@ -47,7 +47,10 @@ export async function executeProfile(message: Message, args: string[]) {
   if (player.equipment.length === 0) gearText = '*No weapons or armor equipped.*';
   else {
     player.equipment.forEach(gear => {
-      const safeKey = gear.baseItemKey.toLowerCase();
+      let safeKey = gear.baseItemKey.toLowerCase();
+      // Clean legacy lootbox prefixes
+      safeKey = safeKey.replace(/^(common_|uncommon_|rare_|epic_|legendary_|mythic_)/, '');
+      
       const emoji = getEmoji(safeKey);
       
       let extra = '';
