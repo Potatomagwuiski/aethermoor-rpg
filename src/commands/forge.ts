@@ -430,7 +430,7 @@ name: 'Lich Mantle', requiredBlueprint: 'blueprint_lich_mantle', materials: { my
   'leather_tunic': {
 name: 'Leather Tunic', materials: { copper: 15, wood: 10, seaweed: 8 },
     abilities: [
-      '✨ **Snug**: +1% Dodge Chance',
+      '✨ **Snug**: +5% Dodge Chance',
       '✨ **Evasion**: +5% Dodge Chance',
       '💨 **Swiftness**: +5% Dodge Chance',
       '🗡️ **Assassin**: +10% DMG when using Daggers or Shivs',
