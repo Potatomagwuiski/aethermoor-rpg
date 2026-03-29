@@ -499,6 +499,66 @@ export async function executeForge(message: Message, args: string[]) {
     where: { playerId: player.id }
   });
 
+  if (args[0] === 'upgrade') {
+     const targetType = args[1]?.toLowerCase();
+     if (!targetType || (targetType !== 'weapon' && targetType !== 'armor')) {
+         return message.reply('Please specify what to upgrade: `rpg forge upgrade weapon` or `rpg forge upgrade armor`');
+     }
+
+     const eqSlot = targetType === 'weapon' ? 'WEAPON' : 'ARMOR';
+     let eqFilters: any = { playerId: player.id, equipped: true };
+     if (targetType === 'weapon') eqFilters.slot = 'WEAPON';
+     else eqFilters.slot = { in: ['LIGHT_ARMOR', 'HEAVY_ARMOR', 'CLOTH'] };
+
+     const eq = await prisma.equipment.findFirst({
+         where: eqFilters
+     });
+
+     if (!eq) return message.reply(`You do not have a **${targetType}** equipped!`);
+
+     const upgradeLvl = eq.upgradeLevel || 0;
+     const goldCost = (upgradeLvl * 10000) + 10000;
+     const stoneCost = upgradeLvl + 1;
+
+     if (player.gold < goldCost) return message.reply(`Not enough Gold! Upgrading to **+${upgradeLvl + 1}** costs **${goldCost}** Gold.`);
+     const stoneInv = inventory.find((i: any) => i.itemKey === 'enhancement_stone');
+     if (!stoneInv || stoneInv.quantity < stoneCost) return message.reply(`Not enough Enhancement Stones! Upgrading to **+${upgradeLvl + 1}** costs **${stoneCost}** 💎 Enhancement Stones.`);
+
+     let newBonusAtk = eq.bonusAtk;
+     let newBonusDef = eq.bonusDef;
+     let scalingBonus = 0;
+
+     if (targetType === 'weapon') {
+         scalingBonus = Math.floor(eq.bonusAtk * 0.20) || 5; 
+         newBonusAtk += scalingBonus;
+     } else {
+         scalingBonus = Math.floor(eq.bonusDef * 0.20) || 5;
+         newBonusDef += scalingBonus;
+     }
+
+     let newName = eq.name || "Unknown Item";
+     if (newName.includes('+')) {
+         newName = newName.replace(/\+\d+/, `+${upgradeLvl + 1}`);
+     } else {
+         newName = `${newName} +1`;
+     }
+
+     await prisma.player.update({ where: { id: player.id }, data: { gold: { decrement: goldCost } } });
+     await prisma.inventoryItem.update({ where: { id: stoneInv.id }, data: { quantity: { decrement: stoneCost } } });
+     await prisma.equipment.update({
+         where: { id: eq.id },
+         data: { 
+             upgradeLevel: upgradeLvl + 1,
+             bonusAtk: newBonusAtk,
+             bonusDef: newBonusDef,
+             name: newName
+         }
+     });
+
+     const statIncrease = targetType === 'weapon' ? `+${scalingBonus} ATK` : `+${scalingBonus} DEF`;
+     return message.reply(`✨ **UPGRADE SUCCESSFUL!**\nYour gear is now **${newName}**!\n💎 Stat Gain: **${statIncrease}**\n\nConsumed: **${goldCost}** 🪙 Gold, **${stoneCost}** 💎 Stones.`);
+  }
+
   if (args.length === 0) {
     const menuEmbed = new EmbedBuilder()
       .setTitle('🔨 The Forge')
@@ -753,22 +813,15 @@ export async function processForge(recipeId: string, player: any, inventory: any
     }));
   }
 
-  // 4. RNG Roll for Quality
-  // Base 1-100 roll
-  let roll = Math.floor(Math.random() * 100) + 1;
-  let logAddition = '';
-
-  // 5. Determine Result Based on Blueprint Tiers
+  // 4. RNG Removed (Fixed Power Core)
   let resultOutput: any = null;
-
-  if (blueprint.outputs.legendary && roll >= 115) resultOutput = blueprint.outputs.legendary;
-  else if (blueprint.outputs.epic && roll >= 95) resultOutput = blueprint.outputs.epic;
-  else if (blueprint.outputs.rare && roll >= 75) resultOutput = blueprint.outputs.rare;
-  else if (blueprint.outputs.uncommon && roll >= 40) resultOutput = blueprint.outputs.uncommon;
-  else if (blueprint.outputs.common) resultOutput = blueprint.outputs.common;
-  else {
-      resultOutput = blueprint.outputs.rare || blueprint.outputs.epic || Object.values(blueprint.outputs)[0];
-  }
+  
+  if (blueprint.outputs.common) resultOutput = blueprint.outputs.common;
+  else if (blueprint.outputs.uncommon) resultOutput = blueprint.outputs.uncommon;
+  else if (blueprint.outputs.rare) resultOutput = blueprint.outputs.rare;
+  else if (blueprint.outputs.epic) resultOutput = blueprint.outputs.epic;
+  else if (blueprint.outputs.legendary) resultOutput = blueprint.outputs.legendary;
+  else resultOutput = Object.values(blueprint.outputs)[0];
 
   if (!resultOutput) {
     return reply({ content: 'The forge erupted in a magical anomaly. The craft failed!', embeds: [] });
@@ -785,38 +838,6 @@ export async function processForge(recipeId: string, player: any, inventory: any
   let statLog = '';
 
   if (resultOutput.dps) { // WEAPONS
-      const prefixes = [
-        { name: 'Savage', stat: 'Atk', val: Math.floor(resultOutput.dps * 0.15) || 1 },
-        { name: 'Vampiric', stat: 'Lifesteal', val: 5 },
-        { name: 'Toxic', stat: 'Crit', val: 10 },
-        { name: 'Swift', stat: 'Evasion', val: 5 }
-      ];
-      const suffixes = [
-        { name: 'of the Blood God', stat: 'Lifesteal', val: 10 },
-        { name: 'of the Void', stat: 'Crit', val: 15 },
-        { name: 'of the Titan', stat: 'Atk', val: Math.floor(resultOutput.dps * 0.25) || 2 },
-        { name: 'of the Wind', stat: 'Evasion', val: 10 }
-      ];
-
-      // 50% chance for a prefix
-      if (Math.random() > 0.5) {
-        const p = prefixes[Math.floor(Math.random() * prefixes.length)];
-        finalName = finalName.replace('[', `[${p.name} `);
-        if (p.stat === 'Atk') bAtk += p.val;
-        if (p.stat === 'Lifesteal') bLifesteal += p.val;
-        if (p.stat === 'Crit') bCrit += p.val;
-        if (p.stat === 'Evasion') bEvasion += p.val;
-      }
-      
-      // 30% chance for a suffix
-      if (Math.random() > 0.7) {
-        const s = suffixes[Math.floor(Math.random() * suffixes.length)];
-        finalName = finalName.replace(']', ` ${s.name}]`);
-        if (s.stat === 'Atk') bAtk += s.val;
-        if (s.stat === 'Lifesteal') bLifesteal += s.val;
-        if (s.stat === 'Crit') bCrit += s.val;
-        if (s.stat === 'Evasion') bEvasion += s.val;
-      }
       
       bAtk += resultOutput.dps;
       
@@ -860,29 +881,6 @@ export async function processForge(recipeId: string, player: any, inventory: any
       statLog = statArray.join(' | ');
   } 
   else if (resultOutput.defense) { // ARMOR
-      const prefixes = [
-        { name: 'Impenetrable', stat: 'Def', val: Math.floor(resultOutput.defense * 0.2) || 1 },
-        { name: 'Spiked', stat: 'Atk', val: Math.floor(resultOutput.defense * 0.1) || 1 },
-        { name: 'Nimble', stat: 'Evasion', val: 5 }
-      ];
-      const suffixes = [
-        { name: 'of the Bastion', stat: 'Def', val: Math.floor(resultOutput.defense * 0.3) || 2 },
-        { name: 'of Thorns', stat: 'Atk', val: Math.floor(resultOutput.defense * 0.15) || 1 }
-      ];
-
-      if (Math.random() > 0.5) {
-        const p = prefixes[Math.floor(Math.random() * prefixes.length)];
-        finalName = finalName.replace('[', `[${p.name} `);
-        if (p.stat === 'Def') bDef += p.val;
-        if (p.stat === 'Atk') bAtk += p.val;
-        if (p.stat === 'Evasion') bEvasion += p.val;
-      }
-      if (Math.random() > 0.7) {
-        const s = suffixes[Math.floor(Math.random() * suffixes.length)];
-        finalName = finalName.replace(']', ` ${s.name}]`);
-        if (s.stat === 'Def') bDef += s.val;
-        if (s.stat === 'Atk') bAtk += s.val;
-      }
 
       bDef += resultOutput.defense;
       
@@ -998,7 +996,7 @@ export async function processForge(recipeId: string, player: any, inventory: any
   const resultEmbed = new EmbedBuilder()
     .setTitle(`${flavorTitle} ${blueprint.name}`)
     .setColor(embedColor)
-    .setDescription(`${flavorDesc}\n\n🎲 **Forging Roll:** \`${roll} / 100\`\n${logAddition}${abilityLog}`)
+    .setDescription(`${flavorDesc}${abilityLog}`)
     .addFields({ name: '✨ Forged Output', value: `> ${getEmoji(recipeId)} **${finalName}**\n> ${statLog}` });
 
   return reply({ embeds: [resultEmbed] });

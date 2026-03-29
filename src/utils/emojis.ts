@@ -155,6 +155,7 @@ export const ITEM_EMOJIS: Record<string, string> = {
     'drake_scale': '🐉',
     'mythic_dragon_scale': '🟪',
     'dungeon_key': '🗝️',
+    'enhancement_stone': '💎',
     'rare_meteorite_ingot': '☄️',
     'lich_soul': '👻',
     'behemoth_bone': '🦖',

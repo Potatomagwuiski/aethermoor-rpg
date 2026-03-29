@@ -59,7 +59,13 @@ export async function executeDungeon(message: Message, args: string[]) {
   let survived = true;
 
   // --- STAGE 1-5: The Gauntlet ---
+  // --- STAGE 1-5: The Gauntlet ---
   for (let i = 1; i <= 5; i++) {
+    let packSize = 1;
+    const packRoll = Math.random();
+    if (packRoll > 0.95) packSize = 3;
+    else if (packRoll > 0.85) packSize = 2;
+
     // Basic hit calculation
     const variance = Math.floor(Math.random() * (player.level * 5));
     const stageDps = Math.floor(gearAtk * 0.8) + variance + 10; 
@@ -68,15 +74,19 @@ export async function executeDungeon(message: Message, args: string[]) {
     const xpFound = 10 * player.level;
     
     let rawStageDamage = Math.floor(Math.random() * (player.level * 4 + 8)) + 2; 
-    let stageDamage = rawStageDamage - mitigation;
+    let stageDamage = Math.floor(rawStageDamage * packSize) - mitigation;
     if (stageDamage < 1) stageDamage = 1; // Minimum 1 damage taken
     
-    totalGold += goldFound;
-    totalXp += xpFound;
+    let earnedGold = goldFound * packSize;
+    let earnedXp = xpFound * packSize;
+
+    totalGold += earnedGold;
+    totalXp += earnedXp;
     totalDamageTaken += stageDamage;
     runningHp -= stageDamage;
 
-    logText += `**🛡️ Stage ${i}:** Defeated a dungeon guardian dealing 💥 ${stageDps} DMG! Took 🩸 ${stageDamage} DMG. (+${goldFound} 🪙, +${xpFound} ✨)\n`;
+    const packStr = packSize > 1 ? `**Pack of ${packSize} Guardians**` : `a dungeon guardian`;
+    logText += `**🛡️ Stage ${i}:** Defeated ${packStr} dealing 💥 ${stageDps} DMG! Took 🩸 ${stageDamage} DMG. (+${earnedGold} 🪙, +${earnedXp} ✨)\n`;
 
     if (runningHp <= 0) {
         survived = false;
@@ -116,11 +126,19 @@ export async function executeDungeon(message: Message, args: string[]) {
           const friendlyDropName = bossDrop.replace(/_/g, ' ').toUpperCase();
           
           logText += `\n✨ **BOSS DROP:** You salvaged a 🟪 \`[ ${friendlyDropName} ]\`!`;
+          logText += `\n💎 **ENHANCEMENT STONE:** You recovered an \`[ Enhancement Stone ]\` from the boss's core!`;
 
           dbOperations.push(prisma.inventoryItem.upsert({
             where: { playerId_itemKey: { playerId: player.id, itemKey: bossDrop } },
             update: { quantity: { increment: 1 } },
             create: { playerId: player.id, itemKey: bossDrop, quantity: 1 }
+          }));
+
+          // Drop the Enhancement Stone
+          dbOperations.push(prisma.inventoryItem.upsert({
+            where: { playerId_itemKey: { playerId: player.id, itemKey: 'enhancement_stone' } },
+            update: { quantity: { increment: 1 } },
+            create: { playerId: player.id, itemKey: 'enhancement_stone', quantity: 1 }
           }));
       }
   }

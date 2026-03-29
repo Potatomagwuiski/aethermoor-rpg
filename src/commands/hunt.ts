@@ -165,7 +165,18 @@ export async function execute(message: Message) {
   };
 
   const monsters = ZONED_MOBS[currentZone] || ZONED_MOBS['lumina_plains'];
-  const mob = monsters[Math.floor(Math.random() * monsters.length)];
+  const baseMob = monsters[Math.floor(Math.random() * monsters.length)];
+  const mob = { ...baseMob };
+
+  let packSize = 1;
+  const packRoll = Math.random();
+  if (packRoll > 0.95) packSize = 3;
+  else if (packRoll > 0.85) packSize = 2;
+  
+  if (packSize > 1) {
+      mob.name = `Pack of ${packSize} ${mob.name}s`;
+  }
+
 
   // --- PRE-COMBAT CULINARY BUFF PARSING ---
   let buffMessage = '';
@@ -193,9 +204,11 @@ export async function execute(message: Message) {
   // Phase 27 Early-Game Rebalance: Removed massive baseline bloating.
   // Phase 35 Late-Game Rebalance: Monsters now scale exponentially with their Tier.
   let monsterMaxHp = Math.floor((tier * 25) + (player.level * 10 * tier));
+  if (packSize > 1) monsterMaxHp = Math.floor(monsterMaxHp * (packSize * 0.8));
   let monsterHp = monsterMaxHp;
   // Attack Power also scales logarithmically by geographic region.
   let monsterAttackPower = Math.floor((tier * 5) + (player.level * 2 * tier));
+  if (packSize > 1) monsterAttackPower = Math.floor(monsterAttackPower * (packSize * 0.8));
 
   let playerHp = player.hp;
   if (playerHp <= 0) playerHp = 1;
@@ -487,11 +500,24 @@ export async function execute(message: Message) {
         poisonStacks = Math.min(10, poisonStacks + 1); // 50% max reduction
     }
     if (poisonStacks > 0) {
-        const poisonMitigation = Math.floor(rawIncoming * (0.05 * poisonStacks));
-        rawIncoming -= poisonMitigation;
-        totalPoisonMitigated += poisonMitigation;
+        if (abilitiesStr.includes('Venom Pop') && poisonStacks >= 5) {
+            const burst = Math.floor(player.maxHp * 0.15 * poisonStacks);
+            monsterHp -= burst;
+            poisonStacks = 0; // Consume the stacks
+            pAttackStr += `\n💥 **VENOM POP DETONATION!** All poison stacks erupted for ${burst} True DMG!`;
+        } else {
+            const poisonMitigation = Math.floor(rawIncoming * (0.05 * poisonStacks));
+            rawIncoming -= poisonMitigation;
+            totalPoisonMitigated += poisonMitigation;
+        }
     }
-    
+
+    if (abilitiesStr.includes('Parasitic Siphon') && poisonStacks > 0) {
+        const leech = Math.floor(player.maxHp * 0.01 * poisonStacks);
+        playerHp = Math.min(player.maxHp, playerHp + leech);
+        pAttackStr += `\n🧛 **Siphon:** Recovered ${leech} HP from poison`;
+    }
+
     // Mitigation Engine (END multiplier halved from x2 to x1 to prevent immortality)
     let mitigation = baseMitigation;
     
@@ -684,6 +710,12 @@ export async function execute(message: Message) {
   let goldReward = baseGold * slotMultiplier;
   let xpReward = baseXP * slotMultiplier;
 
+  if (packSize > 1) {
+      goldReward = Math.floor(goldReward * packSize);
+      xpReward = Math.floor(xpReward * packSize);
+      combatLog.push(`💰 **PACK BONUS!** Defeating multiple enemies granted x${packSize} XP & Gold!`);
+  }
+
   if (cleaveTriggered) {
       goldReward *= 2;
       xpReward *= 2;
@@ -708,7 +740,7 @@ export async function execute(message: Message) {
   let mobDrops: MobDrop[] = [];
   for (const item of mob.loot) {
     if (Math.random() <= item.chance) {
-      const quantity = slotMultiplier;
+      const quantity = slotMultiplier * packSize;
       mobDrops.push({ key: item.key, name: item.name, qty: quantity });
       dbOperations.push(prisma.inventoryItem.upsert({
         where: { playerId_itemKey: { playerId: player.id, itemKey: item.key } },
@@ -767,9 +799,9 @@ export async function execute(message: Message) {
     if (tier === 3) { BP_POOL = TIER3_BPS; rankColor = '🟪'; }
     if (tier >= 4) { BP_POOL = TIER4_BPS; rankColor = '🟧'; }
 
-    if (rarityRoll > 0.95) {
+    if (rarityRoll > 0.80) {
       gachaLootString = '🗝️ `[Dungeon Key]`'; dropKey = 'dungeon_key';
-    } else if (rarityRoll > 0.85) {
+    } else if (rarityRoll > 0.70) {
       gachaLootString = '📦 `[Aethermoor Lootbox]`'; dropKey = 'premium_lootbox';
     } else if (BP_POOL !== null) {
       const bp = BP_POOL[Math.floor(Math.random() * BP_POOL.length)]; 

@@ -63,6 +63,7 @@ model Player {
   activeBuff      String?
   buffExpiresAt   DateTime?
   pinnedForgeItems String[] @default([])
+  equippedSkills  String[] @default([])
   lastDailyQuestRefresh DateTime?
 
   // Core Allocatable Attributes
@@ -111,6 +112,7 @@ model Equipment {
   bonusCrit       Int @default(0)
   bonusLifesteal  Int @default(0)
   bonusEvasion    Int @default(0)
+  upgradeLevel    Int @default(0)
 
   player    Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
 }
