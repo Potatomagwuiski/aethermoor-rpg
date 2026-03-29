@@ -538,6 +538,12 @@ export async function execute(message: Message) {
             dotString += `\n↳ 🩸 **${e.name}** bled for ${tick} True DMG`;
             if (e.hp <= 0) e.isDead = true;
         }
+        if (e.poisonStacks > 0) {
+            let poisonTick = 15 * e.poisonStacks;
+            e.hp -= poisonTick; totalPoisonDamage += poisonTick;
+            dotString += `\n↳ ☣️ **${e.name}** suffered ${poisonTick} Poison DMG`;
+            if (e.hp <= 0) e.isDead = true;
+        }
         if (e.poisonStacks > 0 && abilitiesStr.includes('Venom Pop') && e.poisonStacks >= 5) {
             const burst = Math.floor(player.maxHp * 0.15 * e.poisonStacks);
             e.hp -= burst; e.poisonStacks = 0;

@@ -132,19 +132,19 @@ export async function executeInventory(message: Message, args: string[]) {
       let part = 1;
       
       for (let i = 0; i < lines.length; i++) {
-          if (chunk.length + lines[i].length + 5 > 1000) { // Discord field max is 1024
-              embed.addFields({ name: `${catName} (Part ${part})`, value: chunk, inline: false });
+          if (chunk.length + lines[i].length + 5 > 1000 || (i > 0 && i % 10 === 0)) { 
+              embed.addFields({ name: `${catName} (Part ${part})`, value: chunk, inline: true });
               totalFields++;
               chunk = '';
               part++;
           }
-          chunk += lines[i] + '\\n';
+          chunk += lines[i] + '\n';
       }
       
       if (chunk.length > 0) {
           const header = part > 1 ? `${catName} (Part ${part})` : catName;
-          if (totalFields < 24) { // Discord maxes at 25 fields
-             embed.addFields({ name: header, value: chunk, inline: false });
+          if (totalFields < 24) { 
+             embed.addFields({ name: header, value: chunk, inline: true });
              totalFields++;
           } else {
              break;
