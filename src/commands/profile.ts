@@ -1,15 +1,22 @@
 import { Message, EmbedBuilder } from 'discord.js';
-import { ITEM_REGISTRY, ItemSlot } from '../data/items.js';
 
 export async function handleProfileCommand(message: Message) {
-    // In the real system, you would fetch `Player` and `PlayerEquipment` here.
-    // We are generating a stunning mockup mimicking Dundor's structure exactly.
-
+    // ==== MOCK PRISMA DATA EXTRACTION ====
+    // In production, fetch the Player, GameItems, PlayerBuffs
     const mockStats = { str: 16, dex: 21, int: 11, xl: 16, xlNext: 14.04 };
     const mockDefenses = { ev: 16, ac: 29, sh: 9 };
     const mockHp = 113;
+    const general = { place: 'Dungeon 5', gold: 1400 };
 
-    // Build the loadout list
+    // Gathering Tiers (Replaces Piety/Religion)
+    const prof = { mining: 4, chopping: 2, fishing: 1, foraging: 5 };
+
+    // Temporary Buffs resulting from the 'eat' command
+    const activeBuffs = [
+        { name: "Fish Stew", effect: "+10 STR", timeLeft: "24m" }
+    ];
+
+    // Build the loadout list using the seamless Dundor terminology the user loves
     const loadoutList = `
 **AD**: ⛏️ +4 **Short Sword**
 *(no off-hand)*
@@ -23,14 +30,14 @@ export async function handleProfileCommand(message: Message) {
 **AV**: 🥾 +3 **The Glory Boots of Kijyu0226** {ACC+}
     `;
 
+    // General string holds Vitals
     const generalStr = `
 ❤️ **HP**: ${mockHp}
-🗺️ **Place**: Dungeon 5
-🪙 **Gold**: 140
-⛪ **Worshipper of Rawsidoog**
-🙏 **Piety**: 62/100
+🗺️ **Place**: ${general.place}
+🪙 **Gold**: ${general.gold.toLocaleString()}
     `;
 
+    // Core Stats
     const statsStr = `
 ⚔️ **XL**: ${mockStats.xl} (next: ${mockStats.xlNext}%)
 👣 **Sneak Chance**: N/A
@@ -41,15 +48,20 @@ export async function handleProfileCommand(message: Message) {
 🧠 **INT**: ${mockStats.int}
     `;
 
+    // Defense & Gathering string (Merged horizontally for space)
     const defenseStr = `
 💨 **EV**: ${mockDefenses.ev}
 🛡️ **AC**: ${mockDefenses.ac}
 🧱 **SH**: ${mockDefenses.sh}
+
+**Professions:**
+🪨 **Mine**: Lv.${prof.mining}
+🪵 **Chop**: Lv.${prof.chopping}
+🐟 **Fish**: Lv.${prof.fishing}
+🌿 **Forage**: Lv.${prof.foraging}
     `;
 
-    // Wait, the user's screenshot had a super specific inline grid for resistances:
-    // rFire + . . . . .
-    // rCold . . . . . .
+    // Explicit Resistance Block
     const resStr = `
 **rFire** \`+\` \`.\` \`.\` \`.\` \`.\` \`.\`
 **rCold** \`.\` \`.\` \`.\` \`.\` \`.\` \`.\`
@@ -57,8 +69,6 @@ export async function handleProfileCommand(message: Message) {
 **rElec** \`+\` \`.\` \`.\` \`.\` \`.\` \`.\`
 **rEvil** \`.\` \`.\` \`.\` \`.\` \`.\` \`.\`
 **rAcid** \`.\` \`.\` \`.\` \`.\` \`.\` \`.\`
-
-**Spirit** \`.\` \`.\` \`.\` \`.\` \`.\` \`.\`
     `;
 
     const embed = new EmbedBuilder()
@@ -68,10 +78,16 @@ export async function handleProfileCommand(message: Message) {
             { name: '⚔️ Equipment', value: loadoutList, inline: false },
             { name: 'General', value: generalStr, inline: true },
             { name: 'Stats', value: statsStr, inline: true },
-            { name: 'Protection', value: defenseStr, inline: true },
+            { name: 'Protection & Skills', value: defenseStr, inline: true },
             { name: '🛡️ Resistances', value: resStr, inline: false },
         )
-        .setFooter({ text: 'Rank: 1,085 | Joined on 2 April 2026 | Dundor' });
+        .setFooter({ text: 'Rank: 1,085 | Joined recently | Aethermoor RPG' });
+
+    // Inject Active Buffs dynamically if the player ate Food
+    if (activeBuffs.length > 0) {
+        let buffLines = activeBuffs.map(b => `🥘 **${b.name}** \`${b.effect}\` — Expires in ${b.timeLeft}`);
+        embed.spliceFields(1, 0, { name: '✨ Active Journey Buffs', value: buffLines.join('\n'), inline: false });
+    }
 
     await message.reply({ embeds: [embed] });
 }
