@@ -7,11 +7,79 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Initial model to test database connection and bot mapping
 model Player {
   id        String   @id // Discord Application User ID
   name      String   // Username or Nickname
+  
+  // Progression
   level     Int      @default(1)
+  xp        Int      @default(0)
+  
+  // Economy
+  coins     Int      @default(0)
+  
+  // Base Stats
+  str       Int      @default(10)
+  dex       Int      @default(10)
+  int       Int      @default(10)
+  
+  // Base Defenses 
+  // (Usually 0, but allows natural level growth outside of gear)
+  baseAc    Int      @default(0)
+  baseEv    Int      @default(0)
+  baseSh    Int      @default(0)
+
+  // System
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relations
+  items     GameItem[]
+  recipes   PlayerRecipe[]
+  buffs     PlayerBuff[]
+}
+
+model PlayerRecipe {
+  id        String   @id @default(uuid())
+  playerId  String
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  
+  recipeId  String   // Maps to static recipes.ts
+  createdAt DateTime @default(now())
+
+  @@unique([playerId, recipeId]) // A player can only unlock a specific recipe once
+}
+
+model PlayerBuff {
+  id        String   @id @default(uuid())
+  playerId  String
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  
+  buffKey   String   // The stat to buff (e.g., 'str', 'xp_boost')
+  buffValue Int      // How much it is buffed by (e.g., +10)
+  
+  expiresAt DateTime // When the temporary buff expires
+
+  createdAt DateTime @default(now())
+}
+
+model GameItem {
+  id            String   @id @default(uuid())
+  playerId      String
+  player        Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  
+  baseItemId    String   // Points to the static items.ts registry (e.g. "short_sword")
+  upgradeLevel  Int      @default(0) // e.g. +4
+  
+  // The specific slot this is equipped to, or NULL if in inventory
+  equippedSlot  String?  // "AD", "OFF", "AU", "AP", "AL", "AF", "AH", "AR", "AJ", "AV"
+
+  // JSON representation of `{ STR: 5, EV: -3 }` random drop modifiers
+  modifiers     Json?    
+
+  createdAt     DateTime @default(now())
+  
+  // Ensure a player can only have one item equipped per specific slot (Composite Unique)
+  // Wait, if it allows NULL, composite unique is fine, but Prisma requires special handling for nullable uniques in PG.
+  // Instead, we will handle uniqueness gracefully in the logic layer.
 }
