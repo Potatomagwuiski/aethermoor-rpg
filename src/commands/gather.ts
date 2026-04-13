@@ -1,24 +1,23 @@
 import { Message } from 'discord.js';
 import { prisma } from '../lib/prisma';
-import { MATERIALS } from '../game/materials';
+import { MATERIALS, ProfessionCategory } from '../game/materials';
 
-// 5 minutes in milliseconds
+// 5 minutes in milliseconds shared cooldown for all gathering activities
 const GATHER_COOLDOWN_MS = 5 * 60 * 1000;
 
 export async function handleGather(message: Message) {
   const userId = message.author.id;
 
   // 1. Authenticate / Fetch User
-  let user = await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id: userId }
   });
 
-  // Provision user if they don't exist
   if (!user) {
     return message.reply("> ⚠️ **Hold on!**\n> You haven't started your journey yet! Type `rpg start` to begin.");
   }
 
-  // 2. Cooldown Check
+  // 2. Global Cooldown Check
   if (user.lastGather) {
     const timeSinceLastGather = Date.now() - user.lastGather.getTime();
     if (timeSinceLastGather < GATHER_COOLDOWN_MS) {
@@ -31,9 +30,10 @@ export async function handleGather(message: Message) {
   }
 
   // 3. RNG Core
-  // Determine how many *types* of items we pull (between 1 and 3)
-  const numTypes = Math.floor(Math.random() * 3) + 1;
   const availableMats = Object.values(MATERIALS);
+  
+  // Determine how many *types* of items we pull (between 1 and 4 for general gathering)
+  const numTypes = Math.min(availableMats.length, Math.floor(Math.random() * 4) + 1);
   
   // Shuffle and pick
   availableMats.sort(() => Math.random() - 0.5);
@@ -42,13 +42,10 @@ export async function handleGather(message: Message) {
   let outputText = `> 🏕️ **Gathering Complete**\n> You spent 5 minutes scavenging the area and found:\n>\n`;
 
   // 4. Update Database
-  // Since Prisma upscale queries can be tedious with relations, we'll do them sequentially.
   for (const mat of gatheredMats) {
-    // Generate a quantity based on rarity modifier
-    const baseAmount = Math.floor(Math.random() * 15) + 5; // 5 to 19 roughly
+    const baseAmount = Math.floor(Math.random() * 15) + 5;
     const quantity = Math.max(1, Math.floor(baseAmount * mat.dropChanceMultiplier));
 
-    // Upsert equivalent for inventory: Find if user already has an unupgraded stack of this item
     const existingStack = await prisma.inventoryItem.findFirst({
       where: {
         userId: user.id,
@@ -76,7 +73,7 @@ export async function handleGather(message: Message) {
     outputText += `> ${mat.emoji} **${quantity}x ${mat.name}**\n`;
   }
 
-  // Put user on cooldown
+  // Put user on global gathering cooldown
   await prisma.user.update({
     where: { id: user.id },
     data: { lastGather: new Date() }
