@@ -4,6 +4,7 @@ import { ACTIONS, REACTIONS, STANCES } from './game/items';
 import { Fighter, buildFighter, resolveCombat } from './game/combat';
 import { handleStart } from './commands/start';
 import { handleProfile } from './commands/profile';
+import { handleBossMenu, handleFightBoss } from './commands/boss';
 import { prisma } from './lib/prisma';
 
 dotenv.config();
@@ -31,23 +32,21 @@ client.on(Events.MessageCreate, async (message) => {
     await handleStart(message);
   } else if (content === 'rpg profile' || content === 'rpg p') {
     await handleProfile(message);
+  } else if (content === 'rpg boss') {
+    await handleBossMenu(message);
+  } else if (content === 'rpg fight boss') {
+    await handleFightBoss(message);
   } else if (content === 'rpg sim') {
-    // Scaffold two pre-made builds fighting
     const rogue = buildFighter("Shadow Assassin", 
        { str: 5, dex: 30, vit: 10, int: 5 }, 
        { stance: STANCES['shadow_cloak'], action: ACTIONS['assassin_blade'], reaction: REACTIONS['smoke_powder'] }
     );
-
     const paladin = buildFighter("Holy Paladin", 
        { str: 20, dex: 5, vit: 25, int: 15 }, 
        { stance: STANCES['paladin_aura'], action: ACTIONS['heavy_greataxe'], reaction: REACTIONS['shield_bash'] }
     );
-
     let logStr = "**--- TICK-BASED COMBAT SIMULATION ---**\n";
-    logStr += "🗡️ **Shadow Assassin** [Shadow Cloak (Evade/Stealth) + Assassin Blade (Fast) + Smoke Powder (Re-stealth)]\n";
-    logStr += "Vs.\n";
-    logStr += "🛡️ **Holy Paladin** [Paladin Aura (+AC/+Shield) + Heavy Greataxe (Slow/Heavy) + Shield Bash (Reflect)]\n\n";
-
+    logStr += "🗡️ **Shadow Assassin** [Shadow Cloak (Evade/Stealth) + Assassin Blade (Fast) + Smoke Powder (Re-stealth)]\nVs.\n🛡️ **Holy Paladin** [Paladin Aura (+AC/+Shield) + Heavy Greataxe (Slow/Heavy) + Shield Bash (Reflect)]\n\n";
     const combatLogs = resolveCombat(rogue, paladin);
     let fullLog = logStr + combatLogs.join("\n");
     if (fullLog.length > 1950) fullLog = fullLog.substring(0, 1950) + "\n...[Truncated]";
@@ -56,7 +55,6 @@ client.on(Events.MessageCreate, async (message) => {
   } else if (content === 'rpg pve') {
     const user = await prisma.user.findUnique({ where: { id: message.author.id } });
     if (!user) return message.reply("You haven't started yet! Type `rpg start`.");
-
     const playerFighter = buildFighter(
       message.author.username,
       { str: user.strength, dex: user.dexterity, vit: user.vitality, int: user.intelligence },
@@ -66,7 +64,6 @@ client.on(Events.MessageCreate, async (message) => {
         reaction: user.reactionId ? REACTIONS[user.reactionId] : undefined,
       }
     );
-
     const monsterFighter = buildFighter(
       "Corrupted Golem",
       { str: 15, dex: 5, vit: 20, int: 0 },
@@ -76,10 +73,8 @@ client.on(Events.MessageCreate, async (message) => {
         reaction: REACTIONS['shield_bash']
       }
     );
-
     let logStr = `**You encounter a Corrupted Golem in the wilds!**\n\n`;
     const combatLogs = resolveCombat(playerFighter, monsterFighter);
-    
     let fullLog = logStr + combatLogs.join("\n");
     if (fullLog.length > 1950) fullLog = fullLog.substring(0, 1950) + "\n...[Truncated]";
     await message.reply(fullLog);
