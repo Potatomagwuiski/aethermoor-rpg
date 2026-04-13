@@ -1,4 +1,4 @@
-import prisma from '../lib/prisma';
+import { prisma } from '../lib/prisma';
 import { Message, EmbedBuilder } from 'discord.js';
 import { STANCES, ACTIONS, REACTIONS } from '../game/items';
 

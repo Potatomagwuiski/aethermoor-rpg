@@ -4,7 +4,7 @@ import { ACTIONS, REACTIONS, STANCES } from './game/items';
 import { Fighter, buildFighter, resolveCombat } from './game/combat';
 import { handleStart } from './commands/start';
 import { handleProfile } from './commands/profile';
-import prisma from './lib/prisma';
+import { prisma } from './lib/prisma';
 
 dotenv.config();
 

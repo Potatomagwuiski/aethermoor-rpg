@@ -1,4 +1,4 @@
-import prisma from '../lib/prisma';
+import { prisma } from '../lib/prisma';
 import { Message } from 'discord.js';
 
 export async function handleStart(message: Message) {
