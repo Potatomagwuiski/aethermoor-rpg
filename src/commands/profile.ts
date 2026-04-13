@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { Message, EmbedBuilder } from 'discord.js';
 import { prisma } from '../lib/prisma';
 
 export async function handleProfile(message: Message) {
@@ -13,32 +13,18 @@ export async function handleProfile(message: Message) {
     return message.reply("> ⚠️ **Hold on!**\n> You haven't started your journey yet! Type `rpg start` to begin.");
   }
 
-  // Because we haven't implemented the Weapon/Armor registry yet,
-  // we cannot fetch the actual name of equipped gear. So we'll render [ Empty ] if null,
-  // or [ Equipped ] if not null. 
-  // In the future this will lookup a GEAR_REGISTRY.
   const formatSlot = (slot: string | null) => slot ? `[ Equipped ]` : `[ Empty ]`;
 
-  const profileText = `
-> 👤 **${username.toUpperCase()}'S PROFILE**
-> 
-> 🏅 **Level:** ${user.level}
-> 💎 **XP:** ${user.xp}
-> 💰 **Gold:** ${user.gold}g
-> 
-> 📊 **ATTRIBUTES**
-> STR: \`${user.str}\` | DEX: \`${user.dex}\` | VIT: \`${user.vit}\` | AGI: \`${user.agi}\` | INT: \`${user.int}\`
-> 
-> ⚔️ **LOADOUT**
-> **Weapon:** ${formatSlot(user.weaponId)}
-> **Armor:** ${formatSlot(user.armorId)}
-> **Helmet:** ${formatSlot(user.helmetId)}
-> **Boots:** ${formatSlot(user.bootsId)}
-> **Gloves:** ${formatSlot(user.glovesId)}
-> **Amulet:** ${formatSlot(user.amuletId)}
-> **Ring 1:** ${formatSlot(user.ring1Id)}
-> **Ring 2:** ${formatSlot(user.ring2Id)}
-  `.trim();
+  const embed = new EmbedBuilder()
+    .setTitle(`👤 ${username.toUpperCase()}'S PROFILE`)
+    .setColor('#3498db') // A sleek blue hex color
+    .addFields(
+      { name: '🏅 Progression', value: `**Level:** ${user.level} | **XP:** ${user.xp}`, inline: true },
+      { name: '💰 Wealth', value: `**Gold:** ${user.gold}g`, inline: true },
+      { name: '📊 Attributes', value: `\`STR: ${user.str}\` | \`DEX: ${user.dex}\` | \`VIT: ${user.vit}\` | \`AGI: ${user.agi}\` | \`INT: ${user.int}\``, inline: false },
+      { name: '⚔️ Loadout', value: `**Weapon:** ${formatSlot(user.weaponId)}\n**Armor:** ${formatSlot(user.armorId)}\n**Helmet:** ${formatSlot(user.helmetId)}\n**Boots:** ${formatSlot(user.bootsId)}\n**Gloves:** ${formatSlot(user.glovesId)}\n**Amulet:** ${formatSlot(user.amuletId)}\n**Ring 1:** ${formatSlot(user.ring1Id)}\n**Ring 2:** ${formatSlot(user.ring2Id)}`, inline: false }
+    )
+    .setFooter({ text: 'Aethermoor RPG Dashboard' });
 
-  return message.reply(profileText);
+  return message.reply({ embeds: [embed] });
 }

@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { Message, EmbedBuilder } from 'discord.js';
 import { prisma } from '../lib/prisma';
 import { MATERIALS } from '../game/materials';
 
@@ -18,23 +18,25 @@ export async function handleInventory(message: Message) {
 
   const items = user.inventory;
 
+  const embed = new EmbedBuilder()
+    .setTitle(`🎒 Inventory [${items.length}/50]`)
+    .setColor('#e67e22') // Orange layout
+    .setFooter({ text: 'Aethermoor Inventory System' });
+
   if (items.length === 0) {
-    return message.reply("> 🎒 **Inventory [0/50]**\n> \n> Your pockets are completely empty. Type `rpg gather` to scavenge materials.");
-  }
-
-  let inventoryText = `> 🎒 **Inventory [${items.length}/50]**\n> \n`;
-
-  for (const item of items) {
-    // If we have an external gear registry, we'd check that too. For now we just map materials.
-    const matDetails = MATERIALS[item.baseItemId];
-    
-    if (matDetails) {
-      inventoryText += `> ${matDetails.emoji} **${item.quantity}x ${matDetails.name}**\n`;
-    } else {
-      // Fallback if item ID doesn't exist in our config
-      inventoryText += `> ❓ **${item.quantity}x Unknown Item (${item.baseItemId})**\n`;
+    embed.setDescription('*Your pockets are completely empty. Type `rpg gather` to scavenge materials.*');
+  } else {
+    let inventoryText = '';
+    for (const item of items) {
+      const matDetails = MATERIALS[item.baseItemId];
+      if (matDetails) {
+        inventoryText += `${matDetails.emoji} **${matDetails.name}** \`x${item.quantity}\`\n`;
+      } else {
+        inventoryText += `❓ **Unknown Item (${item.baseItemId})** \`x${item.quantity}\`\n`;
+      }
     }
+    embed.setDescription(inventoryText.trim());
   }
 
-  return message.reply(inventoryText.trim());
+  return message.reply({ embeds: [embed] });
 }
