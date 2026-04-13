@@ -17,6 +17,8 @@ client.once(Events.ClientReady, (readyClient) => {
 
 import { handleGather } from './commands/gather';
 import { handleStart } from './commands/start';
+import { handleProfile } from './commands/profile';
+import { handleInventory } from './commands/inventory';
 
 client.on(Events.MessageCreate, async (message) => {
   if (message.author.bot) return;
@@ -37,6 +39,20 @@ client.on(Events.MessageCreate, async (message) => {
     } catch (error) {
       console.error(error);
       message.reply("An error occurred while starting your adventure.");
+    }
+  } else if (content === 'rpg profile' || content === 'rpg p') {
+    try {
+      await handleProfile(message);
+    } catch (error) {
+      console.error(error);
+      message.reply("An error occurred while fetching your profile.");
+    }
+  } else if (content === 'rpg inventory' || content === 'rpg inv' || content === 'rpg i') {
+    try {
+      await handleInventory(message);
+    } catch (error) {
+      console.error(error);
+      message.reply("An error occurred while fetching your inventory.");
     }
   }
 });
