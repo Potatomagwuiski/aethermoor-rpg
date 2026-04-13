@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 import { handleStart } from './commands/start';
 import { handleProfile } from './commands/profile';
 import { handleBossMenu, handleFightBoss } from './commands/boss';
+import { handleHunt } from './commands/hunt';
 import { handleLogsList, handleLogsGet } from './commands/logs';
 
 dotenv.config();
@@ -35,6 +36,8 @@ client.on(Events.MessageCreate, async (message) => {
     await handleBossMenu(message);
   } else if (content === 'rpg fight boss') {
     await handleFightBoss(message);
+  } else if (content === 'rpg hunt') {
+    await handleHunt(message);
   } else if (content === 'rpg logs') {
     await handleLogsList(message);
   } else if (content.startsWith('rpg logs get ')) {
