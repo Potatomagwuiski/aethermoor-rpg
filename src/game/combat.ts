@@ -35,7 +35,15 @@ export function buildFighter(name: string, stats: any, loadout: any): Fighter {
 
 const rand = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-export function resolveCombat(fighterA: Fighter, fighterB: Fighter): string[] {
+export interface CombatResult {
+  winner: string;
+  loser: string;
+  ticks: number;
+  playerHpLeft: number;
+  logs: string[];
+}
+
+export function resolveCombat(fighterA: Fighter, fighterB: Fighter): CombatResult {
   const logs: string[] = [];
   const MAX_TICKS = 1500;
   
@@ -49,7 +57,9 @@ export function resolveCombat(fighterA: Fighter, fighterB: Fighter): string[] {
   if (fighterA.state.stealth) logs.push(`🌫️ ${fighterA.name} vanishes into the shadows!`);
   if (fighterB.state.stealth) logs.push(`🌫️ ${fighterB.name} vanishes into the shadows!`);
 
+  let finalTick = 0;
   for (let tick = 0; tick <= MAX_TICKS; tick++) {
+    finalTick = tick;
     if (fighterA.hp <= 0 || fighterB.hp <= 0) break;
 
     // Resolve turns sequentially based on tick timeline
@@ -67,11 +77,28 @@ export function resolveCombat(fighterA: Fighter, fighterB: Fighter): string[] {
   }
 
   logs.push(`\n**--- COMBAT OVER ---**`);
-  if (fighterA.hp > 0 && fighterB.hp <= 0) logs.push(`🏆 **${fighterA.name} wins!** HP: ${fighterA.hp}`);
-  else if (fighterB.hp > 0 && fighterA.hp <= 0) logs.push(`🏆 **${fighterB.name} wins!** HP: ${fighterB.hp}`);
+  
+  let winner = "Draw";
+  let loser = "Draw";
+  if (fighterA.hp > 0 && fighterB.hp <= 0) {
+     winner = fighterA.name;
+     loser = fighterB.name;
+     logs.push(`🏆 **${fighterA.name} wins!** HP: ${fighterA.hp}`);
+  }
+  else if (fighterB.hp > 0 && fighterA.hp <= 0) {
+     winner = fighterB.name;
+     loser = fighterA.name;
+     logs.push(`🏆 **${fighterB.name} wins!** HP: ${fighterB.hp}`);
+  }
   else logs.push(`⏳ **Draw due to time limit!**`);
 
-  return logs;
+  return {
+    winner,
+    loser,
+    ticks: finalTick,
+    playerHpLeft: fighterA.hp,
+    logs
+  };
 }
 
 function scheduleNextAction(fighter: Fighter, executedFullAttack: boolean) {

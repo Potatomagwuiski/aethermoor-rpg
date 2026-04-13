@@ -12,21 +12,31 @@ model User {
   xp           Int      @default(0)
   
   // Base Attributes
-  strength     Int @default(5)  // Affects physical damage and stamina
-  dexterity    Int @default(5)  // Affects evasion and critical hit chance
-  vitality     Int @default(5)  // Affects max health and flat damage mitigation
-  intelligence Int @default(5)  // Affects magic damage and elemental resistance
+  strength     Int @default(5)
+  dexterity    Int @default(5)
+  vitality     Int @default(5)
+  intelligence Int @default(5)
 
-  // The "Deep Build" Loadout System
-  // Every player has 3 core configurable slots that synergize with each other.
-  stanceId    String?  // Passive modifier (e.g. "Vampiric Stance" - Heals on hit)
-  actionId    String?  // Primary attack method (e.g. "Heavy Greataxe" or "Fireball")
-  reactionId  String?  // Trigger/Condition (e.g. "Thorned Armor" - Deals damage when hit)
+  stanceId    String?
+  actionId    String?
+  reactionId   String?
 
-  inventory InventoryItem[]
+  logs         CombatLog[]
+  inventory    InventoryItem[]
 
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model CombatLog {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  enemyName String
+  outcome   String
+  duration  Int
+  content   String
+  createdAt DateTime @default(now())
 }
 
 model InventoryItem {
@@ -34,8 +44,8 @@ model InventoryItem {
   userId     String
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
-  itemId     String   // E.g., 'vampiric_stance', 'heavy_greataxe'
-  itemType   String   // 'stance', 'action', 'reaction'
+  itemId     String
+  itemType   String
   
   createdAt  DateTime @default(now())
 }

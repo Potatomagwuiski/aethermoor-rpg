@@ -87,10 +87,28 @@ export async function handleFightBoss(message: Message) {
 
   const boss = createVoidWeaver();
 
-  let logStr = `**You lock into the timeline against ${boss.name}!**\n\n`;
-  const combatLogs = resolveCombat(player, boss);
+  const result = resolveCombat(player, boss);
   
-  let fullLog = logStr + combatLogs.join("\n");
-  if (fullLog.length > 1950) fullLog = fullLog.substring(0, 1950) + "\n...[Truncated, you survived another tick!]";
-  await message.reply(fullLog);
+  // Save full log to database
+  const fullLogText = result.logs.join("\n");
+  const savedLog = await prisma.combatLog.create({
+    data: {
+      userId: user.id,
+      enemyName: boss.name,
+      outcome: result.winner === player.name ? "Victory" : (result.winner === boss.name ? "Defeat" : "Draw"),
+      duration: result.ticks,
+      content: fullLogText
+    }
+  });
+
+  const outcomeTitle = result.winner === player.name ? "Victory!" : "Defeat...";
+  const color = result.winner === player.name ? 0x2ecc71 : 0xe74c3c;
+  
+  const embed = new EmbedBuilder()
+    .setTitle(`Combat Resolution: ${boss.name}`)
+    .setColor(color)
+    .setDescription(`**${outcomeTitle}**\n\nThe fight concluded in **${result.ticks} Ticks**.\nYou survived with **${result.playerHpLeft} HP** left!`)
+    .setFooter({ text: `Log ID: ${savedLog.id} | View full timeline with dun logs get ${savedLog.id}` });
+    
+  await message.reply({ embeds: [embed] });
 }
