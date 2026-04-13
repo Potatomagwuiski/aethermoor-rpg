@@ -12,7 +12,9 @@ export async function handleShop(message: Message) {
     const statStrings = Object.entries(g.stats).map(([key, val]) => `${key.toUpperCase()}: ${val}`);
     const statText = statStrings.length > 0 ? ` [${statStrings.join(' | ')}]` : '';
     
-    return `${g.emoji} **${g.name}** — 💰 ${g.price}g\n\`ID: ${g.id}\`${statText}`;
+    const index = allGear.indexOf(g) + 1;
+
+    return `${g.emoji} **${g.name}** — 💰 ${g.price}g\n\`ID: ${index}\`${statText}`;
   };
 
   const embed = new EmbedBuilder()

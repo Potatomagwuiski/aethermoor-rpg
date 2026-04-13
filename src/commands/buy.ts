@@ -6,15 +6,17 @@ export async function handleBuy(message: Message, args: string[]) {
   const userId = message.author.id;
 
   if (args.length === 0) {
-    return message.reply("> ⚠️ **Invalid Syntax**\n> Please specify an item ID. Example: `rpg buy rusty_sword`");
+    return message.reply("> ⚠️ **Invalid Syntax**\n> Please specify an item ID. Example: `rpg buy 1`");
   }
 
-  const itemId = args[0].toLowerCase();
-  const gear = GEAR[itemId];
-
-  if (!gear) {
-    return message.reply(`> ⚠️ **Item Not Found**\n> The engine cannot locate item ID \`${itemId}\` in the merchant registry.`);
+  const allGear = Object.values(GEAR);
+  const indexNum = parseInt(args[0], 10);
+  
+  if (isNaN(indexNum) || indexNum < 1 || indexNum > allGear.length) {
+    return message.reply(`> ⚠️ **Item Not Found**\n> The engine cannot locate item ID \`${args[0]}\` in the merchant registry.`);
   }
+
+  const gear = allGear[indexNum - 1];
 
   // 1. Authenticate / Fetch User inside a transaction
   try {
