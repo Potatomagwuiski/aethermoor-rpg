@@ -32,11 +32,15 @@ export async function handleGather(message: Message) {
   // 3. RNG Core
   const availableMats = Object.values(MATERIALS);
   
-  // Determine how many *types* of items we pull (between 1 and 4 for general gathering)
-  const numTypes = Math.min(availableMats.length, Math.floor(Math.random() * 4) + 1);
+  // Determine how many *types* of items we pull: 1 or 2
+  const numTypes = Math.min(availableMats.length, Math.floor(Math.random() * 2) + 1);
   
-  // Shuffle and pick
-  availableMats.sort(() => Math.random() - 0.5);
+  // Fisher-Yates Shuffle for mathematically sound unbiased randomization
+  for (let i = availableMats.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [availableMats[i], availableMats[j]] = [availableMats[j], availableMats[i]];
+  }
+  
   const gatheredMats = availableMats.slice(0, numTypes);
 
   let outputText = `> 🏕️ **Gathering Complete**\n> You spent 5 minutes scavenging the area and found:\n>\n`;
