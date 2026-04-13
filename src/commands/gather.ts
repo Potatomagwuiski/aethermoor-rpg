@@ -15,9 +15,7 @@ export async function handleGather(message: Message) {
 
   // Provision user if they don't exist
   if (!user) {
-    user = await prisma.user.create({
-      data: { id: userId }
-    });
+    return message.reply("You haven't started your journey yet! Type `rpg start` to begin.");
   }
 
   // 2. Cooldown Check

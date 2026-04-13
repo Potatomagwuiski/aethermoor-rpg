@@ -16,6 +16,7 @@ client.once(Events.ClientReady, (readyClient) => {
 });
 
 import { handleGather } from './commands/gather';
+import { handleStart } from './commands/start';
 
 client.on(Events.MessageCreate, async (message) => {
   if (message.author.bot) return;
@@ -29,6 +30,13 @@ client.on(Events.MessageCreate, async (message) => {
     } catch (error) {
       console.error(error);
       message.reply("An error occurred while gathering.");
+    }
+  } else if (content === 'rpg start') {
+    try {
+      await handleStart(message);
+    } catch (error) {
+      console.error(error);
+      message.reply("An error occurred while starting your adventure.");
     }
   }
 });
