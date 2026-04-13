@@ -19,13 +19,19 @@ import { handleGather } from './commands/gather';
 import { handleStart } from './commands/start';
 import { handleProfile } from './commands/profile';
 import { handleInventory } from './commands/inventory';
+import { handleShop } from './commands/shop';
+import { handleBuy } from './commands/buy';
 
 client.on(Events.MessageCreate, async (message) => {
   if (message.author.bot) return;
 
   const content = message.content.trim().toLowerCase();
 
-  // Basic Router
+  // Basic Router extracting command and args
+  const args = content.split(/ +/);
+  const command = args.shift();
+  const subCommand = args.length > 0 ? args[0] : null;
+
   if (content === 'rpg gather') {
     try {
       await handleGather(message);
@@ -53,6 +59,20 @@ client.on(Events.MessageCreate, async (message) => {
     } catch (error) {
       console.error(error);
       message.reply("An error occurred while fetching your inventory.");
+    }
+  } else if (content === 'rpg shop') {
+    try {
+      await handleShop(message);
+    } catch (error) {
+      console.error(error);
+      message.reply("An error occurred while fetching the shop.");
+    }
+  } else if (command === 'rpg' && subCommand === 'buy') {
+    try {
+      await handleBuy(message, args.slice(1));
+    } catch (error) {
+      console.error(error);
+      message.reply("An error occurred during purchase.");
     }
   }
 });

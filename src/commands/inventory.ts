@@ -1,6 +1,7 @@
 import { Message, EmbedBuilder } from 'discord.js';
 import { prisma } from '../lib/prisma';
 import { MATERIALS } from '../game/materials';
+import { GEAR } from '../game/gear';
 
 export async function handleInventory(message: Message) {
   const userId = message.author.id;
@@ -29,8 +30,12 @@ export async function handleInventory(message: Message) {
     let inventoryText = '';
     for (const item of items) {
       const matDetails = MATERIALS[item.baseItemId];
+      const gearDetails = GEAR[item.baseItemId];
+      
       if (matDetails) {
         inventoryText += `${matDetails.emoji} **${matDetails.name}** \`x${item.quantity}\`\n`;
+      } else if (gearDetails) {
+        inventoryText += `${gearDetails.emoji} **${gearDetails.name}** \`x${item.quantity}\`\n`;
       } else {
         inventoryText += `❓ **Unknown Item (${item.baseItemId})** \`x${item.quantity}\`\n`;
       }
