@@ -15,7 +15,7 @@ export async function handleGather(message: Message) {
 
   // Provision user if they don't exist
   if (!user) {
-    return message.reply("You haven't started your journey yet! Type `rpg start` to begin.");
+    return message.reply("> ⚠️ **Hold on!**\n> You haven't started your journey yet! Type `rpg start` to begin.");
   }
 
   // 2. Cooldown Check
@@ -26,7 +26,7 @@ export async function handleGather(message: Message) {
       const remainingMinutes = Math.floor(remainingMs / 60000);
       const remainingSeconds = Math.floor((remainingMs % 60000) / 1000);
       
-      return message.reply(`You are fatigued. You can gather again in **${remainingMinutes}m ${remainingSeconds}s**.`);
+      return message.reply(`> 🥱 **You are fatigued.**\n> You can gather again in **${remainingMinutes}m ${remainingSeconds}s**.`);
     }
   }
 
@@ -39,7 +39,7 @@ export async function handleGather(message: Message) {
   availableMats.sort(() => Math.random() - 0.5);
   const gatheredMats = availableMats.slice(0, numTypes);
 
-  let outputText = `You spent 5 minutes gathering the surrounding area and found:\n`;
+  let outputText = `> 🏕️ **Gathering Complete**\n> You spent 5 minutes scavenging the area and found:\n>\n`;
 
   // 4. Update Database
   // Since Prisma upscale queries can be tedious with relations, we'll do them sequentially.
@@ -73,7 +73,7 @@ export async function handleGather(message: Message) {
       });
     }
 
-    outputText += `${mat.emoji} **${quantity}x ${mat.name}**\n`;
+    outputText += `> ${mat.emoji} **${quantity}x ${mat.name}**\n`;
   }
 
   // Put user on cooldown

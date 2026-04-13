@@ -23,12 +23,14 @@ export async function handleStart(message: Message) {
   // 3. Welcome Dialogue
   const startingMap = getMap(newUser.currentMapId);
   const welcomeText = `
-**Welcome to Aethermoor!**
-You awaken in ${startingMap?.emoji || '🌲'} **${startingMap?.name || 'The Whispering Woods'}** with nothing but the clothes on your back. 
-
-The path ahead is dangerous, but the rewards are eternal. To survive, you must scavenge materials to forge your first weapon.
-
-➡️ **Tip:** Type \`rpg gather\` to scavenge the surrounding area.
+> ⚔️ **Welcome to Aethermoor!**
+> 
+> *You awaken in ${startingMap?.emoji || '🌲'} **${startingMap?.name || 'The Whispering Woods'}** with nothing but the clothes on your back.*
+> 
+> 🎒 **Your Journey Begins**
+> The path ahead is dangerous, but the rewards are eternal. To survive, you must scavenge materials to forge your first weapon.
+> 
+> ➡️ **Tip:** Type \`rpg gather\` to scavenge the surrounding area.
   `.trim();
 
   return message.reply(welcomeText);
