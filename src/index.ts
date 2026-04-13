@@ -15,65 +15,14 @@ client.once(Events.ClientReady, (readyClient) => {
   console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
 
-import { handleGather } from './commands/gather';
-import { handleStart } from './commands/start';
-import { handleProfile } from './commands/profile';
-import { handleInventory } from './commands/inventory';
-import { handleShop } from './commands/shop';
-import { handleBuy } from './commands/buy';
-
 client.on(Events.MessageCreate, async (message) => {
   if (message.author.bot) return;
 
   const content = message.content.trim().toLowerCase();
 
-  // Basic Router extracting command and args
-  const args = content.split(/ +/);
-  const command = args.shift();
-  const subCommand = args.length > 0 ? args[0] : null;
-
-  if (content === 'rpg gather') {
-    try {
-      await handleGather(message);
-    } catch (error) {
-      console.error(error);
-      message.reply("An error occurred while gathering.");
-    }
-  } else if (content === 'rpg start') {
-    try {
-      await handleStart(message);
-    } catch (error) {
-      console.error(error);
-      message.reply("An error occurred while starting your adventure.");
-    }
-  } else if (content === 'rpg profile' || content === 'rpg p') {
-    try {
-      await handleProfile(message);
-    } catch (error) {
-      console.error(error);
-      message.reply("An error occurred while fetching your profile.");
-    }
-  } else if (content === 'rpg inventory' || content === 'rpg inv' || content === 'rpg i') {
-    try {
-      await handleInventory(message);
-    } catch (error) {
-      console.error(error);
-      message.reply("An error occurred while fetching your inventory.");
-    }
-  } else if (content === 'rpg shop') {
-    try {
-      await handleShop(message);
-    } catch (error) {
-      console.error(error);
-      message.reply("An error occurred while fetching the shop.");
-    }
-  } else if (command === 'rpg' && subCommand === 'buy') {
-    try {
-      await handleBuy(message, args.slice(1));
-    } catch (error) {
-      console.error(error);
-      message.reply("An error occurred during purchase.");
-    }
+  // Simple ping command to verify bot is alive
+  if (content === 'ping') {
+    await message.reply('Pong! Bot is online and ready for a new idea.');
   }
 });
 
