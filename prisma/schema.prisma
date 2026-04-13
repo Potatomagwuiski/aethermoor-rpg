@@ -25,6 +25,7 @@ model User {
   weaponId String?
   helmetId String?
   amuletId String?
+  cloakId  String?
   ring1Id  String?
   ring2Id  String?
   glovesId String?

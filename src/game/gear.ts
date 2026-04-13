@@ -1,4 +1,4 @@
-export type GearSlot = 'weapon' | 'helmet' | 'amulet' | 'ring' | 'armor' | 'boots' | 'gloves';
+export type GearSlot = 'weapon' | 'helmet' | 'amulet' | 'ring' | 'armor' | 'boots' | 'gloves' | 'cloak';
 
 export interface Gear {
   id: string;
@@ -20,11 +20,29 @@ export const GEAR: Record<string, Gear> = {
   rusty_sword: { id: 'rusty_sword', name: 'Rusty Sword', emoji: '🗡️', slot: 'weapon', price: 25, stats: { str: 2, agi: 1 } },
   wooden_bow: { id: 'wooden_bow', name: 'Wooden Bow', emoji: '🏹', slot: 'weapon', price: 25, stats: { dex: 3 } },
   chipped_wand: { id: 'chipped_wand', name: 'Chipped Wand', emoji: '🪄', slot: 'weapon', price: 25, stats: { int: 3 } },
+  iron_dagger: { id: 'iron_dagger', name: 'Iron Dagger', emoji: '🔪', slot: 'weapon', price: 25, stats: { dex: 2, agi: 1 } },
+  dull_axe: { id: 'dull_axe', name: 'Dull Axe', emoji: '🪓', slot: 'weapon', price: 25, stats: { str: 3 } },
+  heavy_mace: { id: 'heavy_mace', name: 'Heavy Mace', emoji: '🔨', slot: 'weapon', price: 25, stats: { str: 2, vit: 1 } },
+  wooden_spear: { id: 'wooden_spear', name: 'Wooden Spear', emoji: '🔱', slot: 'weapon', price: 25, stats: { str: 1, dex: 2 } },
+  light_crossbow: { id: 'light_crossbow', name: 'Light Crossbow', emoji: '🏹', slot: 'weapon', price: 25, stats: { dex: 2, str: 1 } },
+  gnarled_staff: { id: 'gnarled_staff', name: 'Gnarled Staff', emoji: '🏑', slot: 'weapon', price: 25, stats: { int: 2, vit: 1 } },
+  iron_scythe: { id: 'iron_scythe', name: 'Iron Scythe', emoji: '🌾', slot: 'weapon', price: 25, stats: { int: 1, str: 2 } },
+  leather_knuckles: { id: 'leather_knuckles', name: 'Leather Knuckles', emoji: '🤜', slot: 'weapon', price: 25, stats: { agi: 2, str: 1 } },
 
   // --- STARTER CHEST ARMOR (25g) ---
   copper_mail: { id: 'copper_mail', name: 'Copper Mail', emoji: '🛡️', slot: 'armor', price: 25, stats: { vit: 3, str: 1 } },
   leather_tunic: { id: 'leather_tunic', name: 'Leather Tunic', emoji: '🧥', slot: 'armor', price: 25, stats: { dex: 2, agi: 2 } },
   ripped_robes: { id: 'ripped_robes', name: 'Ripped Robes', emoji: '👘', slot: 'armor', price: 25, stats: { int: 2, vit: 1 } },
+  bronze_plate: { id: 'bronze_plate', name: 'Bronze Plate', emoji: '🦺', slot: 'armor', price: 25, stats: { vit: 4 } },
+  chainmail_hauberk: { id: 'chainmail_hauberk', name: 'Chainmail Hauberk', emoji: '👕', slot: 'armor', price: 25, stats: { vit: 2, str: 1, agi: 1 } },
+  silk_vest: { id: 'silk_vest', name: 'Silk Vest', emoji: '🥻', slot: 'armor', price: 25, stats: { int: 2, agi: 2 } },
+  hunters_garb: { id: 'hunters_garb', name: 'Hunter\'s Garb', emoji: '🎽', slot: 'armor', price: 25, stats: { dex: 2, vit: 2 } },
+
+  // --- STARTER CLOAKS (20g) ---
+  simple_cape: { id: 'simple_cape', name: 'Simple Cape', emoji: '🦸', slot: 'cloak', price: 20, stats: { vit: 1, agi: 1 } },
+  tattered_cloak: { id: 'tattered_cloak', name: 'Tattered Cloak', emoji: '🧛', slot: 'cloak', price: 20, stats: { dex: 1, agi: 1 } },
+  travelers_mantle: { id: 'travelers_mantle', name: 'Traveler\'s Mantle', emoji: '🧝', slot: 'cloak', price: 20, stats: { int: 1, vit: 1 } },
+  heavy_cowl: { id: 'heavy_cowl', name: 'Heavy Cowl', emoji: '🥷', slot: 'cloak', price: 20, stats: { str: 1, vit: 1 } },
 
   // --- STARTER HELMETS (15g) ---
   iron_coif: { id: 'iron_coif', name: 'Iron Coif', emoji: '🪖', slot: 'helmet', price: 15, stats: { vit: 2 } },
