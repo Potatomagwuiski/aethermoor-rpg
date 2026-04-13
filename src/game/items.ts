@@ -3,11 +3,11 @@ export type ScaleStat = 'str' | 'dex' | 'vit' | 'int';
 export interface CombatModifier {
   damageMult?: number;
   evadeBonus?: number;
-  acBonus?: number;       // Armor Class - Reduces incoming damage (%)
-  shieldBonus?: number;   // Flat Shield HP added at the start of combat
-  speedMult?: number;     // Action speed multiplier (lower = faster)
+  acBonus?: number;
+  shieldBonus?: number;
+  speedMult?: number;
   critBonus?: number;
-  stealthEntry?: boolean; // Does this stance/action enter stealth?
+  stealthEntry?: boolean;
 }
 
 export interface Stance {
@@ -23,15 +23,16 @@ export interface Action {
   description: string;
   scaleStat: ScaleStat;
   basePower: number; 
-  baseSpeed: number; // Base Ticks required to attack again (e.g. 100 is standard, 50 is fast)
-  grantsStealth?: boolean; // e.g. Smoke Bomb attack
+  baseSpeed: number;
+  range: number; // Maximum attack distance in tiles (e.g., 1 for melee, 10 for bow)
+  grantsStealth?: boolean;
 }
 
 export interface Reaction {
   id: string;
   name: string;
   trigger: 'onHitTaken' | 'onEvade' | 'onCritDealt' | 'onStealthBreak';
-  effect: (user: any, target: any, value: number) => { log: string, damageDealtToTarget?: number, healUser?: number, applyStealth?: boolean };
+  effect: (user: any, target: any, value: number) => { log: string, damageDealtToTarget?: number, healUser?: number, applyStealth?: boolean, pushback?: number };
 }
 
 // --- INITIAL REGISTRIES ---
@@ -41,13 +42,19 @@ export const STANCES: Record<string, Stance> = {
     id: 'shadow_cloak',
     name: 'Shadow Cloak',
     description: 'A stealth-oriented stance that severely increases evasion but offers no Armor.',
-    modifiers: { evadeBonus: 30, acBonus: -10, speedMult: 0.8, stealthEntry: true } // Starts in stealth, 20% faster
+    modifiers: { evadeBonus: 30, acBonus: -10, speedMult: 0.8, stealthEntry: true }
   },
   paladin_aura: {
     id: 'paladin_aura',
     name: 'Paladin Aura',
     description: 'Generates a massive holy shield and heavy AC, but removes all evasion.',
-    modifiers: { evadeBonus: -100, acBonus: 50, shieldBonus: 200 } // +50 Armor Class, +200 Shield HP
+    modifiers: { evadeBonus: -100, acBonus: 50, shieldBonus: 200 }
+  },
+  ranger_stance: {
+    id: 'ranger_stance',
+    name: 'Ranger Stance',
+    description: 'Faster movement speed.',
+    modifiers: { speedMult: 0.7 } 
   }
 };
 
@@ -55,18 +62,29 @@ export const ACTIONS: Record<string, Action> = {
   heavy_greataxe: {
     id: 'heavy_greataxe',
     name: 'Heavy Greataxe',
-    description: 'A slow crushing blow.',
+    description: 'A slow crushing blow (Melee).',
     scaleStat: 'str',
     basePower: 3.5,
-    baseSpeed: 150 // Very slow (1.5x normal standard of 100)
+    baseSpeed: 150,
+    range: 1
   },
   assassin_blade: {
     id: 'assassin_blade',
     name: 'Assassin Blade',
-    description: 'Extremely fast puncture. Bonus if stealthed.',
+    description: 'Extremely fast puncture (Melee).',
     scaleStat: 'dex',
     basePower: 1.2,
-    baseSpeed: 50 // Extremely fast (2 attacks per standard)
+    baseSpeed: 50,
+    range: 1
+  },
+  longbow: {
+    id: 'longbow',
+    name: 'Hunting Longbow',
+    description: 'A ranged weapon. Keep your distance!',
+    scaleStat: 'dex',
+    basePower: 1.8,
+    baseSpeed: 100,
+    range: 10
   }
 };
 
@@ -84,7 +102,7 @@ export const REACTIONS: Record<string, Reaction> = {
     name: 'Shield Bash',
     trigger: 'onHitTaken',
     effect: (user, target, damageTaken) => {
-      return { log: `🛡️ *Blocked with Shield and bashed back for 15 damage!*`, damageDealtToTarget: 15 };
+      return { log: `🛡️ *Blocked with Shield and bashed back for 15 damage, knocking the target back 1 tile!*`, damageDealtToTarget: 15, pushback: 1 };
     }
   }
 };
