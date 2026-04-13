@@ -6,4 +6,36 @@ datasource db {
   provider = "postgresql"
 }
 
-// Add your new idea's database models here
+model User {
+  id           String   @id // Discord User ID
+  level        Int      @default(1)
+  xp           Int      @default(0)
+  
+  // Base Attributes
+  strength     Int @default(5)  // Affects physical damage and stamina
+  dexterity    Int @default(5)  // Affects evasion and critical hit chance
+  vitality     Int @default(5)  // Affects max health and flat damage mitigation
+  intelligence Int @default(5)  // Affects magic damage and elemental resistance
+
+  // The "Deep Build" Loadout System
+  // Every player has 3 core configurable slots that synergize with each other.
+  stanceId    String?  // Passive modifier (e.g. "Vampiric Stance" - Heals on hit)
+  actionId    String?  // Primary attack method (e.g. "Heavy Greataxe" or "Fireball")
+  reactionId  String?  // Trigger/Condition (e.g. "Thorned Armor" - Deals damage when hit)
+
+  inventory InventoryItem[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model InventoryItem {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  itemId     String   // E.g., 'vampiric_stance', 'heavy_greataxe'
+  itemType   String   // 'stance', 'action', 'reaction'
+  
+  createdAt  DateTime @default(now())
+}
