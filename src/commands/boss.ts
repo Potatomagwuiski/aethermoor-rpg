@@ -6,27 +6,33 @@ export function createVoidWeaver() {
   return buildFighter(
     "The Void Weaver",
     { str: 25, dex: 10, vit: 40, int: 50 },
-    ['paladin_plate', 'heavy_greataxe', 'tower_shield']
+    [
+      { templateId: 'paladin_plate', slot: 'chest', weight: 55, modifiers: { evadeBonus: -100, acBonus: 60, shieldBonus: 200 } },
+      { templateId: 'heavy_greataxe', slot: 'mainhand', weight: 35, modifiers: { damageMult: 1.8, speedMult: 1.6, evadeBonus: -15 } },
+      { templateId: 'tower_shield', slot: 'offhand', weight: 40, modifiers: { shieldBonus: 1000, evadeBonus: -30 } }
+    ]
   );
 }
 
-export function getUserEquipmentIds(user: any): string[] {
-  return [
+export function getUserEquipment(user: any): any[] {
+  const equipIds = [
     user.equipHead, user.equipCloak, user.equipChest, user.equipLegs, user.equipFeet, 
     user.equipHands, user.equipNeck, user.equipRing1, user.equipRing2, 
     user.equipMainHand, user.equipOffHand
   ].filter(Boolean) as string[];
+  if (!user.inventory) return [];
+  return equipIds.map(id => user.inventory.find((i:any) => i.id === id)).filter(Boolean);
 }
 
 export async function handleBossMenu(message: Message) {
-  const user = await prisma.user.findUnique({ where: { id: message.author.id } });
+  const user = await prisma.user.findUnique({ where: { id: message.author.id }, include: { inventory: true } });
   if (!user) return message.reply("You haven't anchored your form. Type `rpg start`.");
 
-  const equipStr = getUserEquipmentIds(user);
+  const playerGear = getUserEquipment(user);
   const player = buildFighter(
     message.author.username,
     { str: user.strength, dex: user.dexterity, vit: user.vitality, int: user.intelligence },
-    equipStr
+    playerGear
   );
 
   const boss = createVoidWeaver();
@@ -67,10 +73,10 @@ export async function handleBossMenu(message: Message) {
 }
 
 export async function handleFightBoss(message: Message) {
-  const user = await prisma.user.findUnique({ where: { id: message.author.id } });
+  const user = await prisma.user.findUnique({ where: { id: message.author.id }, include: { inventory: true } });
   if (!user) return message.reply("You haven't started yet! Type `rpg start`.");
 
-  const player = buildFighter(message.author.username, { str: user.strength, dex: user.dexterity, vit: user.vitality, int: user.intelligence }, getUserEquipmentIds(user));
+  const player = buildFighter(message.author.username, { str: user.strength, dex: user.dexterity, vit: user.vitality, int: user.intelligence }, getUserEquipment(user));
   const boss = createVoidWeaver();
 
   const result = resolveCombat(player, boss);

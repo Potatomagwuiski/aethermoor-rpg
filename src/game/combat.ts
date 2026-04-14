@@ -1,4 +1,4 @@
-import { ITEMS, Item, Action, Reaction } from './items';
+import { Action, Reaction, ScaleStat } from './items';
 
 export interface Fighter {
   name: string;
@@ -6,7 +6,7 @@ export interface Fighter {
   maxHp: number;
   level: number;
   stats: { str: number; dex: number; vit: number; int: number; };
-  equipment: Item[];
+  equipment: any[]; // Now takes InventoryItems from Prisma
   
   stanceMods: { 
     damageMult: number; evadeBonus: number; acBonus: number; shieldBonus: number; speedMult: number; critBonus: number; 
@@ -27,9 +27,9 @@ export interface Fighter {
 
 export interface Encounter { distance: number; }
 
-export function buildFighter(name: string, stats: any, equipmentIds: string[]): Fighter {
+export function buildFighter(name: string, stats: any, equipmentItems: any[]): Fighter {
   let hp = 50 + (stats.vit * 10);
-  const equipment = equipmentIds.map(id => ITEMS[id]).filter(Boolean);
+  const equipment = equipmentItems.filter(Boolean);
   
   const stanceMods = { 
     damageMult: 1.0, evadeBonus: 0, acBonus: 0, shieldBonus: 0, speedMult: 1.0, critBonus: 0, 
@@ -42,22 +42,52 @@ export function buildFighter(name: string, stats: any, equipmentIds: string[]): 
   let totalWeight = 0;
 
   for (const item of equipment) {
-    if (item.weight) totalWeight += item.weight;
-    if (item.modifiers.damageMult) stanceMods.damageMult *= item.modifiers.damageMult;
-    if (item.modifiers.evadeBonus !== undefined) stanceMods.evadeBonus += item.modifiers.evadeBonus;
-    if (item.modifiers.acBonus !== undefined) stanceMods.acBonus += item.modifiers.acBonus;
-    if (item.modifiers.shieldBonus !== undefined) stanceMods.shieldBonus += item.modifiers.shieldBonus;
-    if (item.modifiers.speedMult !== undefined) stanceMods.speedMult *= item.modifiers.speedMult;
-    if (item.modifiers.critBonus !== undefined) stanceMods.critBonus += item.modifiers.critBonus;
-    if (item.modifiers.stealthEntry) stealthEntry = true;
-    if (item.modifiers.chronosFirstStrike) stanceMods.chronosFirstStrike = true;
-    if (item.modifiers.maxHpMult) stanceMods.maxHpMult *= item.modifiers.maxHpMult;
-    if (item.modifiers.evadeCapOverride !== undefined) stanceMods.evadeCapOverride = item.modifiers.evadeCapOverride;
-    if (item.modifiers.pacifism) stanceMods.pacifism = true;
-    if (item.modifiers.realityFractureChance) stanceMods.realityFractureChance += item.modifiers.realityFractureChance;
+    const mods = item.modifiers || {};
+    
+    // Add Flat Stats
+    if (item.baseStats) {
+      if (item.baseStats.str) stats.str += item.baseStats.str;
+      if (item.baseStats.dex) stats.dex += item.baseStats.dex;
+      if (item.baseStats.vit) stats.vit += item.baseStats.vit;
+      if (item.baseStats.int) stats.int += item.baseStats.int;
+    }
 
-    if (item.grantedAction) primaryAction = item.grantedAction; 
-    if (item.grantedReaction) reactions.push(item.grantedReaction);
+    if (item.weight) totalWeight += item.weight;
+    if (mods.damageMult) stanceMods.damageMult *= mods.damageMult;
+    if (mods.evadeBonus !== undefined) stanceMods.evadeBonus += mods.evadeBonus;
+    if (mods.acBonus !== undefined) stanceMods.acBonus += mods.acBonus;
+    if (mods.shieldBonus !== undefined) stanceMods.shieldBonus += mods.shieldBonus;
+    if (mods.speedMult !== undefined) stanceMods.speedMult *= mods.speedMult;
+    if (mods.critBonus !== undefined) stanceMods.critBonus += mods.critBonus;
+    if (mods.stealthEntry) stealthEntry = true;
+    if (mods.chronosFirstStrike) stanceMods.chronosFirstStrike = true;
+    if (mods.maxHpMult) stanceMods.maxHpMult *= mods.maxHpMult;
+    if (mods.evadeCapOverride !== undefined) stanceMods.evadeCapOverride = mods.evadeCapOverride;
+    if (mods.pacifism) stanceMods.pacifism = true;
+    if (mods.realityFractureChance) stanceMods.realityFractureChance += mods.realityFractureChance;
+
+    // Hardcoded action routing based on templateId (Dynamic Weapon Skills)
+    if (item.templateId === 'dagger') {
+      primaryAction = { name: 'Quick Strike', description: 'Fast stab.', scaleStat: 'dex', basePower: 1.0, baseSpeed: 45, range: 1 };
+    } else if (item.templateId === 'longsword') {
+      primaryAction = { name: 'Slashing Arc', description: 'Balanced arc.', scaleStat: 'str', basePower: 2.0, baseSpeed: 90, range: 1 };
+    } else if (item.templateId === 'musket') {
+      primaryAction = { name: 'Piercing Lead', description: 'Raw power.', scaleStat: 'dex', basePower: 5.0, baseSpeed: 250, range: 10 };
+    } else if (item.templateId === 'heavy_greataxe') {
+      primaryAction = { name: 'Greataxe Swing', description: 'Cleaves through armor.', scaleStat: 'str', basePower: 3.5, baseSpeed: 150, range: 1 };
+    } else if (item.templateId === 'assassin_blade') {
+      primaryAction = { name: 'Shadow Stab', description: 'Quick strikes.', scaleStat: 'dex', basePower: 1.2, baseSpeed: 50, range: 1 };
+    }
+
+    // Dynamic Passives
+    if (item.passives) {
+      if (item.passives.includes('onCrit_Haste')) {
+        reactions.push({ name: 'Momentum', trigger: 'onCritDealt', effect: (u, t, v) => { return { log: `💨 *Haste! Action ticks refunded by 50%.*` }; } });
+      }
+      if (item.passives.includes('onEvade_Riposte')) {
+        reactions.push({ name: 'Riposte', trigger: 'onEvade', effect: (u, t, v) => { return { log: `⚔️ *Riposte Counter-Attack! dealt fractional damage.*`, damageDealtToTarget: Math.floor(stats.dex * 0.5) }; } });
+      }
+    }
   }
 
   hp = Math.floor(hp * stanceMods.maxHpMult);
@@ -103,8 +133,8 @@ export function resolveCombat(fighterA: Fighter, fighterB: Fighter): CombatResul
 
     // Check Cloak distances passively
     if (encounter.distance >= 5) {
-      if (fighterA.equipment.find(i=>i.id==='cloak_of_shadow_walker') && !fighterA.state.stealth) fighterA.state.stealth = true;
-      if (fighterB.equipment.find(i=>i.id==='cloak_of_shadow_walker') && !fighterB.state.stealth) fighterB.state.stealth = true;
+      if (fighterA.equipment.find(i=>i.templateId==='cloak_of_shadow_walker') && !fighterA.state.stealth) fighterA.state.stealth = true;
+      if (fighterB.equipment.find(i=>i.templateId==='cloak_of_shadow_walker') && !fighterB.state.stealth) fighterB.state.stealth = true;
     }
 
     if (tick === fighterA.state.nextActionTick) {
@@ -218,7 +248,11 @@ function executeTurn(actor: Fighter, target: Fighter, tick: number, encounter: E
   if (isCrit) {
     rawDamage = Math.floor(rawDamage * 1.5);
     logs.push(`💥 **Critical Strike!** (${rawDamage} raw)`);
-    processReactions('onCritDealt', target, actor, logs, rawDamage); // target=actor dealing it
+    const react = processReactions('onCritDealt', target, actor, logs, rawDamage); // target=actor dealing it
+    if (react && react.log.includes('Haste')) {
+       // Manual implementation of the dynamically attached trigger
+       actor.state.nextActionTick = Math.max(tick + 1, actor.state.nextActionTick - Math.floor((actor.state.nextActionTick - tick)/2));
+    }
   }
 
   const armorClass = target.stats.vit + defStanceMods.acBonus;

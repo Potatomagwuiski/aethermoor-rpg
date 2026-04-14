@@ -1,16 +1,16 @@
 import { prisma } from '../lib/prisma';
 import { Message, EmbedBuilder } from 'discord.js';
 import { buildFighter } from '../game/combat';
-import { getUserEquipmentIds } from './boss';
+import { getUserEquipment } from './boss';
 
 export async function handleProfile(message: Message) {
-  const user = await prisma.user.findUnique({ where: { id: message.author.id } });
+  const user = await prisma.user.findUnique({ where: { id: message.author.id }, include: { inventory: true } });
   if (!user) return message.reply("You haven't started yet! Type `rpg start`.");
   
   const player = buildFighter(
     message.author.username,
     { str: user.strength, dex: user.dexterity, vit: user.vitality, int: user.intelligence },
-    getUserEquipmentIds(user)
+    getUserEquipment(user)
   );
 
   const evade = Math.max(0, Math.min(80, 5 + Math.floor(player.stats.dex / 2) + player.stanceMods.evadeBonus));

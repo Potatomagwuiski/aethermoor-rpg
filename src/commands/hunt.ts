@@ -1,37 +1,37 @@
 import { Message, EmbedBuilder } from 'discord.js';
 import { prisma } from '../lib/prisma';
 import { buildFighter, resolveCombat } from '../game/combat';
-import { getUserEquipmentIds } from './boss';
+import { getUserEquipment } from './boss';
 
 const MOBS = [
   {
     name: "Aether-Touched Stag",
     stats: { str: 5, dex: 15, vit: 10, int: 5 },
-    equipment: ['assassin_blade'], 
+    equipment: [{ templateId: 'assassin_blade', slot: 'mainhand', modifiers: { speedMult: 0.6 } }], 
     xpReward: 15
   },
   {
     name: "Goblin Scavenger",
     stats: { str: 10, dex: 10, vit: 5, int: 0 },
-    equipment: ['heavy_greataxe'], 
+    equipment: [{ templateId: 'heavy_greataxe', slot: 'mainhand', weight: 35, modifiers: { damageMult: 1.8, speedMult: 1.6, evadeBonus: -15 } }], 
     xpReward: 20
   },
   {
     name: "Frenzied Wolf",
     stats: { str: 8, dex: 20, vit: 8, int: 0 },
-    equipment: ['assassin_blade'], 
+    equipment: [{ templateId: 'assassin_blade', slot: 'mainhand', modifiers: { speedMult: 0.6 } }], 
     xpReward: 18
   }
 ];
 
 export async function handleHunt(message: Message) {
-  const user = await prisma.user.findUnique({ where: { id: message.author.id } });
+  const user = await prisma.user.findUnique({ where: { id: message.author.id }, include: { inventory: true } });
   if (!user) return message.reply("You haven't anchored your form. Type `rpg start`.");
 
   const player = buildFighter(
     message.author.username,
     { str: user.strength, dex: user.dexterity, vit: user.vitality, int: user.intelligence },
-    getUserEquipmentIds(user)
+    getUserEquipment(user)
   );
 
   const randomMob = MOBS[Math.floor(Math.random() * MOBS.length)];

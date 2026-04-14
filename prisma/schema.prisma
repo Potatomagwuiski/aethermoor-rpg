@@ -53,8 +53,16 @@ model InventoryItem {
   userId     String
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
-  itemId     String
-  itemType   String
+  templateId String   // The underlying base weapon (e.g. 'musket', 'dagger')
+  slot       String   // 'mainhand', 'chest', 'cloak'
+  rarity     String   // 'Common', 'Rare', 'Epic', 'Legendary', 'Corrupted'
+  name       String   // e.g. "Gleaming Axe of the Bear"
+  
+  // Procedural Math Data
+  weight     Int      @default(0)
+  baseStats  Json     // { str: 5, dex: 0, vit: 2... }
+  modifiers  Json     // { speedMult: 1.2, acBonus: 5... }
+  passives   Json?    // Stores the string keys to the triggers to instantiate in combat
   
   createdAt  DateTime @default(now())
 }
