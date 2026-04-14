@@ -10,99 +10,127 @@ export interface CombatModifier {
   stealthEntry?: boolean;
 }
 
-export interface Stance {
-  id: string;
-  name: string;
-  description: string;
-  modifiers: CombatModifier;
-}
-
 export interface Action {
-  id: string;
   name: string;
   description: string;
   scaleStat: ScaleStat;
   basePower: number; 
   baseSpeed: number;
-  range: number; // Maximum attack distance in tiles (e.g., 1 for melee, 10 for bow)
-  grantsStealth?: boolean;
+  range: number;
 }
 
 export interface Reaction {
-  id: string;
   name: string;
   trigger: 'onHitTaken' | 'onEvade' | 'onCritDealt' | 'onStealthBreak';
   effect: (user: any, target: any, value: number) => { log: string, damageDealtToTarget?: number, healUser?: number, applyStealth?: boolean, pushback?: number };
 }
 
-// --- INITIAL REGISTRIES ---
+export type SlotType = 'head' | 'chest' | 'legs' | 'feet' | 'hands' | 'neck' | 'ring' | 'mainhand' | 'offhand';
 
-export const STANCES: Record<string, Stance> = {
-  shadow_cloak: {
-    id: 'shadow_cloak',
-    name: 'Shadow Cloak',
-    description: 'A stealth-oriented stance that severely increases evasion but offers no Armor.',
-    modifiers: { evadeBonus: 30, acBonus: -10, speedMult: 0.8, stealthEntry: true }
-  },
-  paladin_aura: {
-    id: 'paladin_aura',
-    name: 'Paladin Aura',
-    description: 'Generates a massive holy shield and heavy AC, but removes all evasion.',
-    modifiers: { evadeBonus: -100, acBonus: 50, shieldBonus: 200 }
-  },
-  ranger_stance: {
-    id: 'ranger_stance',
-    name: 'Ranger Stance',
-    description: 'Faster movement speed.',
-    modifiers: { speedMult: 0.7 } 
-  }
-};
+export interface Item {
+  id: string;
+  name: string;
+  description: string;
+  slot: SlotType;
+  modifiers: CombatModifier;
+  
+  // If the item is a weapon, it grants an Action
+  grantedAction?: Action;
+  
+  // If the item has a special proc, it grants a Reaction
+  grantedReaction?: Reaction;
+}
 
-export const ACTIONS: Record<string, Action> = {
+// --- FULL BODY ITEM REGISTRY ---
+
+export const ITEMS: Record<string, Item> = {
+  // Main Weapons
   heavy_greataxe: {
     id: 'heavy_greataxe',
     name: 'Heavy Greataxe',
     description: 'A slow crushing blow (Melee).',
-    scaleStat: 'str',
-    basePower: 3.5,
-    baseSpeed: 150,
-    range: 1
+    slot: 'mainhand',
+    modifiers: { damageMult: 1.0, speedMult: 1.5, evadeBonus: -10 },
+    grantedAction: {
+      name: 'Greataxe Swing',
+      description: 'Cleaves through armor.',
+      scaleStat: 'str',
+      basePower: 3.5,
+      baseSpeed: 150,
+      range: 1
+    }
   },
   assassin_blade: {
     id: 'assassin_blade',
     name: 'Assassin Blade',
     description: 'Extremely fast puncture (Melee).',
-    scaleStat: 'dex',
-    basePower: 1.2,
-    baseSpeed: 50,
-    range: 1
+    slot: 'mainhand',
+    modifiers: { speedMult: 0.8 },
+    grantedAction: {
+      name: 'Shadow Stab',
+      description: 'Quick strikes.',
+      scaleStat: 'dex',
+      basePower: 1.2,
+      baseSpeed: 50,
+      range: 1
+    }
   },
-  longbow: {
-    id: 'longbow',
-    name: 'Hunting Longbow',
-    description: 'A ranged weapon. Keep your distance!',
-    scaleStat: 'dex',
-    basePower: 1.8,
-    baseSpeed: 100,
-    range: 10
-  }
-};
+  
+  // Body Armor
+  shadow_cloak: {
+    id: 'shadow_cloak',
+    name: 'Shadow Cloak',
+    description: 'Increases evasion and allows stealth.',
+    slot: 'chest',
+    modifiers: { evadeBonus: 30, acBonus: 5, stealthEntry: true }
+  },
+  paladin_plate: {
+    id: 'paladin_plate',
+    name: 'Paladin Chestplate',
+    description: 'Massive Armor.',
+    slot: 'chest',
+    modifiers: { evadeBonus: -30, acBonus: 40, shieldBonus: 50 }
+  },
 
-export const REACTIONS: Record<string, Reaction> = {
-  smoke_powder: {
-    id: 'smoke_powder',
-    name: 'Smoke Powder',
-    trigger: 'onEvade',
-    effect: () => {
-      return { log: `💨 *Evading the attack created a smoke cloud, re-entering stealth!*`, applyStealth: true };
+  // Offhands
+  tower_shield: {
+    id: 'tower_shield',
+    name: 'Tower Shield',
+    description: 'Massive flat shield ward + bash capability.',
+    slot: 'offhand',
+    modifiers: { shieldBonus: 150, evadeBonus: -20 },
+    grantedReaction: {
+      name: 'Shield Bash',
+      trigger: 'onHitTaken',
+      effect: (user, target, dmg) => { return { log: `🛡️ Shield bashed for 15 damage and 1 tile pushback!`, damageDealtToTarget: 15, pushback: 1}; }
     }
   },
-  shield_bash: {
-    id: 'shield_bash',
-    name: 'Shield Bash',
-    trigger: 'onHitTaken',
-    effect: (user, target, damageTaken) => {
-      return { log: `🛡️ *Blocked with Shield and bashed back for 15 damage, knocking the target back 1 tile!*`, damageDealtToTarget: 15, pushback: 1 };
+  smoke_bomb: {
+    id: 'smoke_bomb',
+    name: 'Smoke Pouch',
+    description: 'Offhand tool for vanishing.',
+    slot: 'offhand',
+    modifiers: { evadeBonus: 10 },
+    grantedReaction: {
+      name: 'Smoke Powder',
+      trigger: 'onEvade',
+      effect: () => { return { log: `💨 *Evading the attack created a smoke cloud, re-entering stealth!*`, applyStealth: true }; }
     }
+  },
+  
+  // Accessories & Minor Slots
+  amulet_of_speed: {
+    id: 'amulet_of_speed',
+    name: 'Amulet of Speed',
+    description: 'Reduces action ticks.',
+    slot: 'neck',
+    modifiers: { speedMult: 0.85 }
+  },
+  ring_of_vitality: {
+    id: 'ring_of_vitality',
+    name: 'Ring of Vitality',
+    description: 'Flat damage block via high AC.',
+    slot: 'ring',
+    modifiers: { acBonus: 20 }
   }
 };

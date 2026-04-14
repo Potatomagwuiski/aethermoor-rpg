@@ -17,9 +17,17 @@ model User {
   vitality     Int @default(5)
   intelligence Int @default(5)
 
-  stanceId    String?
-  actionId    String?
-  reactionId   String?
+  // Full Body Equipment System
+  equipHead      String?
+  equipChest     String?
+  equipLegs      String?
+  equipFeet      String?
+  equipHands     String?
+  equipNeck      String?
+  equipRing1     String?
+  equipRing2     String?
+  equipMainHand  String?
+  equipOffHand   String?
 
   logs         CombatLog[]
   inventory    InventoryItem[]

@@ -1,25 +1,25 @@
 import { Message, EmbedBuilder } from 'discord.js';
 import { prisma } from '../lib/prisma';
-import { STANCES, ACTIONS, REACTIONS } from '../game/items';
 import { buildFighter, resolveCombat } from '../game/combat';
+import { getUserEquipmentIds } from './boss';
 
 const MOBS = [
   {
     name: "Aether-Touched Stag",
     stats: { str: 5, dex: 15, vit: 10, int: 5 },
-    loadout: { action: ACTIONS['assassin_blade'] }, // fast, agile
+    equipment: ['assassin_blade'], 
     xpReward: 15
   },
   {
     name: "Goblin Scavenger",
     stats: { str: 10, dex: 10, vit: 5, int: 0 },
-    loadout: { action: ACTIONS['heavy_greataxe'] }, // slow but hard hitting
+    equipment: ['heavy_greataxe'], 
     xpReward: 20
   },
   {
     name: "Frenzied Wolf",
     stats: { str: 8, dex: 20, vit: 8, int: 0 },
-    loadout: { action: ACTIONS['assassin_blade'] }, 
+    equipment: ['assassin_blade'], 
     xpReward: 18
   }
 ];
@@ -31,31 +31,25 @@ export async function handleHunt(message: Message) {
   const player = buildFighter(
     message.author.username,
     { str: user.strength, dex: user.dexterity, vit: user.vitality, int: user.intelligence },
-    {
-      stance: user.stanceId ? STANCES[user.stanceId] : undefined,
-      action: user.actionId ? ACTIONS[user.actionId] : undefined,
-      reaction: user.reactionId ? REACTIONS[user.reactionId] : undefined,
-    }
+    getUserEquipmentIds(user)
   );
 
   const randomMob = MOBS[Math.floor(Math.random() * MOBS.length)];
   const enemy = buildFighter(
     randomMob.name,
     randomMob.stats,
-    randomMob.loadout
+    randomMob.equipment
   );
 
   const result = resolveCombat(player, enemy);
   
-  // Save full log to database
-  const fullLogText = result.logs.join("\n");
   const savedLog = await prisma.combatLog.create({
     data: {
       userId: user.id,
       enemyName: enemy.name,
       outcome: result.winner === player.name ? "Victory" : (result.winner === enemy.name ? "Defeat" : "Draw"),
       duration: result.ticks,
-      content: fullLogText
+      content: result.logs.join("\n")
     }
   });
 
@@ -68,12 +62,10 @@ export async function handleHunt(message: Message) {
     title = "⚔️ Victory!";
     color = 0x2ecc71;
     
-    // Give XP
     let newXp = user.xp + randomMob.xpReward;
     let newLevel = user.level;
     let didLevelUp = false;
 
-    // Simple level curve: 100 xp per level
     if (newXp >= 100) {
       newXp -= 100;
       newLevel += 1;
