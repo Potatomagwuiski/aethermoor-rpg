@@ -65,6 +65,36 @@ export const ITEMS: Record<string, Item> = {
     modifiers: { damageMult: 1.3, speedMult: 1.2 }, weight: 15,
     grantedAction: { name: 'Thrusting Zone', description: 'Mid-range poke.', scaleStat: 'str', basePower: 2.2, baseSpeed: 95, range: 3 }
   },
+  flintlock_musket: {
+    id: 'flintlock_musket', name: 'Flintlock Musket', description: 'Extreme range, devastating damage, but takes an agonizing amount of time to reload.', slot: 'mainhand',
+    modifiers: { damageMult: 1.5, speedMult: 2.5 }, weight: 12,
+    grantedAction: { name: 'Musket Volley', description: 'A massive ranged piercing shot.', scaleStat: 'dex', basePower: 5.0, baseSpeed: 250, range: 10 }
+  },
+  dual_scimitars: {
+    id: 'dual_scimitars', name: 'Dual Scimitars', description: 'A flurry of curved blades. High crit chance.', slot: 'mainhand',
+    modifiers: { critBonus: 20, evadeBonus: 10 }, weight: 8,
+    grantedAction: { name: 'Whirling Slash', description: 'Fast multi-cuts.', scaleStat: 'dex', basePower: 1.5, baseSpeed: 60, range: 1 }
+  },
+  goliath_hammer: {
+    id: 'goliath_hammer', name: 'Goliath Hammer', description: 'So massive it provides physical cover, but reduces evasion to rubble.', slot: 'mainhand',
+    modifiers: { acBonus: 15, evadeBonus: -30, speedMult: 1.8 }, weight: 55,
+    grantedAction: { name: 'Earthshatter', description: 'A slow tectonic strike.', scaleStat: 'str', basePower: 4.5, baseSpeed: 200, range: 1 }
+  },
+  whip_of_thorns: {
+    id: 'whip_of_thorns', name: 'Whip of Thorns', description: 'A lightweight fast zoning tool for DEX builds.', slot: 'mainhand',
+    modifiers: { evadeBonus: 5, speedMult: 0.9 }, weight: 3,
+    grantedAction: { name: 'Thorned Lash', description: 'High range snapping strike.', scaleStat: 'dex', basePower: 1.4, baseSpeed: 75, range: 4 }
+  },
+  void_blade: {
+    id: 'void_blade', name: 'Void-Blade', description: 'A weapon woven from dark aether. Halves your max HP in exchange for immense devastation.', slot: 'mainhand',
+    modifiers: { maxHpMult: 0.5, damageMult: 2.5 }, weight: 10,
+    grantedAction: { name: 'Void Slash', description: 'Magic infused slice.', scaleStat: 'int', basePower: 3.0, baseSpeed: 90, range: 2 }
+  },
+  shield_mace: {
+    id: 'shield_mace', name: 'Aegis Club', description: 'A mace that scales entirely off your defensive Vitality stat.', slot: 'mainhand',
+    modifiers: { shieldBonus: 250, acBonus: 10 }, weight: 25,
+    grantedAction: { name: 'Aegis Bash', description: 'Scales off raw bulk.', scaleStat: 'vit', basePower: 1.8, baseSpeed: 110, range: 1 }
+  },
 
   // === OFFHANDS ===
   tower_shield: {
