@@ -1,4 +1,4 @@
-import { ITEMS, Item, Action, Reaction, ScaleStat } from './items';
+import { ITEMS, Item, Action, Reaction } from './items';
 
 export interface Fighter {
   name: string;
@@ -8,7 +8,10 @@ export interface Fighter {
   stats: { str: number; dex: number; vit: number; int: number; };
   equipment: Item[];
   
-  stanceMods: { damageMult: number; evadeBonus: number; acBonus: number; shieldBonus: number; speedMult: number; critBonus: number; };
+  stanceMods: { 
+    damageMult: number; evadeBonus: number; acBonus: number; shieldBonus: number; speedMult: number; critBonus: number; 
+    chronosFirstStrike: boolean; maxHpMult: number; evadeCapOverride?: number; pacifism: boolean; realityFractureChance: number;
+  };
   primaryAction?: Action;
   reactions: Reaction[];
 
@@ -16,21 +19,23 @@ export interface Fighter {
     stealth: boolean;
     shieldHp: number;
     nextActionTick: number; 
-    totalWeight?: number;
-    maxWeight?: number;
-    encumbranceFactor?: number;
+    totalWeight: number;
+    maxWeight: number;
+    encumbranceFactor: number;
   };
 }
 
-export interface Encounter {
-  distance: number;
-}
+export interface Encounter { distance: number; }
 
 export function buildFighter(name: string, stats: any, equipmentIds: string[]): Fighter {
-  const hp = 50 + (stats.vit * 10);
+  let hp = 50 + (stats.vit * 10);
   const equipment = equipmentIds.map(id => ITEMS[id]).filter(Boolean);
   
-  const stanceMods = { damageMult: 1.0, evadeBonus: 0, acBonus: 0, shieldBonus: 0, speedMult: 1.0, critBonus: 0 };
+  const stanceMods = { 
+    damageMult: 1.0, evadeBonus: 0, acBonus: 0, shieldBonus: 0, speedMult: 1.0, critBonus: 0, 
+    chronosFirstStrike: false, maxHpMult: 1.0, evadeCapOverride: undefined as number | undefined, pacifism: false, realityFractureChance: 0
+  };
+  
   let primaryAction: Action | undefined = undefined;
   const reactions: Reaction[] = [];
   let stealthEntry = false;
@@ -45,18 +50,22 @@ export function buildFighter(name: string, stats: any, equipmentIds: string[]): 
     if (item.modifiers.speedMult !== undefined) stanceMods.speedMult *= item.modifiers.speedMult;
     if (item.modifiers.critBonus !== undefined) stanceMods.critBonus += item.modifiers.critBonus;
     if (item.modifiers.stealthEntry) stealthEntry = true;
+    if (item.modifiers.chronosFirstStrike) stanceMods.chronosFirstStrike = true;
+    if (item.modifiers.maxHpMult) stanceMods.maxHpMult *= item.modifiers.maxHpMult;
+    if (item.modifiers.evadeCapOverride !== undefined) stanceMods.evadeCapOverride = item.modifiers.evadeCapOverride;
+    if (item.modifiers.pacifism) stanceMods.pacifism = true;
+    if (item.modifiers.realityFractureChance) stanceMods.realityFractureChance += item.modifiers.realityFractureChance;
 
     if (item.grantedAction) primaryAction = item.grantedAction; 
     if (item.grantedReaction) reactions.push(item.grantedReaction);
   }
 
-  // Encumbrance logic: 10 + (str * 3)
+  hp = Math.floor(hp * stanceMods.maxHpMult);
+
   const maxWeight = 10 + (stats.str * 3);
   let encumbranceFactor = 0;
-
   if (totalWeight > maxWeight) {
     encumbranceFactor = totalWeight - maxWeight;
-    // Penalty: 3% slower per weight unit over, -1 to evade per weight unit over
     stanceMods.speedMult *= (1 + (encumbranceFactor * 0.03));
     stanceMods.evadeBonus -= encumbranceFactor;
   }
@@ -65,34 +74,23 @@ export function buildFighter(name: string, stats: any, equipmentIds: string[]): 
     name, hp, maxHp: hp, level: 5, stats, equipment,
     stanceMods, primaryAction, reactions,
     state: {
-      stealth: stealthEntry,
-      shieldHp: stanceMods.shieldBonus,
-      nextActionTick: 0,
-      totalWeight,
-      maxWeight,
-      encumbranceFactor
+      stealth: stealthEntry, shieldHp: stanceMods.shieldBonus, nextActionTick: 0,
+      totalWeight, maxWeight, encumbranceFactor
     }
   };
 }
 
 const rand = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-export interface CombatResult {
-  winner: string;
-  loser: string;
-  ticks: number;
-  playerHpLeft: number;
-  logs: string[];
-}
+export interface CombatResult { winner: string; loser: string; ticks: number; playerHpLeft: number; logs: string[]; }
 
 export function resolveCombat(fighterA: Fighter, fighterB: Fighter): CombatResult {
   const logs: string[] = [];
   const MAX_TICKS = 1500;
-  
   const encounter: Encounter = { distance: rand(4, 10) };
 
-  fighterA.state.nextActionTick = Math.max(0, 50 - fighterA.stats.dex);
-  fighterB.state.nextActionTick = Math.max(0, 50 - fighterB.stats.dex);
+  fighterA.state.nextActionTick = fighterA.stanceMods.chronosFirstStrike ? 0 : Math.max(0, 50 - fighterA.stats.dex);
+  fighterB.state.nextActionTick = fighterB.stanceMods.chronosFirstStrike ? 0 : Math.max(0, 50 - fighterB.stats.dex);
 
   logs.push(`*Combat begins! Fighters start ${encounter.distance} tiles apart.*`);
   if (fighterA.state.stealth) logs.push(`🌫️ ${fighterA.name} vanishes into the shadows!`);
@@ -102,6 +100,12 @@ export function resolveCombat(fighterA: Fighter, fighterB: Fighter): CombatResul
   for (let tick = 0; tick <= MAX_TICKS; tick++) {
     finalTick = tick;
     if (fighterA.hp <= 0 || fighterB.hp <= 0) break;
+
+    // Check Cloak distances passively
+    if (encounter.distance >= 5) {
+      if (fighterA.equipment.find(i=>i.id==='cloak_of_shadow_walker') && !fighterA.state.stealth) fighterA.state.stealth = true;
+      if (fighterB.equipment.find(i=>i.id==='cloak_of_shadow_walker') && !fighterB.state.stealth) fighterB.state.stealth = true;
+    }
 
     if (tick === fighterA.state.nextActionTick) {
       const moved = executeTurn(fighterA, fighterB, tick, encounter, logs);
@@ -116,20 +120,9 @@ export function resolveCombat(fighterA: Fighter, fighterB: Fighter): CombatResul
     }
   }
 
-  logs.push(`\n**--- COMBAT OVER ---**`);
-  
-  let winner = "Draw";
-  let loser = "Draw";
-  if (fighterA.hp > 0 && fighterB.hp <= 0) {
-     winner = fighterA.name;
-     loser = fighterB.name;
-     logs.push(`🏆 **${fighterA.name} wins!** HP: ${fighterA.hp}`);
-  }
-  else if (fighterB.hp > 0 && fighterA.hp <= 0) {
-     winner = fighterB.name;
-     loser = fighterA.name;
-     logs.push(`🏆 **${fighterB.name} wins!** HP: ${fighterB.hp}`);
-  }
+  let winner = "Draw"; let loser = "Draw";
+  if (fighterA.hp > 0 && fighterB.hp <= 0) { winner = fighterA.name; loser = fighterB.name; logs.push(`🏆 **${fighterA.name} wins!** HP: ${fighterA.hp}`); }
+  else if (fighterB.hp > 0 && fighterA.hp <= 0) { winner = fighterB.name; loser = fighterA.name; logs.push(`🏆 **${fighterB.name} wins!** HP: ${fighterB.hp}`); }
   else logs.push(`⏳ **Draw due to time limit!**`);
 
   return { winner, loser, ticks: finalTick, playerHpLeft: fighterA.hp, logs };
@@ -144,20 +137,49 @@ function scheduleNextAction(fighter: Fighter, executedFullAttack: boolean) {
   if (executedFullAttack && action) baseDelay = action.baseSpeed;
 
   const totalDelay = Math.floor(baseDelay * speedMult * dexReduction);
-  fighter.state.nextActionTick += totalDelay;
+  fighter.state.nextActionTick += Math.max(1, totalDelay); // Minimum 1 tick delay
+}
+
+function processReactions(trigger: Reaction['trigger'], actor: Fighter, target: Fighter, logs: string[], value: number = 0) {
+  for (const r of target.reactions) {
+    if (r.trigger === trigger) {
+      const react = r.effect(target, actor, value);
+      if (react.log) logs.push(react.log);
+      if (react.applyStealth) target.state.stealth = true;
+      if (react.damageDealtToTarget) {
+        actor.hp -= react.damageDealtToTarget;
+      }
+      if (react.healUser) {
+        target.hp = Math.min(target.maxHp, target.hp + react.healUser);
+      }
+      return react; // Return for explicit overrides like pushback
+    }
+  }
 }
 
 function executeTurn(actor: Fighter, target: Fighter, tick: number, encounter: Encounter, logs: string[]): boolean {
+  if (actor.stanceMods.pacifism) {
+    logs.push(`[Tick ${tick}] 🕊️ ${actor.name} simply walks the battlefield (Pacifism).`);
+    return false;
+  }
+
   const action = actor.primaryAction;
   if (!action) return false;
 
   if (encounter.distance > action.range) {
     encounter.distance -= 1;
-    logs.push(`[Tick ${tick}] 🏃 ${actor.name} dashes closer! (Distance: ${encounter.distance} tiles)`);
+    logs.push(`[Tick ${tick}] 🏃 ${actor.name} dashes into ${action.range} Range! (Distance: ${encounter.distance} tiles)`);
     return true; 
   }
 
   logs.push(`\n[Tick ${tick}] ⚔️ **${actor.name}** attacks with **${action.name}**!`);
+
+  if (actor.stanceMods.realityFractureChance > 0) {
+    if (rand(0, 100) < actor.stanceMods.realityFractureChance) {
+      logs.push(`🌌 The attack slipped right through physical reality and did 0 damage! (Reality Fractured)`);
+      return false;
+    }
+  }
 
   let isAmbush = false;
   if (actor.state.stealth) {
@@ -168,26 +190,24 @@ function executeTurn(actor: Fighter, target: Fighter, tick: number, encounter: E
 
   const defStanceMods = target.stanceMods;
   let evadeChance = 5 + Math.floor(target.stats.dex / 2) + defStanceMods.evadeBonus;
-  evadeChance = Math.max(0, Math.min(80, evadeChance)); 
+  
+  if (defStanceMods.evadeCapOverride !== undefined) {
+    evadeChance = defStanceMods.evadeCapOverride; // E.g. Stagnant Heart forces 0
+  } else {
+    evadeChance = Math.max(0, Math.min(80, evadeChance)); 
+  }
 
   if (!isAmbush && rand(0, 100) < evadeChance) {
     logs.push(`💨 ${target.name} evaded the strike!`);
-    for (const r of target.reactions) {
-      if (r.trigger === 'onEvade') {
-        const react = r.effect(target, actor, 0);
-        logs.push(react.log);
-        if (react.applyStealth) target.state.stealth = true;
-      }
-    }
+    processReactions('onEvade', actor, target, logs, 0);
     return false;
   }
 
   const attStanceMods = actor.stanceMods;
   const statKey = action.scaleStat as keyof typeof actor.stats;
   const baseStatVal = actor.stats[statKey];
-  const dmgMult = attStanceMods.damageMult;
   
-  let rawDamage = Math.max(1, Math.floor(baseStatVal * action.basePower * dmgMult));
+  let rawDamage = Math.max(1, Math.floor(baseStatVal * action.basePower * attStanceMods.damageMult));
   
   let isCrit = isAmbush; 
   if (!isCrit) {
@@ -197,13 +217,19 @@ function executeTurn(actor: Fighter, target: Fighter, tick: number, encounter: E
   
   if (isCrit) {
     rawDamage = Math.floor(rawDamage * 1.5);
-    logs.push(`💥 **Critical Strike!**`);
+    logs.push(`💥 **Critical Strike!** (${rawDamage} raw)`);
+    processReactions('onCritDealt', target, actor, logs, rawDamage); // target=actor dealing it
   }
 
   const armorClass = target.stats.vit + defStanceMods.acBonus;
   let mitigatedDamage = rawDamage;
   if (armorClass > 0) mitigatedDamage = Math.floor(rawDamage * (100 / (100 + armorClass)));
   else if (armorClass < 0) mitigatedDamage = Math.floor(rawDamage * (1 + Math.abs(armorClass)*0.01));
+
+  const totalMitigated = rawDamage - mitigatedDamage;
+  if (totalMitigated > 0) {
+    processReactions('onHitMitigated', actor, target, logs, totalMitigated);
+  }
 
   if (target.state.shieldHp > 0) {
     if (target.state.shieldHp >= mitigatedDamage) {
@@ -220,18 +246,12 @@ function executeTurn(actor: Fighter, target: Fighter, tick: number, encounter: E
 
   if (mitigatedDamage > 0) {
      target.hp -= mitigatedDamage;
-     logs.push(`🩸 ${target.name} takes **${mitigatedDamage}** damage!`);
+     logs.push(`🩸 ${target.name} takes **${mitigatedDamage}** actual damage!`);
      
-     for (const r of target.reactions) {
-       if (r.trigger === 'onHitTaken') {
-         const react = r.effect(target, actor, mitigatedDamage);
-         logs.push(react.log);
-         if (react.damageDealtToTarget) actor.hp -= react.damageDealtToTarget;
-         if (react.pushback) {
-           encounter.distance += react.pushback;
-           logs.push(`🛡️ *Pushback! The distance is now ${encounter.distance} tiles.*`);
-         }
-       }
+     const react = processReactions('onHitTaken', actor, target, logs, mitigatedDamage);
+     if (react && react.pushback) {
+       encounter.distance += react.pushback;
+       logs.push(`🛡️ *Pushback! The distance is now ${encounter.distance} tiles.*`);
      }
   } else {
      logs.push(`🛡️ Attack completely mitigated.`);
