@@ -25,7 +25,7 @@ export interface Reaction {
   effect: (user: any, target: any, value: number) => { log: string, damageDealtToTarget?: number, healUser?: number, applyStealth?: boolean, pushback?: number };
 }
 
-export type SlotType = 'head' | 'chest' | 'legs' | 'feet' | 'hands' | 'neck' | 'ring' | 'mainhand' | 'offhand';
+export type SlotType = 'head' | 'cloak' | 'chest' | 'legs' | 'feet' | 'hands' | 'neck' | 'ring' | 'mainhand' | 'offhand';
 
 export interface Item {
   id: string;
@@ -81,7 +81,7 @@ export const ITEMS: Record<string, Item> = {
     id: 'shadow_cloak',
     name: 'Shadow Cloak',
     description: 'Increases evasion and allows stealth.',
-    slot: 'chest',
+    slot: 'cloak',
     modifiers: { evadeBonus: 30, acBonus: 5, stealthEntry: true }
   },
   paladin_plate: {

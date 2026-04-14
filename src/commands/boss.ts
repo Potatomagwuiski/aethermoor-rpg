@@ -12,7 +12,7 @@ export function createVoidWeaver() {
 
 export function getUserEquipmentIds(user: any): string[] {
   return [
-    user.equipHead, user.equipChest, user.equipLegs, user.equipFeet, 
+    user.equipHead, user.equipCloak, user.equipChest, user.equipLegs, user.equipFeet, 
     user.equipHands, user.equipNeck, user.equipRing1, user.equipRing2, 
     user.equipMainHand, user.equipOffHand
   ].filter(Boolean) as string[];

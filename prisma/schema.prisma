@@ -19,6 +19,7 @@ model User {
 
   // Full Body Equipment System
   equipHead      String?
+  equipCloak     String?
   equipChest     String?
   equipLegs      String?
   equipFeet      String?
