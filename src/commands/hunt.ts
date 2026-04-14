@@ -72,12 +72,13 @@ export async function handleHunt(message: Message) {
       didLevelUp = true;
     }
 
+    const goldReward = Math.floor(Math.random() * 50) + 10;
     await prisma.user.update({
       where: { id: user.id },
-      data: { xp: newXp, level: newLevel }
+      data: { xp: newXp, level: newLevel, gold: user.gold + goldReward }
     });
 
-    rewardText = `You extracted **${randomMob.xpReward} XP** from the ${enemy.name}!`;
+    rewardText = `You extracted **${randomMob.xpReward} XP** and **${goldReward} Gold** from the ${enemy.name}!`;
     if (didLevelUp) rewardText += `\n🌟 **LEVEL UP! You are now XL ${newLevel}!**`;
   }
 

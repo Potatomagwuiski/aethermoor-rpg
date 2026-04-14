@@ -10,6 +10,7 @@ model User {
   id           String   @id // Discord User ID
   level        Int      @default(1)
   xp           Int      @default(0)
+  gold         Int      @default(100) // Starting gold for the shop
   
   // Base Attributes
   strength     Int @default(5)

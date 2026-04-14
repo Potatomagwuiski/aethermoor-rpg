@@ -20,7 +20,7 @@ const ARMOR_TEMPLATES = [
   { id: 'shadow_cloak', slot: 'cloak', name: 'Veil', baseWeight: 2 }
 ];
 
-export function rollLoot(userId: string) {
+export function rollLoot(userId: string, forcedType?: 'weapon' | 'armor') {
   // 1. Roll Rarity
   const roll = Math.random() * 100;
   let rarityObj = RARITY_WEIGHTS[0];
@@ -34,7 +34,10 @@ export function rollLoot(userId: string) {
   }
 
   // 2. Select Template
-  const isWeapon = Math.random() > 0.5;
+  let isWeapon = Math.random() > 0.5;
+  if (forcedType === 'weapon') isWeapon = true;
+  if (forcedType === 'armor') isWeapon = false;
+  
   const templatePool = isWeapon ? WEAPON_TEMPLATES : ARMOR_TEMPLATES;
   const template = templatePool[Math.floor(Math.random() * templatePool.length)];
 
