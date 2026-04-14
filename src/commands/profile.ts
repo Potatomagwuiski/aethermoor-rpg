@@ -27,7 +27,9 @@ export async function handleProfile(message: Message) {
     ? player.equipment.map(i => `[${i.slot.toUpperCase()}] ${i.name}`).join('\n')
     : "No Gear Equipped";
 
-  let loadoutSummary = `**Weapon:** ${player.primaryAction ? player.primaryAction.name : "Unarmed"} (Attacks every \`${ticks}\` ticks)\n`;
+  const encumbranceState = player.state.encumbranceFactor && player.state.encumbranceFactor > 0 ? `⚠️ **ENCUMBERED:** (+${Math.floor(player.state.encumbranceFactor * 3)}% Action Delay)` : `✅ Normal Weight`;
+  let loadoutSummary = `⚖️ **Carry Capacity:** ${player.state.totalWeight} / ${player.state.maxWeight} kg | ${encumbranceState}\n`;
+  loadoutSummary += `**Weapon:** ${player.primaryAction ? player.primaryAction.name : "Unarmed"} (Attacks every \`${ticks}\` ticks)\n`;
   if (player.reactions.length > 0) {
     loadoutSummary += `**Reactions:**\n` + player.reactions.map(r => `- ${r.name} (${r.trigger})`).join('\n');
   } else {

@@ -16,6 +16,9 @@ export interface Fighter {
     stealth: boolean;
     shieldHp: number;
     nextActionTick: number; 
+    totalWeight?: number;
+    maxWeight?: number;
+    encumbranceFactor?: number;
   };
 }
 
@@ -31,8 +34,10 @@ export function buildFighter(name: string, stats: any, equipmentIds: string[]): 
   let primaryAction: Action | undefined = undefined;
   const reactions: Reaction[] = [];
   let stealthEntry = false;
+  let totalWeight = 0;
 
   for (const item of equipment) {
+    if (item.weight) totalWeight += item.weight;
     if (item.modifiers.damageMult) stanceMods.damageMult *= item.modifiers.damageMult;
     if (item.modifiers.evadeBonus !== undefined) stanceMods.evadeBonus += item.modifiers.evadeBonus;
     if (item.modifiers.acBonus !== undefined) stanceMods.acBonus += item.modifiers.acBonus;
@@ -45,13 +50,27 @@ export function buildFighter(name: string, stats: any, equipmentIds: string[]): 
     if (item.grantedReaction) reactions.push(item.grantedReaction);
   }
 
+  // Encumbrance logic: 10 + (str * 3)
+  const maxWeight = 10 + (stats.str * 3);
+  let encumbranceFactor = 0;
+
+  if (totalWeight > maxWeight) {
+    encumbranceFactor = totalWeight - maxWeight;
+    // Penalty: 3% slower per weight unit over, -1 to evade per weight unit over
+    stanceMods.speedMult *= (1 + (encumbranceFactor * 0.03));
+    stanceMods.evadeBonus -= encumbranceFactor;
+  }
+
   return {
     name, hp, maxHp: hp, level: 5, stats, equipment,
     stanceMods, primaryAction, reactions,
     state: {
       stealth: stealthEntry,
       shieldHp: stanceMods.shieldBonus,
-      nextActionTick: 0
+      nextActionTick: 0,
+      totalWeight,
+      maxWeight,
+      encumbranceFactor
     }
   };
 }

@@ -33,11 +33,9 @@ export interface Item {
   description: string;
   slot: SlotType;
   modifiers: CombatModifier;
+  weight?: number;
   
-  // If the item is a weapon, it grants an Action
   grantedAction?: Action;
-  
-  // If the item has a special proc, it grants a Reaction
   grantedReaction?: Reaction;
 }
 
@@ -51,6 +49,7 @@ export const ITEMS: Record<string, Item> = {
     description: 'A slow crushing blow (Melee).',
     slot: 'mainhand',
     modifiers: { damageMult: 1.0, speedMult: 1.5, evadeBonus: -10 },
+    weight: 35,
     grantedAction: {
       name: 'Greataxe Swing',
       description: 'Cleaves through armor.',
@@ -66,6 +65,7 @@ export const ITEMS: Record<string, Item> = {
     description: 'Extremely fast puncture (Melee).',
     slot: 'mainhand',
     modifiers: { speedMult: 0.8 },
+    weight: 4,
     grantedAction: {
       name: 'Shadow Stab',
       description: 'Quick strikes.',
@@ -82,14 +82,16 @@ export const ITEMS: Record<string, Item> = {
     name: 'Shadow Cloak',
     description: 'Increases evasion and allows stealth.',
     slot: 'cloak',
-    modifiers: { evadeBonus: 30, acBonus: 5, stealthEntry: true }
+    modifiers: { evadeBonus: 30, acBonus: 5, stealthEntry: true },
+    weight: 2
   },
   paladin_plate: {
     id: 'paladin_plate',
     name: 'Paladin Chestplate',
     description: 'Massive Armor.',
     slot: 'chest',
-    modifiers: { evadeBonus: -30, acBonus: 40, shieldBonus: 50 }
+    modifiers: { evadeBonus: -30, acBonus: 40, shieldBonus: 50 },
+    weight: 55
   },
 
   // Offhands
@@ -99,6 +101,7 @@ export const ITEMS: Record<string, Item> = {
     description: 'Massive flat shield ward + bash capability.',
     slot: 'offhand',
     modifiers: { shieldBonus: 150, evadeBonus: -20 },
+    weight: 40,
     grantedReaction: {
       name: 'Shield Bash',
       trigger: 'onHitTaken',
@@ -111,6 +114,7 @@ export const ITEMS: Record<string, Item> = {
     description: 'Offhand tool for vanishing.',
     slot: 'offhand',
     modifiers: { evadeBonus: 10 },
+    weight: 1,
     grantedReaction: {
       name: 'Smoke Powder',
       trigger: 'onEvade',
