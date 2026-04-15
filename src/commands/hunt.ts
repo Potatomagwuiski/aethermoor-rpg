@@ -5,22 +5,28 @@ import { getUserEquipment } from './boss';
 
 const MOBS = [
   {
-    name: "Aether-Touched Stag",
-    stats: { str: 5, dex: 15, vit: 10, int: 5 },
-    equipment: [{ templateId: 'assassin_blade', slot: 'mainhand', modifiers: { speedMult: 0.6 } }], 
+    name: "Goblin Scavenger",
+    stats: { str: 8, dex: 5, vit: 5, int: 0 },
+    equipment: [{ templateId: 'dagger', slot: 'mainhand', weight: 2, name: "Rusted Shiv", modifiers: { damageMult: 0.8 } }], 
     xpReward: 15
   },
   {
-    name: "Goblin Scavenger",
-    stats: { str: 10, dex: 10, vit: 5, int: 0 },
-    equipment: [{ templateId: 'heavy_greataxe', slot: 'mainhand', weight: 35, modifiers: { damageMult: 1.8, speedMult: 1.6, evadeBonus: -15 } }], 
+    name: "Frenzied Wolf",
+    stats: { str: 6, dex: 18, vit: 6, int: 0 },
+    equipment: [{ templateId: 'dagger', slot: 'mainhand', weight: 0, name: "Razored Claws", modifiers: { damageMult: 1.1, speedMult: 0.8 } }], 
     xpReward: 20
   },
   {
-    name: "Frenzied Wolf",
-    stats: { str: 8, dex: 20, vit: 8, int: 0 },
-    equipment: [{ templateId: 'assassin_blade', slot: 'mainhand', modifiers: { speedMult: 0.6 } }], 
-    xpReward: 18
+    name: "Aether-Touched Stag",
+    stats: { str: 12, dex: 10, vit: 15, int: 5 },
+    equipment: [{ templateId: 'longsword', slot: 'mainhand', weight: 10, name: "Shattered Antlers", modifiers: { speedMult: 1.2 } }], 
+    xpReward: 30
+  },
+  {
+    name: "Corrupt Marksman",
+    stats: { str: 5, dex: 15, vit: 5, int: 0 },
+    equipment: [{ templateId: 'musket', slot: 'mainhand', weight: 12, name: "Splintered Musket", modifiers: { damageMult: 1.3, speedMult: 2.2 } }], 
+    xpReward: 35
   }
 ];
 

@@ -5,11 +5,11 @@ import { buildFighter, resolveCombat } from '../game/combat';
 export function createVoidWeaver() {
   return buildFighter(
     "The Void Weaver",
-    { str: 25, dex: 10, vit: 40, int: 50 },
+    { str: 30, dex: 10, vit: 45, int: 50 }, // High STR to mitigate SOME of the massive encumbrance from the plate+tower shield
     [
-      { templateId: 'paladin_plate', slot: 'chest', weight: 55, modifiers: { evadeBonus: -100, acBonus: 60, shieldBonus: 200 } },
-      { templateId: 'heavy_greataxe', slot: 'mainhand', weight: 35, modifiers: { damageMult: 1.8, speedMult: 1.6, evadeBonus: -15 } },
-      { templateId: 'tower_shield', slot: 'offhand', weight: 40, modifiers: { shieldBonus: 1000, evadeBonus: -30 } }
+      { templateId: 'plate_chest', slot: 'chest', weight: 55, name: "Paladin Plate", modifiers: { evadeBonus: -100, acBonus: 60 } },
+      { templateId: 'heavy_greataxe', slot: 'mainhand', weight: 35, name: "Executioner's Axe", modifiers: { damageMult: 2.0, speedMult: 1.5, evadeBonus: -15 } },
+      { templateId: 'tower_shield', slot: 'offhand', weight: 40, name: "Aegis Wall", modifiers: { shieldBonus: 800, evadeBonus: -30 } }
     ]
   );
 }
