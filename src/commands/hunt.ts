@@ -6,24 +6,28 @@ import { getUserEquipment } from './boss';
 const MOBS = [
   {
     name: "Goblin Scavenger",
+    minLevel: 1,
     stats: { str: 8, dex: 5, vit: 5, int: 0 },
     equipment: [{ templateId: 'dagger', slot: 'mainhand', weight: 2, name: "Rusted Shiv", modifiers: { damageMult: 0.8 } }], 
     xpReward: 15
   },
   {
     name: "Frenzied Wolf",
+    minLevel: 1,
     stats: { str: 6, dex: 18, vit: 6, int: 0 },
     equipment: [{ templateId: 'dagger', slot: 'mainhand', weight: 0, name: "Razored Claws", modifiers: { damageMult: 1.1, speedMult: 0.8 } }], 
     xpReward: 20
   },
   {
     name: "Aether-Touched Stag",
+    minLevel: 3,
     stats: { str: 12, dex: 10, vit: 15, int: 5 },
     equipment: [{ templateId: 'longsword', slot: 'mainhand', weight: 10, name: "Shattered Antlers", modifiers: { speedMult: 1.2 } }], 
     xpReward: 30
   },
   {
     name: "Corrupt Marksman",
+    minLevel: 5,
     stats: { str: 5, dex: 15, vit: 5, int: 0 },
     equipment: [{ templateId: 'musket', slot: 'mainhand', weight: 12, name: "Splintered Musket", modifiers: { damageMult: 1.3, speedMult: 2.2 } }], 
     xpReward: 35
@@ -40,7 +44,8 @@ export async function handleHunt(message: Message) {
     getUserEquipment(user)
   );
 
-  const randomMob = MOBS[Math.floor(Math.random() * MOBS.length)];
+  const viableMobs = MOBS.filter(m => user.level >= m.minLevel);
+  const randomMob = viableMobs[Math.floor(Math.random() * viableMobs.length)];
   const enemy = buildFighter(
     randomMob.name,
     randomMob.stats,
