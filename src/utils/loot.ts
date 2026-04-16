@@ -95,7 +95,7 @@ export async function rollLootDrop(playerLevel: number, playerId: string) {
     modifiers[modPick] = (modifiers[modPick] || 0) + val;
   }
 
-  const passives = [];
+  const passives: string[] = [];
   // Assign procedural passives bound by SubType pools! Only Rare+ can roll passives usually.
   if (rarity === 'Epic' || rarity === 'Legendary' || rarity === 'Rare') {
     const pool = PASSIVE_POOLS[subType] || PASSIVE_POOLS[slot] || [];
