@@ -5,3 +5,13 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Player {
+  discordId      String @id
+  level          Int    @default(1)
+  xp             Int    @default(0)
+  gold           Int    @default(0)
+  hp             Int    @default(100)
+  maxHp          Int    @default(100)
+  lastHuntMillis BigInt @default(0)
+}

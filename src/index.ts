@@ -1,5 +1,8 @@
 import { Client, GatewayIntentBits, Events } from 'discord.js';
 import * as dotenv from 'dotenv';
+import { executeStart } from './commands/start';
+import { executeProfile } from './commands/profile';
+import { executeHunt } from './commands/hunt';
 
 dotenv.config();
 
@@ -22,6 +25,12 @@ client.on(Events.MessageCreate, async (message) => {
 
   if (content === 'ping') {
     await message.reply('Pong! The clean slate is ready for the new idea.');
+  } else if (content === 'rpg start') {
+    await executeStart(message);
+  } else if (content === 'rpg profile') {
+    await executeProfile(message);
+  } else if (content === 'rpg hunt') {
+    await executeHunt(message);
   }
 });
 
