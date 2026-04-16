@@ -19,7 +19,7 @@ export async function executeStart(message: Message) {
       discordId,
       level: 1,
       xp: 0,
-      gold: 0,
+      gold: 100,
       hp: 100,
       maxHp: 100,
       lastHuntMillis: 0n,
@@ -35,9 +35,9 @@ export async function executeStart(message: Message) {
   });
 
   const embed = new EmbedBuilder()
-    .setColor('#00FF00')
+    .setColor('#F1C40F')
     .setTitle('Welcome to Aethermoor RPG!')
-    .setDescription(`Your journey begins now, <@${discordId}>. You have been granted 100 HP to start. Type \`rpg hunt\` to begin your adventure and earn XP and Gold!`)
+    .setDescription(`Your journey begins now, <@${discordId}>!\n\nYou have been granted **🪙 100 Gold** as a starting stipend.\nHead over to the \`rpg shop\` to purchase a structural weapon and armor configuration before venturing into the wilds!\n\n*(Type \`rpg hunt\` to begin your adventure and earn more XP and Gold)*`)
     .setThumbnail(message.author.displayAvatarURL());
 
   await message.reply({ embeds: [embed] });

@@ -6,7 +6,7 @@ export function getRandomInt(min: number, max: number) {
 
 const WEAPONS = [
   'Dagger', 'Greatsword', 'Wand', 'Warhammer', 
-  'Spear', 'Scythe', 'Bow', 'Spellblade'
+  'Spear', 'Scythe', 'Bow', 'Spellblade', 'Musket'
 ];
 const OFFHANDS = ['Shield', 'Buckler', 'Tome', 'Orb'];
 
@@ -30,6 +30,7 @@ const PASSIVE_POOLS: Record<string, string[]> = {
   'Scythe': ['Vampiric Drain', 'Soul Siphon', 'Death Knell', 'Reaper', 'Bleed'],
   'Bow': ['First Strike', 'Piercing Shot', 'Volley', 'Hunter Mark', 'Vampiric Drain'],
   'Spellblade': ['Dual Strike', 'Ignite', 'Arc Burst', 'Frostbite', 'Vampiric Drain', 'Bleed'],
+  'Musket': ['First Strike', 'Armor Break', 'Execution', 'Headshot'],
   
   // OFFHANDS
   'Shield': ['Shield Bash', 'Fortify', 'Deflect', 'Vanguard'],
