@@ -22,7 +22,7 @@ export async function executeStart(message: Message) {
       gold: 0,
       hp: 100,
       maxHp: 100,
-      lastHuntMillis: 0,
+      lastHuntMillis: 0n,
     },
   });
 

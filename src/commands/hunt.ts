@@ -65,7 +65,7 @@ export async function executeHunt(message: Message) {
       hp: newHp,
       maxHp: newMaxHp,
       // lastHuntMillis could be set here for cooldowns later
-      lastHuntMillis: Date.now()
+      lastHuntMillis: BigInt(Date.now())
     },
   });
 
