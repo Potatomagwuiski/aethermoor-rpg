@@ -23,14 +23,19 @@ client.on(Events.MessageCreate, async (message) => {
 
   const content = message.content.trim().toLowerCase();
 
-  if (content === 'ping') {
-    await message.reply('Pong! The clean slate is ready for the new idea.');
-  } else if (content === 'rpg start') {
-    await executeStart(message);
-  } else if (content === 'rpg profile') {
-    await executeProfile(message);
-  } else if (content === 'rpg hunt') {
-    await executeHunt(message);
+  try {
+    if (content === 'ping') {
+      await message.reply('Pong! The clean slate is ready for the new idea.');
+    } else if (content === 'rpg start') {
+      await executeStart(message);
+    } else if (content === 'rpg profile') {
+      await executeProfile(message);
+    } else if (content === 'rpg hunt') {
+      await executeHunt(message);
+    }
+  } catch (error: any) {
+    console.error(error);
+    await message.reply(`A fatal error occurred: \`${error.message}\``);
   }
 });
 
