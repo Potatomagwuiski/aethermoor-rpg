@@ -265,14 +265,17 @@ export async function executeHunt(message: Message) {
     },
   });
 
-  // Hyper Clean Summarized UX
+  let resText = '⚪ **Draw!** The enemy fled.';
+  if (playerWon) resText = '🟢 **Victory!** You crushed the target.';
+  else if (monsterWon) resText = '🔴 **Defeat...** You were laid to rest.';
+
   const embedColor = playerWon ? '#2ECC71' : (monsterWon ? '#E74C3C' : '#95A5A6');
   const embed = new EmbedBuilder()
     .setColor(embedColor)
-    .setTitle(`⚔️ Combat Resolution: vs ${mName}`)
-    .setDescription(`**Result:** ${outcome}\n**Health Remaining:** ${Math.max(0, playerCurrentHp)} / ${pStats.maxHp} HP\n` + 
-                    (playerWon ? `\n🪙 +${goldGained} Gold\n✨ +${xpGained} XP${lootMsg}` : ''))
-    .setFooter({ text: `Track exact physics metrics using: rpg logs get ${cLog.id}` });
+    .setAuthor({ name: `Combat: ${message.author.username} vs ${mName}`, iconURL: message.author.displayAvatarURL() })
+    .setDescription(`${resText}\n\n❤️ **HP Remaining:** \`${Math.max(0, playerCurrentHp)} / ${pStats.maxHp}\`\n` + 
+                    (playerWon ? `\n🪙 **+${goldGained} Gold**\n✨ **+${xpGained} XP**${lootMsg}` : ''))
+    .setFooter({ text: `Detailed Physics Log: rpg logs get ${cLog.id}` });
 
   if (leveledUp) {
     embed.addFields({ name: '🎉 LEVEL UP!', value: `You reached Level **${newLevel}**! (+${apToGive} AP)` });
