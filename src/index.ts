@@ -3,6 +3,9 @@ import * as dotenv from 'dotenv';
 import { executeStart } from './commands/start';
 import { executeProfile } from './commands/profile';
 import { executeHunt } from './commands/hunt';
+import { executeAssign } from './commands/assign';
+import { executeInventory } from './commands/inventory';
+import { executeEquip } from './commands/equip';
 
 dotenv.config();
 
@@ -32,6 +35,14 @@ client.on(Events.MessageCreate, async (message) => {
       await executeProfile(message);
     } else if (content === 'rpg hunt') {
       await executeHunt(message);
+    } else if (content.startsWith('rpg assign')) {
+      const args = content.split(' ').slice(2);
+      await executeAssign(message, args);
+    } else if (content.startsWith('rpg inv')) {
+      await executeInventory(message);
+    } else if (content.startsWith('rpg equip')) {
+      const args = content.split(' ').slice(2);
+      await executeEquip(message, args);
     }
   } catch (error: any) {
     console.error(error);

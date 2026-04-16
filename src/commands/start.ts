@@ -23,6 +23,14 @@ export async function executeStart(message: Message) {
       hp: 100,
       maxHp: 100,
       lastHuntMillis: 0n,
+      statPoints: 5,
+      str: 10,
+      dex: 10,
+      int: 10,
+      vit: 10,
+      equipment: {
+        create: {}
+      }
     },
   });
 

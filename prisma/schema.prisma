@@ -14,4 +14,80 @@ model Player {
   hp             Int    @default(100)
   maxHp          Int    @default(100)
   lastHuntMillis BigInt @default(0)
+
+  // Core Attributes
+  statPoints     Int    @default(0)
+  str            Int    @default(10)
+  dex            Int    @default(10)
+  int            Int    @default(10)
+  vit            Int    @default(10)
+
+  // Relations
+  inventory      InventoryItem[]
+  equipment      Equipment?
+}
+
+model Item {
+  id             String  @id @default(uuid())
+  name           String
+  rarity         String  // Common, Uncommon, Rare, Epic, Legendary
+  slot           String  // MainHand, OffHand, Helmet, Chest, Gloves, Boots, Cloak, Ring, Amulet
+  
+  // Base Stats
+  baseDamage     Int     @default(0)
+  baseArmor      Int     @default(0)
+  
+  // Modifiers and Hooks (JSON)
+  modifiers      Json    @default("{}") // e.g. {"str": 10, "rFire": 50, "rCold": 0, "evasion": 5}
+  passives       Json    @default("[]") // e.g. [{"type": "lifesteal", "magnitude": 5}]
+
+  // Relations
+  inventoryItems InventoryItem[]
+  equippedMain   Equipment[] @relation("MainHand")
+  equippedOff    Equipment[] @relation("OffHand")
+  equippedHel    Equipment[] @relation("Helmet")
+  equippedChe    Equipment[] @relation("Chest")
+  equippedGlo    Equipment[] @relation("Gloves")
+  equippedBoo    Equipment[] @relation("Boots")
+  equippedClo    Equipment[] @relation("Cloak")
+  equippedRin1   Equipment[] @relation("Ring1")
+  equippedRin2   Equipment[] @relation("Ring2")
+  equippedAmu    Equipment[] @relation("Amulet")
+}
+
+model InventoryItem {
+  id        String @id @default(uuid())
+  playerId  String
+  itemId    String
+  amount    Int    @default(1)
+
+  player    Player @relation(fields: [playerId], references: [discordId])
+  item      Item   @relation(fields: [itemId], references: [id])
+}
+
+model Equipment {
+  playerId  String @id
+  player    Player @relation(fields: [playerId], references: [discordId])
+
+  mainHandId String?
+  offHandId  String?
+  helmetId   String?
+  chestId    String?
+  glovesId   String?
+  bootsId    String?
+  cloakId    String?
+  ring1Id    String?
+  ring2Id    String?
+  amuletId   String?
+
+  mainHand   Item? @relation("MainHand", fields: [mainHandId], references: [id])
+  offHand    Item? @relation("OffHand", fields: [offHandId], references: [id])
+  helmet     Item? @relation("Helmet", fields: [helmetId], references: [id])
+  chest      Item? @relation("Chest", fields: [chestId], references: [id])
+  gloves     Item? @relation("Gloves", fields: [glovesId], references: [id])
+  boots      Item? @relation("Boots", fields: [bootsId], references: [id])
+  cloak      Item? @relation("Cloak", fields: [cloakId], references: [id])
+  ring1      Item? @relation("Ring1", fields: [ring1Id], references: [id])
+  ring2      Item? @relation("Ring2", fields: [ring2Id], references: [id])
+  amulet     Item? @relation("Amulet", fields: [amuletId], references: [id])
 }
