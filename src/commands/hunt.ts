@@ -1,6 +1,6 @@
 import { Message, EmbedBuilder } from 'discord.js';
 import { prisma } from '../db';
-import { compilePlayerStats } from '../utils/stats';
+import { compilePlayerStats, CompiledStats } from '../utils/stats';
 import { getRandomInt, rollLootDrop } from '../utils/loot';
 
 export async function executeHunt(message: Message) {
@@ -15,159 +15,205 @@ export async function executeHunt(message: Message) {
     }
   });
 
-  if (!player) {
-    return message.reply('You do not have a profile yet! Use `rpg start`.');
-  }
+  if (!player) return message.reply('You do not have a profile yet! Use `rpg start`.');
+  if (player.hp <= 0) return message.reply('You are too weak to hunt! Please wait to heal.');
 
-  if (player.hp <= 0) {
-    return message.reply('You are too weak to hunt! Please wait to heal or use a potion.');
-  }
+  const pStats = compilePlayerStats(player);
 
-  const cStats = compilePlayerStats(player);
-
-  // Generate Monster
+  // ASSYMMETRIC MONSTER GHOST GENERATION
   const mLevel = player.level;
-  const mHpMax = getRandomInt(50 + mLevel * 20, 100 + mLevel * 30);
-  let mHp = mHpMax;
-  
-  // Monster AC/Evasion are scaled down slightly so players feel powerful
-  let mAc = Math.floor(mLevel * 1);
-  const mEv = Math.floor(5 + mLevel * 1);
-  const mMinDmg = Math.floor(5 + mLevel * 2);
-  const mMaxDmg = Math.floor(10 + mLevel * 2.5);
-  
-  // Monster Resistances
-  const mRPoison = Math.floor(mLevel * 0.5);
-  const mRFire = Math.floor(mLevel * 0.5);
-
   const mNames = ['Goblin Looter', 'Dire Wolf', 'Shadow Stalker', 'Iron Golem', 'Venom Spider'];
   const mName = mNames[getRandomInt(0, mNames.length - 1)];
 
-  // Simulation Variables
+  let mPassives: string[] = [];
+  if (mName === 'Venom Spider') mPassives = ['Venom Strike', 'Agility', 'Evasive Maneuver'];
+  else if (mName === 'Iron Golem') mPassives = ['Iron Skin', 'Sunder', 'Crushing Blow'];
+  else if (mName === 'Dire Wolf') mPassives = ['Flurry', 'Bleed', 'Vampiric Drain'];
+  else if (mName === 'Shadow Stalker') mPassives = ['First Strike', 'Shadow Veil', 'Backstab'];
+  else mPassives = ['Quick Hands', 'Deflect']; // Goblin
+
+  const rawMonster = {
+      str: 5 + mLevel * 5, dex: 5 + mLevel * 5, int: 5 + mLevel * 5, vit: 5 + mLevel * 5,
+      hp: 1, maxHp: 1,
+      equipment: {
+          mainHand: { baseDamage: mLevel * 3, passives: JSON.stringify(mPassives), modifiers: {} },
+          chest: { baseArmor: mLevel * 2, passives: '[]', modifiers: {} }
+      }
+  };
+  
+  const mStats = compilePlayerStats(rawMonster);
+  // Manual overrides for boss-like scale
+  mStats.maxHp = getRandomInt(60 + mLevel * 25, 120 + mLevel * 35);
+  mStats.hp = mStats.maxHp;
+
+  // Trackers
   const MAX_ROUNDS = 5;
-  let log = '';
-  let playerCurrentHp = player.hp;
+  let log = `COMBAT INITIATED: ${message.author.username} vs ${mName}\n`;
+  log += `PLAYER: ${pStats.hp} HP | ${pStats.accuracy} ACC | ${pStats.evasion} EV | ${pStats.armor} AC | ${pStats.attackSpeed.toFixed(2)} SPD\n`;
+  log += `ENEMY: ${mStats.hp} HP | ${mStats.accuracy} ACC | ${mStats.evasion} EV | ${mStats.armor} AC | ${mStats.attackSpeed.toFixed(2)} SPD\n`;
+  log += `-------------------------------------------------\n`;
+
+  let playerCurrentHp = pStats.hp;
+  let mCurrentHp = mStats.hp;
 
   let playerWon = false;
   let monsterWon = false;
 
-  // Status Effects
-  let mPoisonStacks = 0;
+  const pStatus = { poison: 0 };
+  const mStatus = { poison: 0 };
+
+  // Helper for attacking identically
+  const simulateAttack = (attacker: CompiledStats, defender: CompiledStats, attackerName: string, defenderName: string, attackerHp: number, defenderHp: number, defStatus: any) => {
+      let turnLog = '';
+      let dmgDealt = 0;
+      let drainHeal = 0;
+
+      const baseStrikes = Math.floor(attacker.attackSpeed);
+      // Chance for an extra strike based on the decimal
+      let strikes = baseStrikes + (Math.random() < (attacker.attackSpeed % 1) ? 1 : 0);
+      if (attacker.passives.includes('Flurry')) strikes += 1; // Native additional strikes
+
+      for (let s = 1; s <= strikes; s++) {
+          if (defenderHp <= 0) break;
+
+          // Accuracy vs Evasion calculation
+          const hitChance = Math.max(10, Math.min(95, 50 + (attacker.accuracy - defender.evasion)));
+          const roll = getRandomInt(1, 100);
+
+          if (roll > hitChance) {
+              // Check Parry before simple dodge
+              if (defender.passives.includes('Parry')) {
+                  turnLog += `💥 ${defenderName} PARRIED the strike!\n`;
+                  // Riposte applies back
+                  if (defender.passives.includes('Riposte')) {
+                      attackerHp -= Math.max(1, Math.floor(defender.minDamage * 0.5));
+                      turnLog += `   ⚔️ Riposte hit ${attackerName}!\n`;
+                  }
+              } else {
+                  turnLog += `💨 ${attackerName} missed! (${hitChance}% hit chance failed)\n`;
+              }
+          } else {
+              let dmg = getRandomInt(attacker.minDamage, attacker.maxDamage);
+              if (strikes > 1) dmg = Math.floor(dmg * 0.7); // Multi-hit penalty scaling
+
+              let isCrit = false;
+              if (getRandomInt(1, 100) <= attacker.critChance && !defender.passives.includes('Stalwart')) {
+                  dmg = Math.floor(dmg * attacker.stabMultiplier);
+                  isCrit = true;
+              }
+
+              // Armor Mitigation Math
+              let defenderArmor = defender.armor;
+              if (attacker.passives.includes('Armor Break') || attacker.passives.includes('Armor Pierce')) defenderArmor = Math.floor(defenderArmor / 2);
+              
+              const physicalDmg = Math.max(1, dmg - defenderArmor);
+              defenderHp -= physicalDmg;
+              dmgDealt += physicalDmg;
+
+              const critStr = isCrit ? '💥 CRIT ' : '';
+              turnLog += `🗡️ ${attackerName} hits for ${critStr}**${physicalDmg}** Physical DMG!\n`;
+
+              // Passives
+              if (attacker.passives.includes('Thorns')) {
+                  const reflect = Math.floor(physicalDmg * 0.1);
+                  attackerHp -= reflect;
+                  turnLog += `   🛡️ Thorns reflected ${reflect} DMG!\n`;
+              }
+              if (attacker.passives.includes('Venom Strike') || attacker.passives.includes('Toxic Burst')) {
+                  defStatus.poison += 10;
+              }
+              if (attacker.passives.includes('Vampiric Drain')) {
+                  drainHeal += Math.max(1, Math.floor(physicalDmg * 0.1));
+              }
+              if (attacker.passives.includes('Ignite')) {
+                  // Fire elemental hit bypasses physical armor, checks rFire exclusively.
+                  const fire = Math.max(1, 15 - defender.rFire);
+                  defenderHp -= fire;
+                  turnLog += `   🔥 Ignite burns for ${fire} Elemental DMG!\n`;
+              }
+          }
+      }
+      return { turnLog, defenderHp, attackerHp, drainHeal };
+  };
+
+  const processStatus = (hp: number, status: any, name: string, res: number) => {
+      let tlog = '';
+      if (status.poison > 0) {
+          const dmg = Math.max(1, status.poison - res);
+          hp -= dmg;
+          tlog += `🧪 ${name} suffers ${dmg} Poison DMG!\n`;
+      }
+      return { hp, tlog };
+  };
 
   for (let i = 1; i <= MAX_ROUNDS; i++) {
-    log += `**Round ${i}**\n`;
+    log += `\n**--- Round ${i} ---**\n`;
 
-    // Process Sunder passive (reduces monster armor permanently per hit)
-    if (cStats.passives.includes('Sunder')) {
-        mAc = Math.max(0, mAc - 2); 
-    }
+    // SNEAK CHANCE / FIRST STRIKE handling
+    let playerGoesFirst = true;
+    if (mStats.passives.includes('First Strike') && !pStats.passives.includes('First Strike')) playerGoesFirst = false;
 
-    // Determine how many strikes player makes based on Flurry
-    let strikes = 1;
-    if (cStats.passives.includes('Flurry')) strikes = 3;
-
-    for (let s = 1; s <= strikes; s++) {
-      if (mHp <= 0) break;
-
-      const pRoll = getRandomInt(1, 100);
-      if (pRoll < mEv) {
-        log += `💨 You swung but the ${mName} evaded!\n`;
-      } else {
-        let dmg = getRandomInt(cStats.minDamage, cStats.maxDamage);
-        
-        // If flurry, each strike does less raw damage but procs effects
-        if (strikes > 1) dmg = Math.floor(dmg / 2);
-
-        let isCrit = false;
-        if (getRandomInt(1, 100) <= cStats.critChance) {
-          dmg = Math.floor(dmg * cStats.critMultiplier);
-          isCrit = true;
-          if (cStats.passives.includes('Execution') && mHp < (mHpMax * 0.3)) {
-              dmg += Math.floor(dmg * 0.5); // 50% more dmg on low hp target
-          }
+    // Both functions resolve asynchronously if one dies during the hit logic.
+    if (playerGoesFirst) {
+        // Player attacks
+        const pRes = simulateAttack(pStats, mStats, message.author.username, mName, playerCurrentHp, mCurrentHp, mStatus);
+        log += pRes.turnLog;
+        mCurrentHp = pRes.defenderHp;
+        playerCurrentHp = pRes.attackerHp;
+        if (pRes.drainHeal > 0) {
+            playerCurrentHp = Math.min(pStats.maxHp, playerCurrentHp + pRes.drainHeal);
+            log += `🩸 ${message.author.username} healed ${pRes.drainHeal} HP from Vampiric Drain.\n`;
         }
         
-        // Armor mitigation
-        let effectiveDmg = Math.max(1, dmg - mAc);
-        // Armor Pierce ignores half armor
-        if (cStats.passives.includes('Armor Pierce')) {
-            effectiveDmg = Math.max(1, dmg - Math.floor(mAc / 2));
+        if (mCurrentHp <= 0 || playerCurrentHp <= 0) break;
+
+        // Monster attacks
+        const mRes = simulateAttack(mStats, pStats, mName, message.author.username, mCurrentHp, playerCurrentHp, pStatus);
+        log += mRes.turnLog;
+        playerCurrentHp = mRes.defenderHp;
+        mCurrentHp = mRes.attackerHp;
+        if (mRes.drainHeal > 0) {
+            mCurrentHp = Math.min(mStats.maxHp, mCurrentHp + mRes.drainHeal);
+            log += `🩸 ${mName} healed ${mRes.drainHeal} HP from Vampiric Drain.\n`;
         }
 
-        mHp -= effectiveDmg;
-        
-        const critStr = isCrit ? '💥 CRIT' : '';
-        log += `🗡️ You hit for ${critStr} **${effectiveDmg}** DMG! (${mName}: ${Math.max(0, mHp)} HP)\n`;
-        
-        // On-Hit Passives
-        if (cStats.passives.includes('Vampiric Drain') || cStats.passives.includes('Lifesteal 5%')) {
-          const heal = Math.max(1, Math.floor(effectiveDmg * 0.1));
-          playerCurrentHp = Math.min(cStats.maxHp, playerCurrentHp + heal);
-          log += `   🩸 *Lifesteal healed you for ${heal} HP!*\n`;
-        }
-        
-        if (cStats.passives.includes('Venom Strike') || cStats.passives.includes('Toxic Burst')) {
-            mPoisonStacks += 10;
-        }
-
-        if (cStats.passives.includes('Ignite')) {
-            const fireDmg = Math.max(1, 15 - mRFire);
-            mHp -= fireDmg;
-            log += `   🔥 *Ignite burned the enemy for ${fireDmg} Fire DMG!*\n`;
-        }
-      }
-    }
-
-    if (mHp <= 0) {
-      playerWon = true;
-      break;
-    }
-
-    // Monster Attacks Player
-    const mHitRoll = getRandomInt(1, 100);
-    // Shield Block Chance addition
-    let effectiveEvasion = cStats.evasion;
-    if (cStats.passives.includes('Deflect') || cStats.passives.includes('Parry')) {
-        effectiveEvasion += 15; // Shields add 15% flat block chance masquerading as dodge
-    }
-
-    if (mHitRoll < effectiveEvasion) {
-      log += `💨 You dodged the ${mName}'s attack!\n`;
     } else {
-      let mDmg = getRandomInt(mMinDmg, mMaxDmg);
-      const effectiveMDmg = Math.max(1, mDmg - cStats.armor);
-      playerCurrentHp -= effectiveMDmg;
-      log += `🩸 ${mName} hit you for **${effectiveMDmg}** DMG! (You: ${Math.max(0, playerCurrentHp)} HP)\n`;
+         // Monster first!
+         const mRes = simulateAttack(mStats, pStats, mName, message.author.username, mCurrentHp, playerCurrentHp, pStatus);
+         log += mRes.turnLog;
+         playerCurrentHp = mRes.defenderHp;
+         mCurrentHp = mRes.attackerHp;
+         
+         if (mCurrentHp <= 0 || playerCurrentHp <= 0) break;
+         
+         const pRes = simulateAttack(pStats, mStats, message.author.username, mName, playerCurrentHp, mCurrentHp, mStatus);
+         log += pRes.turnLog;
+         mCurrentHp = pRes.defenderHp;
+         playerCurrentHp = pRes.attackerHp;
     }
 
-    if (playerCurrentHp <= 0) {
-      monsterWon = true;
-      break;
-    }
+    if (mCurrentHp <= 0 || playerCurrentHp <= 0) break;
 
-    // End of Round Status Effects Tick
-    if (mPoisonStacks > 0) {
-        const poisonTaken = Math.max(1, mPoisonStacks - mRPoison);
-        mHp -= poisonTaken;
-        log += `🧪 Poison ticked on the ${mName} for **${poisonTaken}** DMG!\n`;
-        
-        if (mHp <= 0) {
-            playerWon = true;
-            break;
-        }
-    }
+    // Tick Statuses
+    const pStatRes = processStatus(playerCurrentHp, pStatus, message.author.username, pStats.rPoison);
+    log += pStatRes.tlog; playerCurrentHp = pStatRes.hp;
+    
+    const mStatRes = processStatus(mCurrentHp, mStatus, mName, mStats.rPoison);
+    log += mStatRes.tlog; mCurrentHp = mStatRes.hp;
+
+    if (mCurrentHp <= 0 || playerCurrentHp <= 0) break;
   }
 
-  // Combat Resolution Data
-  if (!playerWon && !monsterWon) {
-    log += `\n*The fight ended in a draw after ${MAX_ROUNDS} rounds. The ${mName} fled!*`;
-  } else if (playerWon) {
-    log += `\n🎉 **You defeated the ${mName}!**`;
-  } else if (monsterWon) {
-    log += `\n💀 **The ${mName} defeated you...**`;
-  }
+  if (mCurrentHp <= 0 && playerCurrentHp > 0) playerWon = true;
+  else if (playerCurrentHp <= 0) monsterWon = true;
 
-  // Rewards
+  log += `\n-------------------------------------------------\n`;
+  let outcome = 'Draw';
+  if (!playerWon && !monsterWon) log += `FIGHT OVER: DRAW. Target fled!`;
+  else if (playerWon) { log += `FIGHT OVER: VICTORY for ${message.author.username}!`; outcome = 'Win'; }
+  else if (monsterWon) { log += `FIGHT OVER: DEFEAT for ${message.author.username}.`; outcome = 'Loss'; }
+
+  // Rewards Logic
   let xpGained = 0;
   let goldGained = 0;
   let lootMsg = '';
@@ -176,17 +222,15 @@ export async function executeHunt(message: Message) {
     xpGained = getRandomInt(40 + mLevel * 10, 80 + mLevel * 20);
     goldGained = getRandomInt(20 + mLevel * 5, 50 + mLevel * 10);
     
-    // Procedural Loot Generation
+    if (pStats.passives.includes('Wealth')) goldGained = Math.floor(goldGained * 1.5);
+    if (pStats.passives.includes('Luck')) xpGained = Math.floor(xpGained * 1.2);
+
     const droppedItem = await rollLootDrop(player.level, discordId);
-    if (droppedItem) {
-      lootMsg = `\n\n✨ **LOOT DROP:** \`${droppedItem.name}\` added to inventory!`;
-    }
+    if (droppedItem) lootMsg = `\n✨ **Loot:** \`${droppedItem.name}\` (View: \`rpg inv\`)`;
   }
 
   let newXp = player.xp + xpGained;
   let newLevel = player.level;
-  let newGold = player.gold + goldGained;
-  let newHp = Math.max(0, playerCurrentHp);
   let leveledUp = false;
   let xpNeeded = newLevel * 100;
   let apToGive = 0;
@@ -199,26 +243,39 @@ export async function executeHunt(message: Message) {
     xpNeeded = newLevel * 100;
   }
 
+  // Push Verbose Log to Database!
+  const cLog = await prisma.combatLog.create({
+      data: {
+          playerId: discordId,
+          target: mName,
+          result: outcome,
+          logText: log
+      }
+  });
+
   await prisma.player.update({
     where: { discordId },
     data: {
       xp: newXp,
       level: newLevel,
-      gold: newGold,
-      hp: newHp,
+      gold: player.gold + goldGained,
+      hp: Math.max(0, playerCurrentHp),
       statPoints: player.statPoints + apToGive,
       lastHuntMillis: BigInt(Date.now())
     },
   });
 
+  // Hyper Clean Summarized UX
   const embedColor = playerWon ? '#2ECC71' : (monsterWon ? '#E74C3C' : '#95A5A6');
   const embed = new EmbedBuilder()
     .setColor(embedColor)
-    .setTitle(`Hunt Encounter: vs ${mName}`)
-    .setDescription(log + (playerWon ? `\n\n**Rewards:** +${xpGained} XP | +${goldGained} Gold 🪙` + lootMsg : ''));
+    .setTitle(`⚔️ Combat Resolution: vs ${mName}`)
+    .setDescription(`**Result:** ${outcome}\n**Health Remaining:** ${Math.max(0, playerCurrentHp)} / ${pStats.maxHp} HP\n` + 
+                    (playerWon ? `\n🪙 +${goldGained} Gold\n✨ +${xpGained} XP${lootMsg}` : ''))
+    .setFooter({ text: `Track exact physics metrics using: rpg logs get ${cLog.id}` });
 
   if (leveledUp) {
-    embed.addFields({ name: '🎉 L E V E L   U P ! 🎉', value: `You are now Level **${newLevel}**!\nYou have gained **${apToGive} Stat Points**. Use \`rpg assign\` to spend them.`, inline: false });
+    embed.addFields({ name: '🎉 LEVEL UP!', value: `You reached Level **${newLevel}**! (+${apToGive} AP)` });
   }
 
   await message.reply({ embeds: [embed] });

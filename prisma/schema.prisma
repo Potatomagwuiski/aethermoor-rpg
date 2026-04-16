@@ -25,6 +25,7 @@ model Player {
   // Relations
   inventory      InventoryItem[]
   equipment      Equipment?
+  combatLogs     CombatLog[]
 }
 
 model Item {
@@ -90,4 +91,15 @@ model Equipment {
   ring1      Item? @relation("Ring1", fields: [ring1Id], references: [id])
   ring2      Item? @relation("Ring2", fields: [ring2Id], references: [id])
   amulet     Item? @relation("Amulet", fields: [amuletId], references: [id])
+}
+
+model CombatLog {
+  id        Int      @id @default(autoincrement())
+  playerId  String
+  target    String
+  result    String
+  logText   String
+  createdAt DateTime @default(now())
+
+  player    Player   @relation(fields: [playerId], references: [discordId])
 }

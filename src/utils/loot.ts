@@ -22,14 +22,14 @@ const SLOTS = ['Weapon', 'OffHand', 'Helmet', 'Chest', 'Gloves', 'Boots', 'Cloak
 
 const PASSIVE_POOLS: Record<string, string[]> = {
   // WEAPONS
-  'Dagger': ['Flurry', 'Toxic Burst', 'Toxic Scales', 'Venom Strike', 'Backstab'],
-  'Greatsword': ['Execution', 'Cleave', 'Sunder', 'Crushing Blow', 'Sweeping Edge'],
-  'Wand': ['Ignite', 'Frostbite', 'Arc Burst', 'Mana Surge', 'Elemental Penetration'],
-  'Warhammer': ['Sunder', 'Staggering Blow', 'Armor Break', 'Earthshatter'],
-  'Spear': ['Armor Pierce', 'First Strike', 'Lunge', 'Vengeance'],
-  'Scythe': ['Vampiric Drain', 'Soul Siphon', 'Death Knell', 'Reaper'],
-  'Bow': ['First Strike', 'Piercing Shot', 'Volley', 'Hunter Mark'],
-  'Spellblade': ['Dual Strike', 'Ignite', 'Arc Burst', 'Frostbite'],
+  'Dagger': ['Flurry', 'Toxic Burst', 'Toxic Scales', 'Venom Strike', 'Backstab', 'Vampiric Drain', 'Bleed'],
+  'Greatsword': ['Execution', 'Cleave', 'Sunder', 'Crushing Blow', 'Sweeping Edge', 'Vampiric Drain', 'Bleed'],
+  'Wand': ['Ignite', 'Frostbite', 'Arc Burst', 'Mana Surge', 'Elemental Penetration', 'Vampiric Drain'],
+  'Warhammer': ['Sunder', 'Staggering Blow', 'Armor Break', 'Earthshatter', 'Vampiric Drain', 'Bleed'],
+  'Spear': ['Armor Pierce', 'First Strike', 'Lunge', 'Vengeance', 'Vampiric Drain', 'Bleed'],
+  'Scythe': ['Vampiric Drain', 'Soul Siphon', 'Death Knell', 'Reaper', 'Bleed'],
+  'Bow': ['First Strike', 'Piercing Shot', 'Volley', 'Hunter Mark', 'Vampiric Drain'],
+  'Spellblade': ['Dual Strike', 'Ignite', 'Arc Burst', 'Frostbite', 'Vampiric Drain', 'Bleed'],
   
   // OFFHANDS
   'Shield': ['Shield Bash', 'Fortify', 'Deflect', 'Vanguard'],

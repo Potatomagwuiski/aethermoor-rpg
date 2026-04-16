@@ -15,6 +15,12 @@ export interface CompiledStats {
   // Base Damage (from weapon primarily)
   minDamage: number;
   maxDamage: number;
+  
+  // Inspiration Physics Metrics
+  accuracy: number;
+  attackSpeed: number;
+  sneakChance: number;
+  stabMultiplier: number;
 
   // Resistances (Percentage reduction 0-100)
   rFire: number;
@@ -43,6 +49,10 @@ export function compilePlayerStats(player: any): CompiledStats {
     critMultiplier: 1.5,
     minDamage: Math.floor(player.str * 1.5),
     maxDamage: player.str * 2,
+    accuracy: 10 + Math.floor(player.dex * 0.75),
+    attackSpeed: 1.0 + (player.dex * 0.01),
+    sneakChance: 0,
+    stabMultiplier: 2.0,
     rFire: 0,
     rCold: 0,
     rLightning: 0,
@@ -78,6 +88,11 @@ export function compilePlayerStats(player: any): CompiledStats {
         if (mod.armor) stats.armor += mod.armor;
         if (mod.evasion) stats.evasion += mod.evasion;
         if (mod.critChance) stats.critChance += mod.critChance;
+        
+        if (mod.accuracy) stats.accuracy += mod.accuracy;
+        if (mod.attackSpeed) stats.attackSpeed += mod.attackSpeed;
+        if (mod.sneakChance) stats.sneakChance += mod.sneakChance;
+        if (mod.stabMultiplier) stats.stabMultiplier += mod.stabMultiplier;
         
         if (mod.rFire) stats.rFire += mod.rFire;
         if (mod.rCold) stats.rCold += mod.rCold;
