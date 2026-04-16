@@ -35,7 +35,16 @@ const PASSIVE_POOLS: Record<string, string[]> = {
   'Shield': ['Shield Bash', 'Fortify', 'Deflect', 'Vanguard'],
   'Buckler': ['Parry', 'Riposte', 'Deflect'],
   'Tome': ['Mana Shield', 'Mind Clear', 'Overcharge'],
-  'Orb': ['Mana Shield', 'Overcharge', 'Frostbite']
+  'Orb': ['Mana Shield', 'Overcharge', 'Frostbite'],
+  
+  // ARMORS & ACCESSORIES (Mapped by Slot implicitly if SubType fails)
+  'Helmet': ['Thorn Helm', 'Mind Clear', 'Aura: Fear'],
+  'Chest': ['Thorns', 'Iron Skin', 'Vanguard', 'Stalwart'],
+  'Gloves': ['Quick Hands', 'Deflect', 'Crushing Grip'],
+  'Boots': ['Agility', 'Fleet Footed', 'Evasive Maneuver'],
+  'Cloak': ['Shadow Veil', 'Aura: Fear', 'Evasive Maneuver'],
+  'Ring': ['Mana Regen', 'Luck', 'Wealth'],
+  'Amulet': ['Mana Regen', 'Aura: Fear', 'Luck']
 };
 
 export async function rollLootDrop(playerLevel: number, playerId: string) {
@@ -88,8 +97,8 @@ export async function rollLootDrop(playerLevel: number, playerId: string) {
 
   const passives = [];
   // Assign procedural passives bound by SubType pools! Only Rare+ can roll passives usually.
-  if ((slot === 'Weapon' || slot === 'OffHand') && (rarity === 'Epic' || rarity === 'Legendary' || rarity === 'Rare')) {
-    const pool = PASSIVE_POOLS[subType] || [];
+  if (rarity === 'Epic' || rarity === 'Legendary' || rarity === 'Rare') {
+    const pool = PASSIVE_POOLS[subType] || PASSIVE_POOLS[slot] || [];
     if (pool.length > 0) {
       // Pick 1 to 2 unique passives depending on rarity
       const numPassives = rarity === 'Legendary' ? 2 : 1;
