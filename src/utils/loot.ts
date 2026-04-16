@@ -1,26 +1,46 @@
 import { prisma } from '../db';
 
-// Helper for RNG
 export function getRandomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-const WEAPONS = ['Iron Sword', 'Steel Axe', 'Mythril Dagger', 'Oak Staff', 'Bone Wand'];
-const HELMETS = ['Leather Cap', 'Iron Helm', 'Steel Visor', 'Silk Cowl', 'Bone Mask'];
-const CHESTS = ['Leather Tunic', 'Iron Cuirass', 'Steel Plate', 'Silk Robe', 'Bone Armor'];
-const GLOVES = ['Leather Gloves', 'Iron Gauntlets', 'Steel Vambraces', 'Silk Wraps', 'Bone Grips'];
-const BOOTS = ['Leather Boots', 'Iron Sabatons', 'Steel Greaves', 'Silk Shoes', 'Bone Treads'];
-const CLOAKS = ['Tattered Cloak', 'Travelers Cape', 'Silk Mantle', 'Shadow Cloak', 'Heroic Drape'];
-const RINGS = ['Iron Ring', 'Ruby Ring', 'Sapphire Ring', 'Gold Band', 'Bone Loop'];
-const AMULETS = ['Simple Pendant', 'Ruby Amulet', 'Sapphire Amulet', 'Gold Necklace', 'Bone Talisman'];
+const WEAPONS = [
+  'Dagger', 'Greatsword', 'Wand', 'Warhammer', 
+  'Spear', 'Scythe', 'Bow', 'Spellblade'
+];
+const OFFHANDS = ['Shield', 'Buckler', 'Tome', 'Orb'];
 
-const SLOTS = ['MainHand', 'Helmet', 'Chest', 'Gloves', 'Boots', 'Cloak', 'Ring', 'Amulet', 'OffHand'];
+const HELMETS = ['Leather Cap', 'Iron Helm', 'Steel Visor', 'Silk Cowl'];
+const CHESTS = ['Leather Tunic', 'Iron Cuirass', 'Steel Plate', 'Silk Robe'];
+const GLOVES = ['Leather Gloves', 'Iron Gauntlets', 'Steel Vambraces', 'Silk Wraps'];
+const BOOTS = ['Leather Boots', 'Iron Sabatons', 'Steel Greaves', 'Silk Shoes'];
+const CLOAKS = ['Tattered Cloak', 'Travelers Cape', 'Silk Mantle', 'Shadow Cloak'];
+const RINGS = ['Iron Ring', 'Ruby Ring', 'Sapphire Ring', 'Gold Band'];
+const AMULETS = ['Pendant', 'Ruby Amulet', 'Sapphire Amulet', 'Talisman'];
+
+const SLOTS = ['Weapon', 'OffHand', 'Helmet', 'Chest', 'Gloves', 'Boots', 'Cloak', 'Ring', 'Amulet'];
+
+const PASSIVE_POOLS: Record<string, string[]> = {
+  // WEAPONS
+  'Dagger': ['Flurry', 'Toxic Burst', 'Toxic Scales', 'Venom Strike', 'Backstab'],
+  'Greatsword': ['Execution', 'Cleave', 'Sunder', 'Crushing Blow', 'Sweeping Edge'],
+  'Wand': ['Ignite', 'Frostbite', 'Arc Burst', 'Mana Surge', 'Elemental Penetration'],
+  'Warhammer': ['Sunder', 'Staggering Blow', 'Armor Break', 'Earthshatter'],
+  'Spear': ['Armor Pierce', 'First Strike', 'Lunge', 'Vengeance'],
+  'Scythe': ['Vampiric Drain', 'Soul Siphon', 'Death Knell', 'Reaper'],
+  'Bow': ['First Strike', 'Piercing Shot', 'Volley', 'Hunter Mark'],
+  'Spellblade': ['Dual Strike', 'Ignite', 'Arc Burst', 'Frostbite'],
+  
+  // OFFHANDS
+  'Shield': ['Shield Bash', 'Fortify', 'Deflect', 'Vanguard'],
+  'Buckler': ['Parry', 'Riposte', 'Deflect'],
+  'Tome': ['Mana Shield', 'Mind Clear', 'Overcharge'],
+  'Orb': ['Mana Shield', 'Overcharge', 'Frostbite']
+};
 
 export async function rollLootDrop(playerLevel: number, playerId: string) {
-  // 30% chance to drop nothing
   if (Math.random() < 0.3) return null;
 
-  // Determine Rarity
   const r = Math.random();
   let rarity = 'Common';
   let modCount = 1;
@@ -30,34 +50,33 @@ export async function rollLootDrop(playerLevel: number, playerId: string) {
   else if (r > 0.70) { rarity = 'Rare'; modCount = 2; }
   else if (r > 0.40) { rarity = 'Uncommon'; modCount = 1; }
 
-  // Determine Slot
   const slotIndex = getRandomInt(0, SLOTS.length - 1);
   const slot = SLOTS[slotIndex];
 
-  let namePool = WEAPONS;
-  if (slot === 'Helmet') namePool = HELMETS;
-  if (slot === 'Chest') namePool = CHESTS;
-  if (slot === 'Gloves') namePool = GLOVES;
-  if (slot === 'Boots') namePool = BOOTS;
-  if (slot === 'Cloak') namePool = CLOAKS;
-  if (slot === 'Ring') namePool = RINGS;
-  if (slot === 'Amulet') namePool = AMULETS;
+  let namePool: string[] = [];
+  if (slot === 'Weapon') namePool = WEAPONS;
+  else if (slot === 'OffHand') namePool = OFFHANDS;
+  else if (slot === 'Helmet') namePool = HELMETS;
+  else if (slot === 'Chest') namePool = CHESTS;
+  else if (slot === 'Gloves') namePool = GLOVES;
+  else if (slot === 'Boots') namePool = BOOTS;
+  else if (slot === 'Cloak') namePool = CLOAKS;
+  else if (slot === 'Ring') namePool = RINGS;
+  else if (slot === 'Amulet') namePool = AMULETS;
   
-  const nameBase = namePool[getRandomInt(0, namePool.length - 1)];
-  const itemName = `${rarity} ${nameBase}`;
+  const subType = namePool[getRandomInt(0, namePool.length - 1)];
+  const itemName = `${rarity} ${subType}`; // e.g. "Legendary Dagger" OR "Legendary Ruby Ring"
 
-  // Base Stats based on level and rarity
   let baseDamage = 0;
   let baseArmor = 0;
-  const powerScale = playerLevel * (modCount * 1.5);
+  const powerScale = playerLevel * (modCount * 2); 
 
-  if (slot === 'MainHand' || slot === 'OffHand') {
-    baseDamage = getRandomInt(Math.floor(powerScale), Math.floor(powerScale * 2));
-  } else if (['Helmet', 'Chest', 'Gloves', 'Boots'].includes(slot)) {
-    baseArmor = getRandomInt(Math.floor(powerScale), Math.floor(powerScale * 2));
+  if (slot === 'Weapon') {
+    baseDamage = getRandomInt(Math.floor(powerScale), Math.floor(powerScale * 2.5));
+  } else if (['Helmet', 'Chest', 'Gloves', 'Boots', 'Shield'].includes(slot) || subType === 'Shield' || subType === 'Buckler') {
+    baseArmor = getRandomInt(Math.floor(powerScale), Math.floor(powerScale * 1.5));
   }
 
-  // Modifiers
   const availableMods = ['str', 'dex', 'int', 'vit', 'armor', 'evasion', 'critChance', 'rFire', 'rCold', 'rLightning', 'rPoison', 'rHoly', 'rAcid'];
   const modifiers: Record<string, number> = {};
   
@@ -67,19 +86,25 @@ export async function rollLootDrop(playerLevel: number, playerId: string) {
     modifiers[modPick] = (modifiers[modPick] || 0) + val;
   }
 
-  // Passives (Only Rare+ Weapons)
   const passives = [];
-  if ((slot === 'MainHand' || slot === 'OffHand') && (rarity === 'Epic' || rarity === 'Legendary')) {
-    const randomPassives = ['Lifesteal 5%', 'On Critical Hit: Burn Enemy', 'Cleave', 'Armor Pierce'];
-    passives.push(randomPassives[getRandomInt(0, randomPassives.length - 1)]);
+  // Assign procedural passives bound by SubType pools! Only Rare+ can roll passives usually.
+  if ((slot === 'Weapon' || slot === 'OffHand') && (rarity === 'Epic' || rarity === 'Legendary' || rarity === 'Rare')) {
+    const pool = PASSIVE_POOLS[subType] || [];
+    if (pool.length > 0) {
+      // Pick 1 to 2 unique passives depending on rarity
+      const numPassives = rarity === 'Legendary' ? 2 : 1;
+      for (let i = 0; i < numPassives; i++) {
+        const picked = pool[getRandomInt(0, pool.length - 1)];
+        if (!passives.includes(picked)) passives.push(picked);
+      }
+    }
   }
 
-  // Save to DB
   const item = await prisma.item.create({
     data: {
       name: itemName,
       rarity,
-      slot,
+      slot: slot === 'Weapon' ? 'MainHand' : slot, // Backwards compatible with legacy database slot naming
       baseDamage,
       baseArmor,
       modifiers: JSON.stringify(modifiers),
@@ -87,7 +112,6 @@ export async function rollLootDrop(playerLevel: number, playerId: string) {
     }
   });
 
-  // Map to inventory
   await prisma.inventoryItem.create({
     data: {
       playerId,

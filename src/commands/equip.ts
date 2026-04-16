@@ -46,20 +46,27 @@ export async function executeEquip(message: Message, args: string[]) {
     'Boots': 'bootsId',
     'Cloak': 'cloakId',
     'Amulet': 'amuletId',
-    'Ring': 'ring1Id' // Note: This simplistic mapping defaults to Ring1
+    'Ring': 'ring1Id' 
   };
 
-  const dbField = slotMap[itemToEquip.slot];
+  const targetSlotOverride = args[1] ? args[1].toLowerCase() : null;
+
+  let dbField = slotMap[itemToEquip.slot];
 
   if (!dbField) {
     return message.reply(`Unknown slot for item: ${itemToEquip.slot}`);
+  }
+
+  // Dual Wielding overrides
+  if (itemToEquip.slot === 'MainHand' && targetSlotOverride === 'offhand') {
+    dbField = 'offHandId';
   }
 
   // Handle Rings (try ring1 first, then ring2)
   let actualDbField = dbField;
   if (itemToEquip.slot === 'Ring') {
     if (player.equipment?.ring1Id && !player.equipment?.ring2Id) {
-      actualDbField = 'ring2Id'; // If ring1 is full but ring2 is empty, fill 2.
+      actualDbField = 'ring2Id'; 
     }
   }
 
