@@ -1,14 +1,6 @@
 import { Client, GatewayIntentBits, Events } from 'discord.js';
 import * as dotenv from 'dotenv';
 
-import { handleStart } from './commands/start';
-import { handleProfile } from './commands/profile';
-import { handleBossMenu, handleFightBoss } from './commands/boss';
-import { handleHunt } from './commands/hunt';
-import { handleLogsList, handleLogsGet } from './commands/logs';
-import { handleShop } from './commands/shop';
-import { handleBuy } from './commands/buy';
-
 dotenv.config();
 
 const client = new Client({
@@ -29,29 +21,8 @@ client.on(Events.MessageCreate, async (message) => {
   const content = message.content.trim().toLowerCase();
 
   if (content === 'ping') {
-    await message.reply('Pong! Bot is online and ready for a new idea.');
-  } else if (content === 'rpg start') {
-    await handleStart(message);
-  } else if (content === 'rpg profile' || content === 'rpg p') {
-    await handleProfile(message);
-  } else if (content === 'rpg boss') {
-    await handleBossMenu(message);
-  } else if (content === 'rpg fight boss') {
-    await handleFightBoss(message);
-  } else if (content === 'rpg hunt') {
-    await handleHunt(message);
-  } else if (content === 'rpg shop') {
-    await handleShop(message);
-  } else if (content.startsWith('rpg buy ')) {
-    const args = content.split(' ').slice(2);
-    await handleBuy(message, args);
-  } else if (content === 'rpg logs') {
-    await handleLogsList(message);
-  } else if (content.startsWith('rpg logs get ')) {
-    const logIdStr = content.split(' ')[3];
-    if (logIdStr) await handleLogsGet(message, logIdStr);
-    else await message.reply("Please specify a log ID. Example: `rpg logs get 1`");
-  } 
+    await message.reply('Pong! The clean slate is ready for the new idea.');
+  }
 });
 
 const token = process.env.DISCORD_TOKEN;
