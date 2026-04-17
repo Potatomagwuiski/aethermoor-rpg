@@ -5,9 +5,9 @@ export function getRandomInt(min: number, max: number) {
 }
 
 export function generateShortId() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const chars = '0123456789';
   let result = '';
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 2; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return result;
