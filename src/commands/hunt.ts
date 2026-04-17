@@ -47,18 +47,39 @@ export async function executeHunt(message: Message) {
   const safeAttackerName = `[${message.author.username}]`;
   const safeDefenderName = `[${mName}]`;
 
-  // Explicit Combat Log Header Formatting
-  let log = `The fight happens between ${message.author.username} and ${mName}!\n`;
-  
-  log += `Stats for ${message.author.username} ------------------------------------------------------------------------------------------\n`;
-  log += `FightEntity:\n  Moves Left: 0.0\n  Hp Left: ${pStats.hp}\n  Mana Left: 0\n`;
-  log += `  - stats:\n    PlayerData:\n      Hp: ${pStats.hp}\n      Ac: ${pStats.armor}\n      Ev: ${pStats.evasion}\n      Attack Speed: ${pStats.attackSpeed.toFixed(2)}\n      Melee Accuracy: ${pStats.accuracy}\n      Str: ${player.str}\n      Dex: ${player.dex}\n      Int: ${player.int}\n      Vit: ${player.vit}\n      Damages: [DamageInfo(type=:punch: physical, min_amount=${pStats.minDamage}, max_amount=${pStats.maxDamage})]\n`;
-  log += `  Name: ${message.author.username}\n`;
+  const formatStats = (name: string, isPlayer: boolean, stats: CompiledStats, pInfo?: any) => {
+      const typeStr = isPlayer ? 'PlayerData' : 'MonsterData';
+      const lines = [
+          `Stats for ${name} ------------------------------------------------------------------------------------------`,
+          `FightEntity:`,
+          `  Moves Left: 0.0`,
+          `  Hp Left: ${stats.maxHp}`,
+          `  Mana Left: 0`,
+          `  - stats:`,
+          `    ${typeStr}:`,
+          `      Hp: ${stats.maxHp}`,
+          `      Ac: ${stats.armor}`,
+          `      Ev: ${stats.evasion}`,
+          `      Attack Speed: ${stats.attackSpeed.toFixed(2)}`,
+          `      Melee Accuracy: ${stats.accuracy}`,
+          ...(isPlayer && pInfo ? [
+              `      Str: ${pInfo.str}`,
+              `      Dex: ${pInfo.dex}`,
+              `      Int: ${pInfo.int}`,
+              `      Vit: ${pInfo.vit}`
+          ] : []),
+          `      Damages: [DamageInfo(type=:punch: physical, min_amount=${stats.minDamage}, max_amount=${stats.maxDamage})]`,
+          `      Passives: [${stats.passives.join(', ')}]`,
+          `  Name: ${name}`,
+          ``
+      ];
+      return lines.join('\n');
+  };
 
-  log += `Stats for ${mName} ------------------------------------------------------------------------------------------\n`;
-  log += `FightEntity:\n  Moves Left: 0.0\n  Hp Left: ${mStats.hp}\n  Mana Left: 0\n`;
-  log += `  - stats:\n    MonsterData:\n      Hp: ${mStats.hp}\n      Ac: ${mStats.armor}\n      Ev: ${mStats.evasion}\n      Attack Speed: ${mStats.attackSpeed.toFixed(2)}\n      Melee Accuracy: ${mStats.accuracy}\n      Damages: [DamageInfo(type=:punch: physical, min_amount=${mStats.minDamage}, max_amount=${mStats.maxDamage})]\n`;
-  log += `  Name: ${mName}\n`;
+  // Explicit Combat Log Header Formatting
+  let log = `The fight happens between ${message.author.username} and ${mName}!\n\n`;
+  log += formatStats(message.author.username, true, pStats, player);
+  log += formatStats(mName, false, mStats);
   
   log += `Logs ------------------------------------------------------------------------------------------\n`;
 
