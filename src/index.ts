@@ -11,6 +11,7 @@ import { executeShop } from './commands/shop';
 import { executeBuy } from './commands/buy';
 import { executeReset } from './commands/reset';
 import { executeInfo } from './commands/info';
+import { executeStats } from './commands/stats';
 
 dotenv.config();
 
@@ -62,6 +63,13 @@ client.on(Events.MessageCreate, async (message) => {
     } else if (content.startsWith('rpg info')) {
       const args = content.split(' ').slice(2);
       await executeInfo(message, args);
+    } else if (content === 'rpg stats') {
+      await executeStats(message);
+    } else if (content.match(/^rpg\s+(str|dex|int|vit)(?:\s+\d+)?$/)) {
+      const parts = content.split(/\s+/);
+      const stat = parts[1];
+      const amount = parts[2] || '1';
+      await executeAssign(message, [stat, amount]);
     }
   } catch (error: any) {
     console.error(error);
