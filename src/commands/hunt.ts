@@ -146,7 +146,9 @@ export async function executeHunt(message: Message) {
       return { hp, tlog };
   };
 
+  let roundCount = 0;
   for (let i = 1; i <= MAX_ROUNDS; i++) {
+    roundCount = i;
     log += `\n**--- Round ${i} ---**\n`;
 
     // SNEAK CHANCE / FIRST STRIKE handling
@@ -259,7 +261,7 @@ export async function executeHunt(message: Message) {
       xp: newXp,
       level: newLevel,
       gold: player.gold + goldGained,
-      hp: Math.max(0, playerCurrentHp),
+      hp: pStats.maxHp, // Auto-heal
       statPoints: player.statPoints + apToGive,
       lastHuntMillis: BigInt(Date.now())
     },
@@ -272,8 +274,11 @@ export async function executeHunt(message: Message) {
   const embedColor = playerWon ? '#2ECC71' : (monsterWon ? '#E74C3C' : '#95A5A6');
   const embed = new EmbedBuilder()
     .setColor(embedColor)
-    .setAuthor({ name: `Combat: ${message.author.username} vs ${mName}`, iconURL: message.author.displayAvatarURL() })
-    .setDescription(`${resText}\n\n❤️ **HP Remaining:** \`${Math.max(0, playerCurrentHp)} / ${pStats.maxHp}\`\n` + 
+    .setAuthor({ name: `Combat: ${message.author.username} vs Lvl ${mLevel} ${mName}`, iconURL: message.author.displayAvatarURL() })
+    .setDescription(`${resText}\n\n` + 
+                    `⏱️ **Duration:** \`${roundCount} Round(s)\`\n` +
+                    `❤️ **Your HP:** \`${Math.max(0, playerCurrentHp)} / ${pStats.maxHp}\`\n` + 
+                    `💀 **Enemy HP:** \`${Math.max(0, mCurrentHp)} / ${mStats.maxHp}\`\n` +
                     (playerWon ? `\n🪙 **+${goldGained} Gold**\n✨ **+${xpGained} XP**${lootMsg}` : ''))
     .setFooter({ text: `Detailed Physics Log: rpg logs get ${cLog.id}` });
 

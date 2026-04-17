@@ -19,11 +19,17 @@ export async function executeLogs(message: Message, args: string[]) {
     }
 
     // Discord has a 4096 character limit for Embed Descriptions, we might need to chunk it, but 5 rounds shouldn't exceed it.
+    const resIcon = log.result === 'Win' ? '🟢' : (log.result === 'Loss' ? '🔴' : '⚪');
     const logEmbed = new EmbedBuilder()
         .setColor('#8E44AD')
-        .setTitle(`Combat Archive #${log.id}: vs ${log.target}`)
-        .setDescription('```markdown\n' + log.logText.substring(0, 4000) + '\n```')
-        .setFooter({ text: `Result: ${log.result} | Timestamp: ${log.createdAt.toLocaleString()}` });
+        .setTitle(`Combat Archive #${log.id}`)
+        .addFields(
+            { name: 'Target', value: log.target, inline: true },
+            { name: 'Result', value: `${resIcon} ${log.result}`, inline: true },
+            { name: 'Date', value: log.createdAt.toLocaleString(), inline: true }
+        )
+        .setDescription('```markdown\n' + log.logText.substring(0, 3900) + '\n```')
+        .setFooter({ text: `Aethermoor Combat Engine` });
 
     return message.reply({ embeds: [logEmbed] });
   }
@@ -42,10 +48,11 @@ export async function executeLogs(message: Message, args: string[]) {
   const listEmbed = new EmbedBuilder()
       .setColor('#3498DB')
       .setTitle(`${message.author.username}'s Combat Log Archive`)
-      .setDescription('Use `rpg logs get [ID]` to view the detailed mathematical transcript of a simulated fight.\n\n' + 
+      .setDescription('Use `rpg logs get [ID]` to view the detailed mathematical transcript of fights.\n\n' + 
       logs.map(l => {
           const resIcon = l.result === 'Win' ? '🟢' : (l.result === 'Loss' ? '🔴' : '⚪');
-          return `**ID: ${l.id}** | ${resIcon} vs ${l.target} - *${l.createdAt.toLocaleDateString()}*`;
+          const timeString = l.createdAt.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+          return `\`[${l.id.toString().padStart(3, '0')}]\` ${resIcon} **vs ${l.target}** - *${timeString}*`;
       }).join('\n'));
 
   return message.reply({ embeds: [listEmbed] });
