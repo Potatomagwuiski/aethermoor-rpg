@@ -10,6 +10,7 @@ import { executeLogs } from './commands/logs';
 import { executeShop } from './commands/shop';
 import { executeBuy } from './commands/buy';
 import { executeReset } from './commands/reset';
+import { executeInfo } from './commands/info';
 
 dotenv.config();
 
@@ -58,6 +59,9 @@ client.on(Events.MessageCreate, async (message) => {
     } else if (content.startsWith('rpg reset')) {
       const args = content.split(' ').slice(2);
       await executeReset(message, args);
+    } else if (content.startsWith('rpg info')) {
+      const args = content.split(' ').slice(2);
+      await executeInfo(message, args);
     }
   } catch (error: any) {
     console.error(error);
