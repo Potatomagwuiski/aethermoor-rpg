@@ -283,7 +283,7 @@ export async function executeHunt(message: Message) {
     .setFooter({ text: `Detailed Physics Log: rpg logs get ${cLog.id}` });
 
   if (leveledUp) {
-    embed.addFields({ name: '🎉 LEVEL UP!', value: `You reached Level **${newLevel}**! (+${apToGive} AP)` });
+    embed.addFields({ name: '🎉 LEVEL UP!', value: `You reached Level **${newLevel}**! (+${apToGive} AP)\n*Tip: Use \`rpg assign <stat> <amount>\` to allocate your points!*` });
   }
 
   await message.reply({ embeds: [embed] });
