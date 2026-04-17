@@ -47,7 +47,7 @@ export async function executeHunt(message: Message) {
   mStats.hp = mStats.maxHp;
 
   // Trackers
-  const MAX_ROUNDS = 30;
+  const MAX_ROUNDS = 9999;
   let log = `COMBAT INITIATED: ${message.author.username} vs ${mName}\n`;
   log += `PLAYER: ${pStats.hp} HP | ${pStats.accuracy} ACC | ${pStats.evasion} EV | ${pStats.armor} AC | ${pStats.attackSpeed.toFixed(2)} SPD\n`;
   log += `ENEMY: ${mStats.hp} HP | ${mStats.accuracy} ACC | ${mStats.evasion} EV | ${mStats.armor} AC | ${mStats.attackSpeed.toFixed(2)} SPD\n`;
