@@ -20,7 +20,6 @@ export async function executeHunt(message: Message) {
 
   const pStats = compilePlayerStats(player);
 
-  // ASSYMMETRIC MONSTER GHOST GENERATION
   const mLevel = player.level;
   const mNames = ['Goblin Looter', 'Dire Wolf', 'Shadow Stalker', 'Iron Golem', 'Venom Spider'];
   const mName = mNames[getRandomInt(0, mNames.length - 1)];
@@ -30,7 +29,7 @@ export async function executeHunt(message: Message) {
   else if (mName === 'Iron Golem') mPassives = ['Iron Skin', 'Sunder', 'Crushing Blow'];
   else if (mName === 'Dire Wolf') mPassives = ['Flurry', 'Bleed', 'Vampiric Drain'];
   else if (mName === 'Shadow Stalker') mPassives = ['First Strike', 'Shadow Veil', 'Backstab'];
-  else mPassives = ['Quick Hands', 'Deflect']; // Goblin
+  else mPassives = ['Quick Hands', 'Deflect'];
 
   const rawMonster = {
       str: 5 + mLevel * 5, dex: 5 + mLevel * 5, int: 5 + mLevel * 5, vit: 5 + mLevel * 5,
@@ -42,19 +41,36 @@ export async function executeHunt(message: Message) {
   };
   
   const mStats = compilePlayerStats(rawMonster);
-  // Manual overrides for boss-like scale
   mStats.maxHp = getRandomInt(60 + mLevel * 25, 120 + mLevel * 35);
   mStats.hp = mStats.maxHp;
 
-  // Trackers
-  const MAX_ROUNDS = 9999;
-  let log = `COMBAT INITIATED: ${message.author.username} vs ${mName}\n`;
-  log += `PLAYER: ${pStats.hp} HP | ${pStats.accuracy} ACC | ${pStats.evasion} EV | ${pStats.armor} AC | ${pStats.attackSpeed.toFixed(2)} SPD\n`;
-  log += `ENEMY: ${mStats.hp} HP | ${mStats.accuracy} ACC | ${mStats.evasion} EV | ${mStats.armor} AC | ${mStats.attackSpeed.toFixed(2)} SPD\n`;
-  log += `-------------------------------------------------\n`;
+  const safeAttackerName = `[${message.author.username}]`;
+  const safeDefenderName = `[${mName}]`;
+
+  // Explicit Combat Log Header Formatting
+  let log = `The fight happens between ${message.author.username} and ${mName}!\n`;
+  
+  log += `Stats for ${message.author.username} ------------------------------------------------------------------------------------------\n`;
+  log += `FightEntity:\n  Moves Left: 0.0\n  Hp Left: ${pStats.hp}\n  Mana Left: 0\n`;
+  log += `  - stats:\n    PlayerData:\n      Hp: ${pStats.hp}\n      Ac: ${pStats.armor}\n      Ev: ${pStats.evasion}\n      Attack Speed: ${pStats.attackSpeed.toFixed(2)}\n      Melee Accuracy: ${pStats.accuracy}\n      Str: ${player.str}\n      Dex: ${player.dex}\n      Int: ${player.int}\n      Vit: ${player.vit}\n      Damages: [DamageInfo(type=:punch: physical, min_amount=${pStats.minDamage}, max_amount=${pStats.maxDamage})]\n`;
+  log += `  Name: ${message.author.username}\n`;
+
+  log += `Stats for ${mName} ------------------------------------------------------------------------------------------\n`;
+  log += `FightEntity:\n  Moves Left: 0.0\n  Hp Left: ${mStats.hp}\n  Mana Left: 0\n`;
+  log += `  - stats:\n    MonsterData:\n      Hp: ${mStats.hp}\n      Ac: ${mStats.armor}\n      Ev: ${mStats.evasion}\n      Attack Speed: ${mStats.attackSpeed.toFixed(2)}\n      Melee Accuracy: ${mStats.accuracy}\n      Damages: [DamageInfo(type=:punch: physical, min_amount=${mStats.minDamage}, max_amount=${mStats.maxDamage})]\n`;
+  log += `  Name: ${mName}\n`;
+  
+  log += `Logs ------------------------------------------------------------------------------------------\n`;
+
+  let distance = 7;
+  log += `The distance between you is ${distance} tiles.\n`;
 
   let playerCurrentHp = pStats.hp;
   let mCurrentHp = mStats.hp;
+  
+  let playerMoves = 0.0;
+  let monsterMoves = 0.0;
+  let turn = 1;
 
   let playerWon = false;
   let monsterWon = false;
@@ -62,60 +78,63 @@ export async function executeHunt(message: Message) {
   const pStatus = { poison: 0 };
   const mStatus = { poison: 0 };
 
-  // Helper for attacking identically
-  const simulateAttack = (attacker: CompiledStats, defender: CompiledStats, attackerName: string, defenderName: string, attackerHp: number, defenderHp: number, defStatus: any) => {
-      let turnLog = '';
-      let dmgDealt = 0;
-      let drainHeal = 0;
+  // Turn 1 Initiative rule
+  let sneakActive = false;
+  if (pStats.passives.includes("First Strike") && !mStats.passives.includes("First Strike")) {
+      sneakActive = true;
+      log += `${safeAttackerName} starts first because ${safeDefenderName} haven't noticed them yet.\n`;
+  } else {
+      log += `Both combatants spot each other. Combat begins.\n`;
+  }
 
-      const baseStrikes = Math.floor(attacker.attackSpeed);
-      // Chance for an extra strike based on the decimal
-      let strikes = baseStrikes + (Math.random() < (attacker.attackSpeed % 1) ? 1 : 0);
-      if (attacker.passives.includes('Flurry')) strikes += 1; // Native additional strikes
+  const simulateAttackGrid = (attacker: CompiledStats, defender: CompiledStats, attackerName: string, defenderName: string, attackerHp: number, defenderHp: number, defStatus: any) => {
+      let turnLog = '';
+      let drainHeal = 0;
+      
+      turnLog += `${attackerName} hits ${defenderName} with a melee attack! Applying each damage...\n`;
+      
+      let strikes = 1;
+      if (attacker.passives.includes('Flurry')) strikes += 1;
 
       for (let s = 1; s <= strikes; s++) {
           if (defenderHp <= 0) break;
-
-          // Accuracy vs Evasion calculation
+          
           const hitChance = Math.max(10, Math.min(95, 50 + (attacker.accuracy - defender.evasion)));
           const roll = getRandomInt(1, 100);
-
+          
           if (roll > hitChance) {
-              // Check Parry before simple dodge
               if (defender.passives.includes('Parry')) {
                   turnLog += `💥 ${defenderName} PARRIED the strike!\n`;
-                  // Riposte applies back
                   if (defender.passives.includes('Riposte')) {
-                      attackerHp -= Math.max(1, Math.floor(defender.minDamage * 0.5));
-                      turnLog += `   ⚔️ Riposte hit ${attackerName}!\n`;
+                      let rDmg = Math.max(1, Math.floor(defender.minDamage * 0.5));
+                      attackerHp -= rDmg;
+                      turnLog += `   ⚔️ Riposte hit ${attackerName} for ${rDmg} damage!\n`;
                   }
               } else {
-                  turnLog += `💨 ${attackerName} missed! (${hitChance}% hit chance failed)\n`;
+                  turnLog += `${attackerName} tries attacking in melee but misses! (${hitChance}% hit chance failed)\n`;
               }
           } else {
-              let dmg = getRandomInt(attacker.minDamage, attacker.maxDamage);
-              if (strikes > 1) dmg = Math.floor(dmg * 0.7); // Multi-hit penalty scaling
-
-              let isCrit = false;
-              if (getRandomInt(1, 100) <= attacker.critChance && !defender.passives.includes('Stalwart')) {
-                  dmg = Math.floor(dmg * attacker.stabMultiplier);
-                  isCrit = true;
-              }
-
-              // Armor Mitigation Math
-              let defenderArmor = defender.armor;
-              if (attacker.passives.includes('Armor Break') || attacker.passives.includes('Armor Pierce')) defenderArmor = Math.floor(defenderArmor / 2);
+              let rawDmg = getRandomInt(attacker.minDamage, attacker.maxDamage);
+              if (strikes > 1) rawDmg = Math.floor(rawDmg * 0.7);
               
-              const physicalDmg = Math.max(1, dmg - defenderArmor);
-              defenderHp -= physicalDmg;
-              dmgDealt += physicalDmg;
-
-              const critStr = isCrit ? '💥 CRIT ' : '';
-              turnLog += `🗡️ ${attackerName} hits for ${critStr}**${physicalDmg}** Physical DMG!\n`;
-
-              // Passives
+              if (getRandomInt(1, 100) <= attacker.critChance && !defender.passives.includes('Stalwart')) {
+                  rawDmg = Math.floor(rawDmg * attacker.stabMultiplier);
+                  turnLog += `${attackerName} critically strikes!\n`;
+              }
+              
+              turnLog += `${attackerName} rolls ${rawDmg} for :punch: physical!\n`;
+              
+              let armorMitigation = getRandomInt(Math.floor(defender.armor * 0.5), defender.armor);
+              if (attacker.passives.includes('Armor Break') || attacker.passives.includes('Armor Pierce')) armorMitigation = Math.floor(armorMitigation / 2);
+              
+              let finalDmg = Math.max(1, rawDmg - armorMitigation);
+              turnLog += `${defenderName} rolls ${armorMitigation} for AC and reduces the damage by ${armorMitigation}! Damage Left = ${finalDmg}\n`;
+              
+              defenderHp -= finalDmg;
+              turnLog += `${defenderName} gets damaged by ${finalDmg} damage! HP Left = ${defenderHp}/${defender.maxHp}.\n`;
+              
               if (attacker.passives.includes('Thorns')) {
-                  const reflect = Math.floor(physicalDmg * 0.1);
+                  const reflect = Math.floor(finalDmg * 0.1);
                   attackerHp -= reflect;
                   turnLog += `   🛡️ Thorns reflected ${reflect} DMG!\n`;
               }
@@ -123,13 +142,12 @@ export async function executeHunt(message: Message) {
                   defStatus.poison += 10;
               }
               if (attacker.passives.includes('Vampiric Drain')) {
-                  drainHeal += Math.max(1, Math.floor(physicalDmg * 0.1));
+                  drainHeal += Math.max(1, Math.floor(finalDmg * 0.1));
               }
               if (attacker.passives.includes('Ignite')) {
-                  // Fire elemental hit bypasses physical armor, checks rFire exclusively.
                   const fire = Math.max(1, 15 - defender.rFire);
                   defenderHp -= fire;
-                  turnLog += `   🔥 Ignite burns for ${fire} Elemental DMG!\n`;
+                  turnLog += `   🔥 Ignite burns for ${fire} Elemental DMG! HP Left = ${defenderHp}/${defender.maxHp}.\n`;
               }
           }
       }
@@ -142,80 +160,105 @@ export async function executeHunt(message: Message) {
           const dmg = Math.max(1, status.poison - res);
           hp -= dmg;
           tlog += `🧪 ${name} suffers ${dmg} Poison DMG!\n`;
+          status.poison = Math.floor(status.poison * 0.8); // decrease poison slightly over time
       }
       return { hp, tlog };
   };
 
-  let roundCount = 0;
-  for (let i = 1; i <= MAX_ROUNDS; i++) {
-    roundCount = i;
-    log += `\n**--- Round ${i} ---**\n`;
+  while (playerCurrentHp > 0 && mCurrentHp > 0 && turn <= 999) {
+      log += `TURN ${turn} ------------------------------------------------------------------------------------------\n`;
+      
+      if (playerMoves < 1.0 && monsterMoves < 1.0) {
+          playerMoves += 1.0;
+          monsterMoves += 1.0;
+      }
 
-    // SNEAK CHANCE / FIRST STRIKE handling
-    let playerGoesFirst = true;
-    if (mStats.passives.includes('First Strike') && !pStats.passives.includes('First Strike')) playerGoesFirst = false;
+      // Check player actions
+      if (playerMoves >= 1.0 && playerCurrentHp > 0) {
+          log += `${safeAttackerName} gains 1.0 moves. Moves left = ${playerMoves.toFixed(2)}. HP left: ${playerCurrentHp}/${pStats.maxHp}. Mana left: 0/0.\n`;
+          
+          if (distance > 1) {
+              distance -= 1;
+              if (turn === 1 && sneakActive) log += `${safeAttackerName} sneaks 1 space closer but alerts ${safeDefenderName}! Distance left = ${distance}.\n`;
+              else log += `${safeAttackerName} moves 1 space closer to ${safeDefenderName}. Distance left = ${distance}.\n`;
+              
+              playerMoves -= 1.0;
+              log += `${safeAttackerName} uses 1.0 moves! Moves left = ${Math.max(0, playerMoves).toFixed(2)}.\n`;
+          } else {
+              let attackCost = pStats.attackSpeed;
+              const res = simulateAttackGrid(pStats, mStats, safeAttackerName, safeDefenderName, playerCurrentHp, mCurrentHp, mStatus);
+              log += res.turnLog;
+              
+              mCurrentHp = res.defenderHp;
+              playerCurrentHp = res.attackerHp;
+              
+              if (res.drainHeal > 0) {
+                  playerCurrentHp = Math.min(pStats.maxHp, playerCurrentHp + res.drainHeal);
+                  log += `🩸 ${safeAttackerName} healed ${res.drainHeal} HP from Vampiric Drain.\n`;
+              }
 
-    // Both functions resolve asynchronously if one dies during the hit logic.
-    if (playerGoesFirst) {
-        // Player attacks
-        const pRes = simulateAttack(pStats, mStats, message.author.username, mName, playerCurrentHp, mCurrentHp, mStatus);
-        log += pRes.turnLog;
-        mCurrentHp = pRes.defenderHp;
-        playerCurrentHp = pRes.attackerHp;
-        if (pRes.drainHeal > 0) {
-            playerCurrentHp = Math.min(pStats.maxHp, playerCurrentHp + pRes.drainHeal);
-            log += `🩸 ${message.author.username} healed ${pRes.drainHeal} HP from Vampiric Drain.\n`;
-        }
-        
-        if (mCurrentHp <= 0 || playerCurrentHp <= 0) break;
+              playerMoves -= attackCost;
+              log += `${safeAttackerName} uses ${attackCost.toFixed(2)} moves! Moves left = ${Math.max(0, playerMoves).toFixed(2)}.\n`;
+          }
+      }
 
-        // Monster attacks
-        const mRes = simulateAttack(mStats, pStats, mName, message.author.username, mCurrentHp, playerCurrentHp, pStatus);
-        log += mRes.turnLog;
-        playerCurrentHp = mRes.defenderHp;
-        mCurrentHp = mRes.attackerHp;
-        if (mRes.drainHeal > 0) {
-            mCurrentHp = Math.min(mStats.maxHp, mCurrentHp + mRes.drainHeal);
-            log += `🩸 ${mName} healed ${mRes.drainHeal} HP from Vampiric Drain.\n`;
-        }
+      if (mCurrentHp <= 0 || playerCurrentHp <= 0) break;
 
-    } else {
-         // Monster first!
-         const mRes = simulateAttack(mStats, pStats, mName, message.author.username, mCurrentHp, playerCurrentHp, pStatus);
-         log += mRes.turnLog;
-         playerCurrentHp = mRes.defenderHp;
-         mCurrentHp = mRes.attackerHp;
-         
-         if (mCurrentHp <= 0 || playerCurrentHp <= 0) break;
-         
-         const pRes = simulateAttack(pStats, mStats, message.author.username, mName, playerCurrentHp, mCurrentHp, mStatus);
-         log += pRes.turnLog;
-         mCurrentHp = pRes.defenderHp;
-         playerCurrentHp = pRes.attackerHp;
-    }
+      // Check monster actions
+      if (monsterMoves >= 1.0 && mCurrentHp > 0) {
+          log += `${safeDefenderName} gains 1.0 moves. Moves left = ${monsterMoves.toFixed(2)}. HP left: ${mCurrentHp}/${mStats.maxHp}. Mana left: 0/0.\n`;
+          
+          if (distance > 1) {
+              distance -= 1;
+              log += `${safeDefenderName} moves 1 space closer to ${safeAttackerName}. Distance left = ${distance}.\n`;
+              monsterMoves -= 1.0;
+              log += `${safeDefenderName} uses 1.0 moves! Moves left = ${Math.max(0, monsterMoves).toFixed(2)}.\n`;
+          } else {
+              let attackCost = mStats.attackSpeed;
+              const res = simulateAttackGrid(mStats, pStats, safeDefenderName, safeAttackerName, mCurrentHp, playerCurrentHp, pStatus);
+              log += res.turnLog;
 
-    if (mCurrentHp <= 0 || playerCurrentHp <= 0) break;
+              playerCurrentHp = res.defenderHp;
+              mCurrentHp = res.attackerHp;
 
-    // Tick Statuses
-    const pStatRes = processStatus(playerCurrentHp, pStatus, message.author.username, pStats.rPoison);
-    log += pStatRes.tlog; playerCurrentHp = pStatRes.hp;
-    
-    const mStatRes = processStatus(mCurrentHp, mStatus, mName, mStats.rPoison);
-    log += mStatRes.tlog; mCurrentHp = mStatRes.hp;
+              if (res.drainHeal > 0) {
+                  mCurrentHp = Math.min(mStats.maxHp, mCurrentHp + res.drainHeal);
+                  log += `🩸 ${safeDefenderName} healed ${res.drainHeal} HP from Vampiric Drain.\n`;
+              }
 
-    if (mCurrentHp <= 0 || playerCurrentHp <= 0) break;
+              monsterMoves -= attackCost;
+              log += `${safeDefenderName} uses ${attackCost.toFixed(2)} moves! Moves left = ${Math.max(0, monsterMoves).toFixed(2)}.\n`;
+          }
+      }
+
+      if (mCurrentHp <= 0 || playerCurrentHp <= 0) break;
+
+      // End of round statuses
+      const pStatRes = processStatus(playerCurrentHp, pStatus, safeAttackerName, pStats.rPoison);
+      if (pStatRes.tlog) log += pStatRes.tlog;
+      playerCurrentHp = pStatRes.hp;
+      
+      const mStatRes = processStatus(mCurrentHp, mStatus, safeDefenderName, mStats.rPoison);
+      if (mStatRes.tlog) log += mStatRes.tlog; 
+      mCurrentHp = mStatRes.hp;
+
+      turn++;
   }
 
-  if (mCurrentHp <= 0 && playerCurrentHp > 0) playerWon = true;
-  else if (playerCurrentHp <= 0) monsterWon = true;
+  if (mCurrentHp <= 0 && playerCurrentHp > 0) {
+      log += `${safeDefenderName} dies!\n`;
+      log += `${safeAttackerName} wins the fight because ${safeDefenderName} has died!\n`;
+      playerWon = true;
+  } else if (playerCurrentHp <= 0) {
+      log += `${safeAttackerName} dies!\n`;
+      log += `${safeDefenderName} wins the fight because ${safeAttackerName} has died!\n`;
+      monsterWon = true;
+  }
 
-  log += `\n-------------------------------------------------\n`;
   let outcome = 'Draw';
-  if (!playerWon && !monsterWon) log += `FIGHT OVER: DRAW. Target fled!`;
-  else if (playerWon) { log += `FIGHT OVER: VICTORY for ${message.author.username}!`; outcome = 'Win'; }
-  else if (monsterWon) { log += `FIGHT OVER: DEFEAT for ${message.author.username}.`; outcome = 'Loss'; }
+  if (playerWon) outcome = 'Win';
+  if (monsterWon) outcome = 'Loss';
 
-  // Rewards Logic
   let xpGained = 0;
   let goldGained = 0;
   let lootMsg = '';
@@ -245,7 +288,6 @@ export async function executeHunt(message: Message) {
     xpNeeded = newLevel * 100;
   }
 
-  // Push Verbose Log to Database!
   const cLog = await prisma.combatLog.create({
       data: {
           playerId: discordId,
@@ -261,7 +303,7 @@ export async function executeHunt(message: Message) {
       xp: newXp,
       level: newLevel,
       gold: player.gold + goldGained,
-      hp: pStats.maxHp, // Auto-heal
+      hp: pStats.maxHp, // Auto-heal remains
       statPoints: player.statPoints + apToGive,
       lastHuntMillis: BigInt(Date.now())
     },
@@ -276,7 +318,7 @@ export async function executeHunt(message: Message) {
     .setColor(embedColor)
     .setAuthor({ name: `Combat: ${message.author.username} vs Lvl ${mLevel} ${mName}`, iconURL: message.author.displayAvatarURL() })
     .setDescription(`${resText}\n\n` + 
-                    `⏱️ **Duration:** \`${roundCount} Round(s)\`\n` +
+                    `⏱️ **Duration:** \`${turn} Turn(s)\`\n` +
                     `❤️ **Your HP:** \`${Math.max(0, playerCurrentHp)} / ${pStats.maxHp}\`\n` + 
                     `💀 **Enemy HP:** \`${Math.max(0, mCurrentHp)} / ${mStats.maxHp}\`\n` +
                     (playerWon ? `\n🪙 **+${goldGained} Gold**\n✨ **+${xpGained} XP**${lootMsg}` : ''))

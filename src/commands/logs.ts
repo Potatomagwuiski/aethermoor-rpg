@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder } from 'discord.js';
+import { Message, EmbedBuilder, AttachmentBuilder } from 'discord.js';
 import { prisma } from '../db';
 
 export async function executeLogs(message: Message, args: string[]) {
@@ -28,10 +28,12 @@ export async function executeLogs(message: Message, args: string[]) {
             { name: 'Result', value: `${resIcon} ${log.result}`, inline: true },
             { name: 'Date', value: log.createdAt.toLocaleString(), inline: true }
         )
-        .setDescription('```markdown\n' + log.logText.substring(0, 3900) + '\n```')
         .setFooter({ text: `Aethermoor Combat Engine` });
 
-    return message.reply({ embeds: [logEmbed] });
+    const buffer = Buffer.from(log.logText, 'utf-8');
+    const attachment = new AttachmentBuilder(buffer, { name: `output_${log.id}.txt` });
+
+    return message.reply({ embeds: [logEmbed], files: [attachment] });
   }
 
   // Fetch the last 15 logs
