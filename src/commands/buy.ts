@@ -1,6 +1,7 @@
 import { Message } from 'discord.js';
 import { prisma } from '../db';
 import { SHOP_ITEMS } from './shop';
+import { generateShortId } from '../utils/loot';
 
 export async function executeBuy(message: Message, args: string[]) {
     const discordId = message.author.id;
@@ -39,6 +40,7 @@ export async function executeBuy(message: Message, args: string[]) {
     // Generate physical Item securely avoiding loot pools
     const createdItem = await prisma.item.create({
         data: {
+            id: generateShortId(),
             name: shopItem.name,
             rarity: 'Common',
             slot: shopItem.slot === 'Weapon' ? 'MainHand' : shopItem.slot,
@@ -57,5 +59,5 @@ export async function executeBuy(message: Message, args: string[]) {
         }
     });
 
-    return message.reply(`🛍️ **Transaction Successful!**\nYou bought \`${shopItem.name}\` for **🪙 ${shopItem.price} Gold**. It has been added to your inventory. Type \`rpg inv\` to view it and \`rpg equip <ID>\` to wear it!`);
+    return message.reply(`🛍️ **Transaction Successful!**\nYou bought \`${shopItem.name}\` for **🪙 ${shopItem.price} Gold**. It has been added to your inventory. Type \`rpg inv\` to view it, or \`rpg equip ${createdItem.id}\` to wear it now!`);
 }

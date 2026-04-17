@@ -4,6 +4,15 @@ export function getRandomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+export function generateShortId() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < 4; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
 const WEAPONS = [
   'Dagger', 'Greatsword', 'Wand', 'Warhammer', 
   'Spear', 'Scythe', 'Bow', 'Spellblade', 'Musket'
@@ -112,6 +121,7 @@ export async function rollLootDrop(playerLevel: number, playerId: string) {
 
   const item = await prisma.item.create({
     data: {
+      id: generateShortId(),
       name: itemName,
       rarity,
       slot: slot === 'Weapon' ? 'MainHand' : slot, // Backwards compatible with legacy database slot naming

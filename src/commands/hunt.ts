@@ -228,7 +228,7 @@ export async function executeHunt(message: Message) {
     if (pStats.passives.includes('Luck')) xpGained = Math.floor(xpGained * 1.2);
 
     const droppedItem = await rollLootDrop(player.level, discordId);
-    if (droppedItem) lootMsg = `\n✨ **Loot:** \`${droppedItem.name}\` (View: \`rpg inv\`)`;
+    if (droppedItem) lootMsg = `\n✨ **Loot:** \`${droppedItem.name}\` (ID: \`${droppedItem.id}\`)`;
   }
 
   let newXp = player.xp + xpGained;
